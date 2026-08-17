@@ -1,0 +1,19 @@
+{
+
+  "id": "mimo",
+
+  "name": "MIMO-LAB",
+
+  "panel": "panel.svg",
+
+  "definition": "definition.json",
+
+  "thumbnail": "thumbnail.webp",
+
+  "firmware": {
+
+    "minimum": "1.0.0"
+
+  }
+
+}

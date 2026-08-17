@@ -1,0 +1,108 @@
+body {
+    background-color: var(--background);
+    color: var(--text);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+#topbar {
+    background-color: var(--panel);
+    border-bottom: 1px solid var(--border);
+}
+
+#workspace {
+    background-color: var(--background);
+    color: var(--secondary);
+    font-size: 22px;
+}
+
+#statusbar {
+    background-color: var(--panel-dark);
+    border-top: 1px solid var(--border);
+    color: var(--secondary);
+    font-size: 13px;
+}
+
+.device-stage {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.device-placeholder {
+    color: var(--text);
+}
+
+.device-placeholder span {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+}
+
+.device-placeholder small {
+    color: var(--secondary);
+    font-size: 13px;
+}
+
+.properties-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 14px 16px;
+    background: var(--panel-dark);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+}
+
+.panel-content {
+    flex: 1;
+    padding: 16px;
+    color: var(--secondary);
+}
+
+.device-control {
+    cursor: pointer;
+}
+
+.knob-body {
+    fill: #20242a;
+    stroke: #858c96;
+    stroke-width: 0.8;
+}
+
+.knob-indicator {
+    stroke: #ffffff;
+    stroke-width: 1;
+    stroke-linecap: round;
+    pointer-events: none;
+}
+
+.device-control:hover .knob-body {
+    stroke: #ffffff;
+}
+
+.device-control.selected .knob-body {
+    stroke: #4fa3ff;
+    stroke-width: 1.5;
+}
+.properties-table {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    font-size:13px;
+}
+
+.properties-table td{
+    border-bottom:1px solid #333;
+    padding:6px;
+}
+
+.properties-table td:first-child{
+    font-weight:bold;
+    width:80px;
+}
