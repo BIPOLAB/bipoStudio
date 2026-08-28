@@ -2,7 +2,7 @@
  * --------------------------------------------------------------------
  * Project : bipoStudio
  * File    : Events.js
- * Version : 0.2.0
+ * Version : 0.3.0
  * Sprint  : 05
  *
  * Centralized application events.
@@ -10,7 +10,6 @@
  */
 
 export const Events = Object.freeze({
-
     APPLICATION_STARTING: "application:starting",
     APPLICATION_READY: "application:ready",
     APPLICATION_ERROR: "application:error",
@@ -26,10 +25,11 @@ export const Events = Object.freeze({
     DEVICE_MODEL_READY: "device:model-ready",
 
     SESSION_CHANGED: "session:changed",
-
     SELECTION_CHANGED: "selection:changed",
+
     WORKING_COPY_CHANGED: "working-copy:changed",
+    CONFIGURATION_COMMIT_REQUEST: "configuration:commit-request",
+    CONFIGURATION_RESET_REQUEST: "configuration:reset-request",
     CONFIGURATION_COMMITTED: "configuration:committed",
     CONFIGURATION_ERROR: "configuration:error"
-
 });
