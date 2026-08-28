@@ -1,0 +1,2 @@
+bipoStudio GitHub write-access test.
+Created by ChatGPT on 2026-08-28 to verify authenticated write access.
