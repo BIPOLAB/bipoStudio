@@ -2,8 +2,8 @@
  * --------------------------------------------------------------------
  * Project : bipoStudio
  * File    : Events.js
- * Version : 0.3.0
- * Sprint  : 05
+ * Version : 0.4.0
+ * Sprint  : 06
  *
  * Centralized application events.
  * --------------------------------------------------------------------
@@ -26,6 +26,7 @@ export const Events = Object.freeze({
 
     SESSION_CHANGED: "session:changed",
     SELECTION_CHANGED: "selection:changed",
+    RUNTIME_CHANGED: "runtime:changed",
 
     WORKING_COPY_CHANGED: "working-copy:changed",
     CONFIGURATION_COMMIT_REQUEST: "configuration:commit-request",
