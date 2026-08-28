@@ -49,11 +49,11 @@ export default class Header {
         `;
 
         this.element.querySelector('[data-action="reset"]')?.addEventListener("click", () => {
-            this.eventBus.emit(Events.WORKING_COPY_CHANGED, { request: "reset" });
+            this.eventBus.emit(Events.CONFIGURATION_RESET_REQUEST);
         });
 
         this.element.querySelector('[data-action="save"]')?.addEventListener("click", () => {
-            this.eventBus.emit(Events.WORKING_COPY_CHANGED, { request: "commit" });
+            this.eventBus.emit(Events.CONFIGURATION_COMMIT_REQUEST);
         });
     }
 
