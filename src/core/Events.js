@@ -27,6 +27,7 @@ export const Events = Object.freeze({
     SESSION_CHANGED: "session:changed",
     SELECTION_CHANGED: "selection:changed",
     RUNTIME_CHANGED: "runtime:changed",
+    MIDI_MESSAGE: "midi:message",
 
     WORKING_COPY_CHANGED: "working-copy:changed",
     CONFIGURATION_COMMIT_REQUEST: "configuration:commit-request",
