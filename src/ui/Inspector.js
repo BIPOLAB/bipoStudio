@@ -1,47 +1,30 @@
 import { Events } from "../core/Events.js";
 
 export default class Inspector {
-    constructor(element, eventBus) {
-        this.element = element;
-        this.eventBus = eventBus;
-        this.model = null;
-        this.selectedComponentId = null;
-        this.eventBus.on(Events.DEVICE_MODEL_READY, this.onModelReady.bind(this));
-        this.eventBus.on(Events.SELECTION_CHANGED, this.onSelectionChanged.bind(this));
-        this.eventBus.on(Events.WORKING_COPY_CHANGED, this.onWorkingCopyChanged.bind(this));
-        this.eventBus.on(Events.RUNTIME_CHANGED, this.onRuntimeChanged.bind(this));
+    constructor(element, eventBus) { this.element=element; this.eventBus=eventBus; this.model=null; this.selectedComponentId=null; eventBus.on(Events.DEVICE_MODEL_READY,this.onModelReady.bind(this)); eventBus.on(Events.SELECTION_CHANGED,this.onSelectionChanged.bind(this)); eventBus.on(Events.WORKING_COPY_CHANGED,this.onWorkingCopyChanged.bind(this)); eventBus.on(Events.RUNTIME_CHANGED,this.onRuntimeChanged.bind(this)); }
+    onModelReady(model){this.model=model;this.render();}
+    onSelectionChanged(id){this.selectedComponentId=id;this.render();}
+    onWorkingCopyChanged(){this.render();}
+    onRuntimeChanged(p={}){if(p.componentId!==this.selectedComponentId)return;const e=this.element.querySelector("[data-inspector-runtime-value]");if(e)e.textContent=p.value??"—";}
+    render(){
+        if(!this.model||!this.selectedComponentId){this.element.innerHTML=`<div class="inspector-empty"><p>No component selected.</p><span>Select a control on the device to edit its MIDI assignment.</span></div>`;return;}
+        const c=this.model.getComponent(this.selectedComponentId),cfg=this.model.getComponentConfiguration(this.selectedComponentId)||{}; if(!c){this.element.innerHTML=`<div class="inspector-empty">The selected component is not available.</div>`;return;}
+        const led=cfg.led||{}, rgb=led.color||{r:255,g:255,b:255}, type=c.type==="button"||c.type==="switch"?"Button":c.type==="fader"?"Fader":c.type==="knob"?"Potentiometer":c.type;
+        this.element.innerHTML=`<section class="inspector-content"><div class="inspector-title"><div><span class="section-label">${type.toUpperCase()}</span><h2>${c.label}</h2></div><span class="inspector-id">${c.id}</span></div><div class="inspector-section"><div class="section-label">MIDI</div><div class="inspector-field"><label>Message</label><select id="message-type"><option value="cc" ${cfg.messageType!=="note"?"selected":""}>Control Change</option><option value="note" ${cfg.messageType==="note"?"selected":""}>Note</option></select></div><div class="inspector-grid"><div class="inspector-field"><label>Channel</label><input id="midi-channel" type="number" min="1" max="16" value="${cfg.channel??1}"></div><div class="inspector-field"><label>Number</label><input id="midi-number" type="number" min="0" max="127" value="${cfg.number??0}"></div></div>${type==="Button"?`<div class="inspector-field"><label>Button mode</label><select id="button-mode"><option value="momentary" ${(cfg.mode??cfg.buttonMode)==="momentary"?"selected":""}>Momentary</option><option value="toggle" ${(cfg.mode??cfg.buttonMode)==="toggle"?"selected":""}>Permanent / Toggle</option></select></div>`:""}</div><div class="inspector-section inspector-led"><div class="inspector-section-heading"><span class="section-label">LED</span><span>${c.led?.id??"RGB"}</span></div><div class="inspector-field"><label>Mode</label><select id="led-mode"><option value="static" ${led.mode==="static"?"selected":""}>Static</option><option value="off" ${led.mode==="off"?"selected":""}>Off</option><option value="runtime" ${led.mode==="runtime"?"selected":""}>Runtime</option></select></div><div class="led-color-row"><div class="inspector-field"><label>R</label><input id="led-r" type="number" min="0" max="255" value="${rgb.r}"></div><div class="inspector-field"><label>G</label><input id="led-g" type="number" min="0" max="255" value="${rgb.g}"></div><div class="inspector-field"><label>B</label><input id="led-b" type="number" min="0" max="255" value="${rgb.b}"></div></div><div class="inspector-field"><label>Brightness <span id="led-brightness-value">${led.brightness??100}%</span></label><input id="led-brightness" type="range" min="0" max="100" value="${led.brightness??100}"></div><div class="led-preview" data-led-preview></div></div><div class="inspector-runtime"><span>Runtime value</span><strong data-inspector-runtime-value>${this.model.getComponentRuntime(this.selectedComponentId)??"—"}</strong></div></section>`;
+        this.bindEvents(); this.updateLedPreview();
     }
-    onModelReady(model) { this.model = model; this.render(); }
-    onSelectionChanged(componentId) { this.selectedComponentId = componentId; this.render(); }
-    onWorkingCopyChanged() { this.render(); }
-    onRuntimeChanged(payload = {}) {
-        if (!this.model || payload.componentId !== this.selectedComponentId) return;
-        const valueElement = this.element.querySelector("[data-inspector-runtime-value]");
-        if (valueElement) valueElement.textContent = payload.value ?? "—";
+    bindEvents(){
+        this.element.querySelector("#message-type")?.addEventListener("change",e=>this.update({messageType:e.target.value}));
+        this.element.querySelector("#midi-channel")?.addEventListener("change",e=>this.update({channel:this.clamp(e.target.value,1,16)}));
+        this.element.querySelector("#midi-number")?.addEventListener("change",e=>this.update({number:this.clamp(e.target.value,0,127)}));
+        this.element.querySelector("#button-mode")?.addEventListener("change",e=>this.update({mode:e.target.value,buttonMode:e.target.value}));
+        this.element.querySelector("#led-mode")?.addEventListener("change",e=>this.updateLed({mode:e.target.value}));
+        ["r","g","b"].forEach(k=>this.element.querySelector(`#led-${k}`)?.addEventListener("input",e=>this.updateLed({color:this.currentColor(k,e.target.value)})));
+        this.element.querySelector("#led-brightness")?.addEventListener("input",e=>{const v=this.clamp(e.target.value,0,100);const label=this.element.querySelector("#led-brightness-value");if(label)label.textContent=`${v}%`;this.updateLed({brightness:v});});
     }
-    render() {
-        if (!this.model || !this.selectedComponentId) { this.element.innerHTML = `<div class="inspector-empty"><p>No component selected.</p><span>Select a control on the device to edit its MIDI assignment.</span></div>`; return; }
-        const component = this.model.getComponent(this.selectedComponentId);
-        const configuration = this.model.getComponentConfiguration(this.selectedComponentId) ?? {};
-        if (!component) { this.element.innerHTML = `<div class="inspector-empty">The selected component is not available.</div>`; return; }
-        const messageType = configuration.messageType ?? "cc";
-        const channel = configuration.channel ?? 1;
-        const number = configuration.number ?? 0;
-        const buttonMode = configuration.buttonMode ?? configuration.mode ?? "momentary";
-        const runtimeValue = this.model.getComponentRuntime(this.selectedComponentId);
-        const isButton = component.type === "button" || component.type === "switch";
-        const isFader = component.type === "fader";
-        const isKnob = component.type === "knob";
-        const controlType = isButton ? "Button" : isFader ? "Fader" : isKnob ? "Potentiometer" : component.type;
-        this.element.innerHTML = `<section class="inspector-content"><div class="inspector-title"><div><span class="section-label">${controlType.toUpperCase()}</span><h2>${component.label}</h2></div><span class="inspector-id">${component.id}</span></div><div class="inspector-field"><label for="message-type">Message</label><select id="message-type"><option value="cc" ${messageType === "cc" ? "selected" : ""}>Control Change</option><option value="note" ${messageType === "note" ? "selected" : ""}>Note</option></select></div><div class="inspector-grid"><div class="inspector-field"><label for="midi-channel">Channel</label><input id="midi-channel" type="number" min="1" max="16" value="${channel}"></div><div class="inspector-field"><label for="midi-number">Number</label><input id="midi-number" type="number" min="0" max="127" value="${number}"></div></div>${isButton ? `<div class="inspector-field"><label for="button-mode">Button mode</label><select id="button-mode"><option value="momentary" ${buttonMode === "momentary" ? "selected" : ""}>Momentary</option><option value="toggle" ${buttonMode === "toggle" ? "selected" : ""}>Permanent / Toggle</option></select></div>` : ""}<div class="inspector-runtime"><span>Runtime value</span><strong data-inspector-runtime-value>${runtimeValue ?? "—"}</strong></div></section>`;
-        this.bindEvents();
-    }
-    bindEvents() {
-        this.element.querySelector("#message-type")?.addEventListener("change", e => this.update({ messageType: e.target.value }));
-        this.element.querySelector("#midi-channel")?.addEventListener("change", e => { const value = this.clampInteger(e.target.value, 1, 16); e.target.value = value; this.update({ channel: value }); });
-        this.element.querySelector("#midi-number")?.addEventListener("change", e => { const value = this.clampInteger(e.target.value, 0, 127); e.target.value = value; this.update({ number: value }); });
-        this.element.querySelector("#button-mode")?.addEventListener("change", e => this.update({ buttonMode: e.target.value, mode: e.target.value }));
-    }
-    update(patch) { this.model.updateComponentConfiguration(this.selectedComponentId, patch); }
-    clampInteger(value, min, max) { const parsed = Number.parseInt(value, 10); return Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : min; }
+    currentColor(ch,value){const cfg=this.model.getComponentConfiguration(this.selectedComponentId)||{},color={...(cfg.led?.color||{r:255,g:255,b:255})};color[ch]=this.clamp(value,0,255);return color;}
+    updateLed(patch){const cfg=this.model.getComponentConfiguration(this.selectedComponentId)||{},led={...(cfg.led||{}),...patch};this.update({led});this.updateLedPreview(led);}
+    updateLedPreview(led=null){if(!led){const cfg=this.model?.getComponentConfiguration(this.selectedComponentId)||{};led=cfg.led||{};}const c=led.color||{r:255,g:255,b:255},p=this.element.querySelector("[data-led-preview]");if(p)p.style.background=`rgb(${c.r}, ${c.g}, ${c.b})`;}
+    update(patch){this.model.updateComponentConfiguration(this.selectedComponentId,patch);}
+    clamp(v,min,max){const n=Number.parseInt(v,10);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):min;}
 }
