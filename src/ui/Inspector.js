@@ -25,12 +25,51 @@ export default class Inspector {
   }
   bindControllerEvents(){this.element.querySelector("#message-type")?.addEventListener("change",e=>this.update({messageType:e.target.value}));this.element.querySelector("#midi-channel")?.addEventListener("change",e=>{const v=this.clamp(e.target.value,1,16);e.target.value=v;this.update({channel:v})});this.element.querySelector("#midi-number")?.addEventListener("change",e=>{const v=this.clamp(e.target.value,0,127);e.target.value=v;this.update({number:v})});this.element.querySelector("#button-mode")?.addEventListener("change",e=>this.update({mode:e.target.value,buttonMode:e.target.value}))}
   bindLedEvents(){
-    this.element.querySelector("#led-mode")?.addEventListener("change",e=>this.updateLed({mode:e.target.value}));
-    ["r","g","b"].forEach(k=>this.element.querySelector(`#led-${k}`)?.addEventListener("input",e=>{const v=this.clamp(e.target.value,0,255);e.target.value=v;this.updateLed({color:this.currentColor(k,v)})}));
-    const brightness=this.element.querySelector("#led-brightness");brightness?.addEventListener("input",e=>this.setBrightness(Number(e.target.value)));
-    this.element.querySelector("#led-brightness-minus")?.addEventListener("click",()=>this.setBrightness((Number(brightness?.value)||0)-1));
-    this.element.querySelector("#led-brightness-plus")?.addEventListener("click",()=>this.setBrightness((Number(brightness?.value)||0)+1));
-    const wheel=this.element.querySelector("#led-color-wheel");if(wheel){let active=false;const pick=e=>{const r=wheel.getBoundingClientRect();this.pickWheelColor(e.clientX-r.left,e.clientY-r.top,wheel.width,wheel.height)};wheel.addEventListener("pointerdown",e=>{active=true;wheel.setPointerCapture?.(e.pointerId);pick(e)});wheel.addEventListener("pointermove",e=>{if(active)pick(e)});const stop=e=>{active=false;wheel.releasePointerCapture?.(e.pointerId)};wheel.addEventListener("pointerup",stop);wheel.addEventListener("pointercancel",stop)}}
+    this.element.querySelector("#led-mode")?.addEventListener("change", e => this.updateLed({ mode: e.target.value }));
+
+    ["r", "g", "b"].forEach(k => {
+      this.element.querySelector(`#led-${k}`)?.addEventListener("input", e => {
+        const v = this.clamp(e.target.value, 0, 255);
+        e.target.value = v;
+        this.updateLed({ color: this.currentColor(k, v) });
+      });
+    });
+
+    const brightness = this.element.querySelector("#led-brightness");
+    brightness?.addEventListener("input", e => this.setBrightness(Number(e.target.value)));
+
+    this.element.querySelector("#led-brightness-minus")?.addEventListener("click", () => {
+      const current = Number(brightness?.value) || 0;
+      this.setBrightness(current - 1);
+    });
+
+    this.element.querySelector("#led-brightness-plus")?.addEventListener("click", () => {
+      const current = Number(brightness?.value) || 0;
+      this.setBrightness(current + 1);
+    });
+
+    const wheel = this.element.querySelector("#led-color-wheel");
+    if (wheel) {
+      let active = false;
+      const pick = e => {
+        const r = wheel.getBoundingClientRect();
+        this.pickWheelColor(e.clientX - r.left, e.clientY - r.top, wheel.width, wheel.height);
+      };
+      wheel.addEventListener("pointerdown", e => {
+        active = true;
+        wheel.setPointerCapture?.(e.pointerId);
+        pick(e);
+      });
+      wheel.addEventListener("pointermove", e => {
+        if (active) pick(e);
+      });
+      const stop = e => {
+        active = false;
+        wheel.releasePointerCapture?.(e.pointerId);
+      };
+      wheel.addEventListener("pointerup", stop);
+      wheel.addEventListener("pointercancel", stop);
+    }
   }
   setBrightness(value){const v=Math.round(Math.min(100,Math.max(0,value)));const input=this.element.querySelector("#led-brightness"),label=this.element.querySelector("#led-brightness-value");if(input)input.value=v;if(label)label.textContent=`${v}%`;this.updateLed({brightness:v})}
   syncColorInputs(){if(!this.isLedSelection())return;const c=this.getConfig().led?.color||{r:255,g:255,b:255};["r","g","b"].forEach(k=>{const e=this.element.querySelector(`#led-${k}`);if(e)e.value=c[k]})}
