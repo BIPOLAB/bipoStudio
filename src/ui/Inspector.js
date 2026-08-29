@@ -15,16 +15,16 @@ export default class Inspector {
     }
     bindEvents(){
         this.element.querySelector("#message-type")?.addEventListener("change",e=>this.update({messageType:e.target.value}));
-        this.element.querySelector("#midi-channel")?.addEventListener("change",e=>this.update({channel:this.clamp(e.target.value,1,16)}));
-        this.element.querySelector("#midi-number")?.addEventListener("change",e=>this.update({number:this.clamp(e.target.value,0,127)}));
+        this.element.querySelector("#midi-channel")?.addEventListener("change",e=>{const v=this.clamp(e.target.value,1,16);e.target.value=v;this.update({channel:v});});
+        this.element.querySelector("#midi-number")?.addEventListener("change",e=>{const v=this.clamp(e.target.value,0,127);e.target.value=v;this.update({number:v});});
         this.element.querySelector("#button-mode")?.addEventListener("change",e=>this.update({mode:e.target.value,buttonMode:e.target.value}));
         this.element.querySelector("#led-mode")?.addEventListener("change",e=>this.updateLed({mode:e.target.value}));
-        ["r","g","b"].forEach(k=>this.element.querySelector(`#led-${k}`)?.addEventListener("input",e=>this.updateLed({color:this.currentColor(k,e.target.value)})));
-        this.element.querySelector("#led-brightness")?.addEventListener("input",e=>{const v=this.clamp(e.target.value,0,100);const label=this.element.querySelector("#led-brightness-value");if(label)label.textContent=`${v}%`;this.updateLed({brightness:v});});
+        ["r","g","b"].forEach(k=>this.element.querySelector(`#led-${k}`)?.addEventListener("input",e=>{const v=this.clamp(e.target.value,0,255);e.target.value=v;this.updateLed({color:this.currentColor(k,v)});}));
+        this.element.querySelector("#led-brightness")?.addEventListener("input",e=>{const v=Number(e.target.value);const label=this.element.querySelector("#led-brightness-value");if(label)label.textContent=`${v}%`;this.updateLed({brightness:v});});
     }
-    currentColor(ch,value){const cfg=this.model.getComponentConfiguration(this.selectedComponentId)||{},color={...(cfg.led?.color||{r:255,g:255,b:255})};color[ch]=this.clamp(value,0,255);return color;}
+    currentColor(ch,value){const cfg=this.model.getComponentConfiguration(this.selectedComponentId)||{},color={...(cfg.led?.color||{r:255,g:255,b:255})};color[ch]=value;return color;}
     updateLed(patch){const cfg=this.model.getComponentConfiguration(this.selectedComponentId)||{},led={...(cfg.led||{}),...patch};this.update({led});this.updateLedPreview(led);}
-    updateLedPreview(led=null){if(!led){const cfg=this.model?.getComponentConfiguration(this.selectedComponentId)||{};led=cfg.led||{};}const c=led.color||{r:255,g:255,b:255},p=this.element.querySelector("[data-led-preview]");if(p)p.style.background=`rgb(${c.r}, ${c.g}, ${c.b})`;}
+    updateLedPreview(led=null){if(!led){const cfg=this.model?.getComponentConfiguration(this.selectedComponentId)||{};led=cfg.led||{};}const c=led.color||{r:255,g:255,b:255},brightness=Number(led.brightness??100)/100,p=this.element.querySelector("[data-led-preview]");if(p){p.style.background=`rgb(${c.r}, ${c.g}, ${c.b})`;p.style.opacity=brightness;p.style.boxShadow=`0 0 ${8+12*brightness}px rgb(${c.r}, ${c.g}, ${c.b})`;}}
     update(patch){this.model.updateComponentConfiguration(this.selectedComponentId,patch);}
     clamp(v,min,max){const n=Number.parseInt(v,10);return Number.isFinite(n)?Math.min(max,Math.max(min,n)):min;}
 }
