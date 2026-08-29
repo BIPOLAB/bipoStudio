@@ -1,3 +1,4 @@
+import "../styles/led-inspector.css";
 import { Events } from "../core/Events.js";
 
 export default class Inspector {
