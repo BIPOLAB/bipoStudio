@@ -24,17 +24,18 @@
 .device-grid { display:grid; gap:10px; padding:18px; background:rgba(0,0,0,.12); }
 .device-grid--4x4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
 .device-grid--faders { grid-template-columns:repeat(4,minmax(0,1fr)); }
-.device-cell { position:relative; min-width:0; min-height:132px; display:grid; grid-template-rows:minmax(64px,1fr) 28px 22px; border:1px solid rgba(255,255,255,.07); border-radius:4px; background:rgba(255,255,255,.025); overflow:hidden; }
+.device-cell { position:relative; min-width:0; aspect-ratio:1/1; display:grid; grid-template-rows:minmax(0,1fr) minmax(0,1fr) 24px; border:1px solid rgba(255,255,255,.07); border-radius:4px; background:rgba(255,255,255,.025); overflow:hidden; }
 .device-cell__controller,.device-cell__led,.device-cell__name { position:relative; display:flex; align-items:center; justify-content:center; min-width:0; }
 .device-cell__controller { border-bottom:1px solid rgba(255,255,255,.055); }
-.device-cell__led { border-bottom:1px solid rgba(255,255,255,.055); }
+.device-cell__led { border-bottom:1px solid rgba(255,255,255,.055); cursor:pointer; outline:none; transition:background .12s ease,box-shadow .12s ease; }
+.device-cell__led:hover { background:rgba(255,255,255,.035); }
 .device-cell__name { color:rgba(255,255,255,.48); font:700 8px/1 monospace; letter-spacing:.05em; }
 .device-cell__controller.is-selected,.device-cell__led.is-selected,.device-cell__name.is-selected { background:rgba(255,255,255,.055); box-shadow:inset 0 0 0 1px var(--color-accent); z-index:1; }
-.device-control { position:relative; width:100%; height:100%; min-height:64px; margin:0; padding:0; border:0; background:transparent; color:#fff; cursor:pointer; touch-action:none; }
+.device-control { position:relative; width:100%; height:100%; min-height:0; margin:0; padding:0; border:0; background:transparent; color:#fff; cursor:pointer; touch-action:none; }
 .device-control__visual { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:block; }
 .device-control--knob .device-control__visual { width:38px; height:38px; border:2px solid #555; border-radius:50%; background:radial-gradient(circle at 35% 30%,#777,#292929 58%,#111 60%); box-shadow:0 3px 5px rgba(0,0,0,.5); }
 .device-control--knob .device-control__visual::after { content:""; position:absolute; left:17px; top:3px; width:2px; height:11px; border-radius:2px; background:#ddd; transform-origin:1px 16px; transform:rotate(calc((var(--runtime-value) - 63.5) * 2.15deg)); }
-.device-control__led { width:8px; height:8px; border-radius:50%; background:rgb(var(--led-r),var(--led-g),var(--led-b)); opacity:var(--led-a); box-shadow:0 0 9px rgba(var(--led-r),var(--led-g),var(--led-b),calc(var(--led-a) * .8)); cursor:pointer; outline:none; }
+.device-control__led { width:10px; height:10px; border-radius:50%; background:rgb(var(--led-r),var(--led-g),var(--led-b)); opacity:var(--led-a); box-shadow:0 0 9px rgba(var(--led-r),var(--led-g),var(--led-b),calc(var(--led-a) * .8)); pointer-events:none; }
 .device-control__led--selected { outline:1px solid rgba(255,255,255,.7); outline-offset:3px; }
 .device-control--fader .device-control__visual { width:5px; height:58px; top:50%; border-radius:4px; background:#777; box-shadow:0 0 0 1px #111; }
 .device-control--fader .device-control__visual::after { content:""; position:absolute; left:-8px; top:calc(22px - (var(--runtime-value) * .35px)); width:21px; height:11px; border:1px solid #555; border-radius:2px; background:linear-gradient(#666,#222); }
