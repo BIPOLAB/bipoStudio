@@ -17,7 +17,6 @@
 .workspace-screen__inspector { grid-column:2; grid-row:1; min-height:0; overflow:auto; background:var(--color-panel); border-left:1px solid var(--color-border); }
 .workspace-screen__monitor { grid-column:1/-1; grid-row:2; min-height:0; max-height:190px; overflow:auto; background:var(--color-surface); border-top:1px solid var(--color-border); }
 .device-workspace { max-width:960px; margin:0 auto; }
-.device-workspace__hint { margin:var(--spacing-4) 0 0; color:var(--color-text-muted); font-size:var(--font-size-small); text-align:center; }
 .device-panel { width:min(100%,760px); margin:0 auto; overflow:hidden; border:1px solid #2b2b2b; border-radius:6px; background:linear-gradient(145deg,#333,#181818); box-shadow:0 18px 35px rgba(0,0,0,.18); color:#fff; }
 .device-panel__header { display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-4); min-height:58px; padding:0 20px; border-bottom:1px solid rgba(255,255,255,.1); }
 .device-panel__header h1 { margin:3px 0 0; font-size:18px; letter-spacing:-.03em; }
@@ -25,19 +24,21 @@
 .device-grid { display:grid; gap:10px; padding:18px; background:rgba(0,0,0,.12); }
 .device-grid--4x4 { grid-template-columns:repeat(4,minmax(0,1fr)); }
 .device-grid--faders { grid-template-columns:repeat(4,minmax(0,1fr)); }
-.device-cell { position:relative; min-width:0; min-height:104px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.07); border-radius:4px; background:rgba(255,255,255,.025); }
-.device-cell--selected { border-color:var(--color-accent); box-shadow:inset 0 0 0 1px var(--color-accent); }
-.device-control { position:relative; width:100%; height:100%; min-height:104px; margin:0; padding:8px 4px 18px; border:0; background:transparent; color:#fff; cursor:pointer; touch-action:none; }
-.device-control__visual { position:absolute; left:50%; top:12px; transform:translateX(-50%); display:block; }
-.device-control__label { position:absolute; left:0; right:0; bottom:5px; font-size:7px; letter-spacing:.03em; opacity:.5; }
-.device-control__value { position:absolute; left:0; right:0; bottom:-7px; font:8px/1 monospace; color:var(--color-accent); opacity:.9; }
-.device-control:hover .device-control__label,.device-cell--selected .device-control__label { opacity:1; }
+.device-cell { position:relative; min-width:0; min-height:132px; display:grid; grid-template-rows:minmax(64px,1fr) 28px 22px; border:1px solid rgba(255,255,255,.07); border-radius:4px; background:rgba(255,255,255,.025); overflow:hidden; }
+.device-cell__controller,.device-cell__led,.device-cell__name { position:relative; display:flex; align-items:center; justify-content:center; min-width:0; }
+.device-cell__controller { border-bottom:1px solid rgba(255,255,255,.055); }
+.device-cell__led { border-bottom:1px solid rgba(255,255,255,.055); }
+.device-cell__name { color:rgba(255,255,255,.48); font:700 8px/1 monospace; letter-spacing:.05em; }
+.device-cell__controller.is-selected,.device-cell__led.is-selected,.device-cell__name.is-selected { background:rgba(255,255,255,.055); box-shadow:inset 0 0 0 1px var(--color-accent); z-index:1; }
+.device-control { position:relative; width:100%; height:100%; min-height:64px; margin:0; padding:0; border:0; background:transparent; color:#fff; cursor:pointer; touch-action:none; }
+.device-control__visual { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:block; }
 .device-control--knob .device-control__visual { width:38px; height:38px; border:2px solid #555; border-radius:50%; background:radial-gradient(circle at 35% 30%,#777,#292929 58%,#111 60%); box-shadow:0 3px 5px rgba(0,0,0,.5); }
 .device-control--knob .device-control__visual::after { content:""; position:absolute; left:17px; top:3px; width:2px; height:11px; border-radius:2px; background:#ddd; transform-origin:1px 16px; transform:rotate(calc((var(--runtime-value) - 63.5) * 2.15deg)); }
-.device-control__led { position:absolute; left:50%; top:59px; width:7px; height:7px; transform:translateX(-50%); border-radius:50%; background:rgb(var(--led-r),var(--led-g),var(--led-b)); opacity:var(--led-a); box-shadow:0 0 8px rgba(var(--led-r),var(--led-g),var(--led-b),calc(var(--led-a) * .8)); }
-.device-control--fader .device-control__visual { width:5px; height:64px; top:8px; border-radius:4px; background:#777; box-shadow:0 0 0 1px #111; }
-.device-control--fader .device-control__visual::after { content:""; position:absolute; left:-8px; top:calc(52px - (var(--runtime-value) * .4px)); width:21px; height:11px; border:1px solid #555; border-radius:2px; background:linear-gradient(#666,#222); }
-.device-control--button .device-control__visual,.device-control--switch .device-control__visual { width:38px; height:28px; top:15px; border:1px solid #555; border-radius:3px; background:linear-gradient(#555,#222); box-shadow:inset 0 1px 1px rgba(255,255,255,.12); }
+.device-control__led { width:8px; height:8px; border-radius:50%; background:rgb(var(--led-r),var(--led-g),var(--led-b)); opacity:var(--led-a); box-shadow:0 0 9px rgba(var(--led-r),var(--led-g),var(--led-b),calc(var(--led-a) * .8)); cursor:pointer; outline:none; }
+.device-control__led--selected { outline:1px solid rgba(255,255,255,.7); outline-offset:3px; }
+.device-control--fader .device-control__visual { width:5px; height:58px; top:50%; border-radius:4px; background:#777; box-shadow:0 0 0 1px #111; }
+.device-control--fader .device-control__visual::after { content:""; position:absolute; left:-8px; top:calc(22px - (var(--runtime-value) * .35px)); width:21px; height:11px; border:1px solid #555; border-radius:2px; background:linear-gradient(#666,#222); }
+.device-control--button .device-control__visual,.device-control--switch .device-control__visual { width:38px; height:28px; top:50%; border:1px solid #555; border-radius:3px; background:linear-gradient(#555,#222); box-shadow:inset 0 1px 1px rgba(255,255,255,.12); }
 .device-control--button .device-control__visual::after,.device-control--switch .device-control__visual::after { content:""; position:absolute; inset:3px; border:1px solid rgba(255,255,255,.08); border-radius:2px; }
 .device-control--button:hover .device-control__visual { background:linear-gradient(#777,#333); }
 .device-panel__footer { display:flex; justify-content:space-between; align-items:center; min-height:34px; padding:0 20px; border-top:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.42); font:700 8px monospace; letter-spacing:.1em; }
