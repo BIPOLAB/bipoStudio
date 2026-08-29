@@ -16,7 +16,7 @@ class BipoCore {
     getMockDevices() { return Object.values(this.mockDevices).map(({id,name,description})=>({id,name,description})); }
     getActiveDevice() { return this.mockDevices[this.activeDeviceId]; }
     getStoredMockDeviceId() { try { const id=window.localStorage.getItem("bipoStudio.mockDevice"); return this.mockDevices[id] ? id : null; } catch { return null; } }
-    storeMockDevice(id) { try { window.localStorage.setItem("bipoStudio.mockDevice",id); } catch {} }
+    storeMockDeviceId(id) { try { window.localStorage.setItem("bipoStudio.mockDevice",id); } catch {} }
     createMockDevices() { return { "lab-16k":createKnobDevice(16), "lab-16b":createButtonDevice(16), "lab-4f":createFaderDevice(4) }; }
     async delay(time=null) { if(!this.simulateLatency)return; return new Promise(resolve=>setTimeout(resolve,time ?? (80+Math.floor(Math.random()*120)))); }
 }
