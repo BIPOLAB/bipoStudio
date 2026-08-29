@@ -15,11 +15,16 @@ export default class Workspace {
     }
     onModelReady(model) { this.model = model; this.runtimeValues = model.runtime?.toJSON?.() ?? {}; this.render(); }
     onSelectionChanged(componentId) { this.selectedComponentId = componentId; this.render(); }
-    onRuntimeChanged(payload = {}) { if (!payload.componentId) return; this.runtimeValues[payload.componentId] = payload.value; this.updateRuntimeVisual(payload.componentId); }
+    onRuntimeChanged(payload = {}) {
+        if (!payload.componentId) return;
+        this.runtimeValues[payload.componentId] = payload.value;
+        this.updateRuntimeVisual(payload.componentId);
+    }
     render() {
         if (!this.model?.hardware) { this.element.innerHTML = `<div class="waiting">Waiting for a bipoLab device...</div>`; return; }
         const components = this.model.hardware.getComponents();
-        this.element.innerHTML = `<section class="device-workspace"><div class="device-workspace__heading"><div><span class="section-label">DEVICE</span><h1>${this.model.device.name}</h1></div><span class="device-workspace__mode">CONFIGURATION · MOCK</span></div><div class="device-surface-wrap"><div class="device-surface" aria-label="MIMO-LAB device mock"><div class="device-surface__brand">bipoLab engineering</div><div class="device-surface__model">MIMO-LAB</div>${components.map(c => this.renderComponent(c)).join("")}</div></div><p class="device-workspace__hint">Select a control to configure it. Use the control to test its runtime behavior.</p></section>`;
+        const name = this.model.device.name;
+        this.element.innerHTML = `<section class="device-workspace"><div class="device-workspace__heading"><div><span class="section-label">DEVICE</span><h1>${name}</h1></div><span class="device-workspace__mode">CONFIGURATION · MOCK</span></div><div class="device-surface-wrap"><div class="device-surface" aria-label="${name} device mock"><div class="device-surface__brand">bipoLab engineering</div><div class="device-surface__model">${name}</div>${components.map(c => this.renderComponent(c)).join("")}</div></div><p class="device-workspace__hint">Select a control to configure it. Use the control to test its runtime behavior.</p></section>`;
         this.bindComponentEvents();
     }
     renderComponent(component) {
@@ -33,7 +38,7 @@ export default class Workspace {
             const component = this.model.getComponent(id);
             const configuration = this.model.getComponentConfiguration(id) ?? {};
             const isButton = component?.type === "switch" || component?.type === "button";
-            const mode = configuration.buttonMode ?? "momentary";
+            const mode = configuration.mode ?? configuration.buttonMode ?? "momentary";
             control.addEventListener("click", () => {
                 this.selectionManager.select(id);
                 if (isButton && mode === "toggle") this.setRuntimeValue(id, this.getRuntimeValue(id) > 0 ? 0 : 127);
@@ -56,8 +61,7 @@ export default class Workspace {
     setRuntimeValue(componentId, value) {
         const normalized = Math.round(Math.min(127, Math.max(0, Number(value) || 0)));
         this.runtimeValues[componentId] = normalized;
-        if (this.model?.setRuntimeValue) this.model.setRuntimeValue(componentId, normalized);
-        else { this.model.runtime?.set(componentId, normalized); this.eventBus.emit(Events.RUNTIME_CHANGED, { componentId, value: normalized }); }
+        this.model?.setRuntimeValue(componentId, normalized);
     }
     updateRuntimeVisual(componentId) {
         const control = this.element.querySelector(`[data-component-id="${componentId}"]`);
