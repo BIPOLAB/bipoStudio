@@ -1,22 +1,36 @@
 /**
  * Mock bipoCore device provider. Production bipoCore will identify the
  * physical device during the handshake; the selector is development-only.
+ *
+ * The mock persists its state in localStorage so configuration changes made
+ * in bipoStudio survive reloads while we develop without physical hardware.
  */
 class BipoCore {
     constructor() {
         this.simulateLatency = true;
         this.mockDevices = this.createMockDevices();
         this.activeDeviceId = this.getStoredMockDeviceId() ?? "lab-16k";
+        this.restorePersistedState();
     }
     async hello() { await this.delay(150); const d=this.getActiveDevice(); return {id:d.id,name:d.name,firmware:"MOCK 1.0.0",protocol:"MOCK 1.0"}; }
     async read(resource) { await this.delay(); const d=this.getActiveDevice(); if(resource==="/hardware")return d.hardware; if(resource==="/configuration")return d.configuration; if(resource==="/runtime")return d.runtime; throw new Error(`Unknown resource: ${resource}`); }
-    async write(resource,data) { await this.delay(80); console.log("MOCK WRITE",resource,data); }
-    async commit() { await this.delay(60); console.log("MOCK COMMIT"); }
-    setMockDevice(id) { if(!this.mockDevices[id])throw new Error(`Unknown mock device: ${id}`); this.activeDeviceId=id; this.storeMockDeviceId(id); }
+    async write(resource,data) {
+        await this.delay(80);
+        const d=this.getActiveDevice();
+        if(resource==="/configuration") d.configuration=structuredClone(data);
+        else if(resource==="/runtime") d.runtime=structuredClone(data);
+        else throw new Error(`Unknown writable resource: ${resource}`);
+        this.persistActiveDevice();
+        console.log("MOCK WRITE",resource,data);
+    }
+    async commit() { await this.delay(60); this.persistActiveDevice(); console.log("MOCK COMMIT"); }
+    setMockDevice(id) { if(!this.mockDevices[id])throw new Error(`Unknown mock device: ${id}`); this.activeDeviceId=id; this.storeMockDeviceId(id); this.restorePersistedState(); }
     getMockDevices() { return Object.values(this.mockDevices).map(({id,name,description})=>({id,name,description})); }
     getActiveDevice() { return this.mockDevices[this.activeDeviceId]; }
     getStoredMockDeviceId() { try { const id=window.localStorage.getItem("bipoStudio.mockDevice"); return this.mockDevices[id]?id:null; } catch { return null; } }
     storeMockDeviceId(id) { try { window.localStorage.setItem("bipoStudio.mockDevice",id); } catch {} }
+    persistActiveDevice() { try { const d=this.getActiveDevice(); window.localStorage.setItem(`bipoStudio.mockState.${d.id}`,JSON.stringify({configuration:d.configuration,runtime:d.runtime})); } catch {} }
+    restorePersistedState() { try { const d=this.getActiveDevice(); const raw=window.localStorage.getItem(`bipoStudio.mockState.${d.id}`); if(!raw)return; const state=JSON.parse(raw); if(state?.configuration)d.configuration=state.configuration; if(state?.runtime)d.runtime=state.runtime; } catch {} }
     createMockDevices() { return {"lab-16k":createKnobDevice(16),"lab-16b":createButtonDevice(16),"lab-4f":createFaderDevice(4)}; }
     async delay(time=null) { if(!this.simulateLatency)return; return new Promise(resolve=>setTimeout(resolve,time??(80+Math.floor(Math.random()*120)))); }
 }
