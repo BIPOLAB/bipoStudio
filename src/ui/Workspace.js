@@ -12,25 +12,24 @@ export default class Workspace {
         this.eventBus.on(Events.SELECTION_CHANGED, this.onSelectionChanged.bind(this));
         this.eventBus.on(Events.RUNTIME_CHANGED, this.onRuntimeChanged.bind(this));
         this.eventBus.on(Events.WORKING_COPY_CHANGED, this.onWorkingCopyChanged.bind(this));
-        this.bindLedSelection();
+        this.bindSelectionEvents();
     }
 
-    bindLedSelection() {
-        this.element.addEventListener("click", event => {
+    bindSelectionEvents() {
+        this.element.addEventListener("pointerdown", event => {
             const led = event.target.closest("[data-led-id]");
             if (!led || !this.element.contains(led)) return;
-            event.stopPropagation();
-            this.selectionManager.select(led.dataset.ledId);
-        });
-
-        this.element.addEventListener("keydown", event => {
-            const led = event.target.closest("[data-led-id]");
-            if (!led || !this.element.contains(led)) return;
-            if (event.key !== "Enter" && event.key !== " ") return;
             event.preventDefault();
             event.stopPropagation();
             this.selectionManager.select(led.dataset.ledId);
-        });
+        }, true);
+
+        this.element.addEventListener("click", event => {
+            const led = event.target.closest("[data-led-id]");
+            if (!led || !this.element.contains(led)) return;
+            event.preventDefault();
+            event.stopPropagation();
+        }, true);
     }
 
     onModelReady(model) {
@@ -41,7 +40,7 @@ export default class Workspace {
 
     onSelectionChanged(id) {
         this.selectedComponentId = id;
-        this.render();
+        this.updateSelectionVisuals();
     }
 
     onRuntimeChanged(payload = {}) {
@@ -99,6 +98,7 @@ export default class Workspace {
             </section>`;
 
         this.bindComponentEvents();
+        this.updateSelectionVisuals();
     }
 
     renderComponent(component) {
@@ -186,6 +186,18 @@ export default class Workspace {
                     control.addEventListener("pointercancel", release);
                 }
             }
+        });
+    }
+
+    updateSelectionVisuals() {
+        this.element.querySelectorAll("[data-component-id]").forEach(control => {
+            const selected = control.dataset.componentId === this.selectedComponentId;
+            control.closest(".device-cell__controller")?.classList.toggle("is-selected", selected);
+        });
+        this.element.querySelectorAll("[data-led-id]").forEach(led => {
+            const selected = led.dataset.ledId === this.selectedComponentId;
+            led.classList.toggle("is-selected", selected);
+            led.querySelector(".device-control__led")?.classList.toggle("device-control__led--selected", selected);
         });
     }
 
