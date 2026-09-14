@@ -89,8 +89,12 @@ export class Application {
     }
 
     mountWorkspace(model) {
-        this.workspaceScreen = new WorkspaceScreen(this.screenHost.element, this.eventBus, this.selectionManager, model);
-        this.screenHost.show(this.workspaceScreen);
+        if (!this.workspaceScreen) {
+            this.workspaceScreen = new WorkspaceScreen(this.screenHost.element, this.eventBus, this.selectionManager, model);
+            this.screenHost.show(this.workspaceScreen);
+            return;
+        }
+        this.workspaceScreen.setModel(model);
     }
 
     async switchMockDevice(deviceId) {
