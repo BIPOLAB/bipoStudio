@@ -12,7 +12,7 @@ export default class Header {
     }
 
     show() { this.render(); }
-    onSessionChanged(device) { this.device = device; this.render(); }
+    onSessionChanged(device) { this.device = device; this.dirty = false; this.render(); }
     onWorkingCopyChanged(payload = {}) { this.dirty = Boolean(payload.dirty); this.render(); }
 
     render() {
@@ -25,7 +25,7 @@ export default class Header {
             </div>
             <div class="header__actions">
                 ${devMode ? `<label class="dev-selector"><span>MOCK</span><select data-action="mock-device" aria-label="Mock device">${mockDevices.map(device => `<option value="${device.id}" ${device.id === this.device?.id ? "selected" : ""}>${device.name}</option>`).join("")}</select></label>` : ""}
-                <span class="header__dirty ${this.dirty ? "header__dirty--visible" : ""}">Unsaved changes</span>
+                <span class="header__dirty ${this.dirty ? "header__dirty--visible" : ""}">${this.dirty ? "Unsaved changes" : "Saved"}</span>
                 <button class="button button--secondary" type="button" data-action="reset" ${this.dirty ? "" : "disabled"}>Reset</button>
                 <button class="button button--primary" type="button" data-action="save" ${this.dirty ? "" : "disabled"}>Save</button>
             </div>
@@ -33,8 +33,7 @@ export default class Header {
         this.element.querySelector('[data-action="reset"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_RESET_REQUEST));
         this.element.querySelector('[data-action="save"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_COMMIT_REQUEST));
         this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => {
-            bipoCore.setMockDevice(event.target.value);
-            window.location.reload();
+            this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value);
         });
     }
 }
