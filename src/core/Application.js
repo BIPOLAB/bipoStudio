@@ -2,7 +2,7 @@
  * --------------------------------------------------------------------
  * Project : bipoStudio
  * File    : Application.js
- * Version : 0.7.0
+ * Version : 0.8.0
  * Feature : Configuration Workflow + Mock Device Switching
  *
  * Copyright (c) bipoLab engineering
@@ -102,9 +102,13 @@ export class Application {
         try {
             this.ui.statusBar.status = "Loading device...";
             this.ui.statusBar.render();
+
+            // Clear the old selection before the new hardware is loaded so no
+            // controller/LED ID from the previous mock can leak into the new one.
+            this.selectionManager.clear();
+
             this.deviceModel.core.setMockDevice(deviceId);
             await this.deviceModel.load();
-            this.selectionManager.clear?.();
             this.ui.statusBar.status = "Device loaded";
             this.ui.statusBar.render();
         } catch (error) {
