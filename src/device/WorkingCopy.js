@@ -18,6 +18,11 @@ export default class WorkingCopy {
         this.values[componentId] = structuredClone(value ?? {});
     }
 
+    restoreDraft(values) {
+        if (!values || typeof values !== "object") return;
+        this.values = structuredClone(values);
+    }
+
     reset() {
         this.values = structuredClone(this.baseline);
     }
