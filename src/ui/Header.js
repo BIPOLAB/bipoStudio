@@ -32,8 +32,6 @@ export default class Header {
         `;
         this.element.querySelector('[data-action="reset"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_RESET_REQUEST));
         this.element.querySelector('[data-action="save"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_COMMIT_REQUEST));
-        this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => {
-            this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value);
-        });
+        this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value));
     }
 }
