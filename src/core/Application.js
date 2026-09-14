@@ -2,8 +2,8 @@
  * --------------------------------------------------------------------
  * Project : bipoStudio
  * File    : Application.js
- * Version : 0.6.0
- * Feature : Configuration Workflow
+ * Version : 0.7.0
+ * Feature : Configuration Workflow + Mock Device Switching
  *
  * Copyright (c) bipoLab engineering
  * --------------------------------------------------------------------
@@ -31,15 +31,14 @@ export class Application {
         this.deviceModel = new DeviceModel(this.eventBus);
         this.screenHost = null;
         this.ui = null;
+        this.workspaceScreen = null;
     }
 
     async start() {
         console.log("Starting bipoStudio...");
 
         const app = document.getElementById("app");
-        if (!app) {
-            throw new Error('Application could not start: element "#app" was not found.');
-        }
+        if (!app) throw new Error('Application could not start: element "#app" was not found.');
 
         this.renderApplicationShell(app);
         this.createUserInterface();
@@ -77,10 +76,7 @@ export class Application {
         const headerElement = document.getElementById("header");
         const screenHostElement = document.getElementById("screen-host");
         const statusBarElement = document.getElementById("statusbar");
-
-        if (!headerElement || !screenHostElement || !statusBarElement) {
-            throw new Error("Application shell could not be initialized.");
-        }
+        if (!headerElement || !screenHostElement || !statusBarElement) throw new Error("Application shell could not be initialized.");
 
         this.screenHost = new ScreenHost(screenHostElement);
         this.ui = {
@@ -91,13 +87,7 @@ export class Application {
 
     bindApplicationEvents() {
         this.eventBus.on(Events.DEVICE_MODEL_READY, model => {
-            const workspaceScreen = new WorkspaceScreen(
-                this.screenHost.element,
-                this.eventBus,
-                this.selectionManager,
-                model
-            );
-            this.screenHost.show(workspaceScreen);
+            this.mountWorkspace(model);
         });
 
         this.eventBus.on(Events.CONFIGURATION_RESET_REQUEST, () => {
@@ -109,12 +99,8 @@ export class Application {
         this.eventBus.on(Events.CONFIGURATION_COMMIT_REQUEST, async () => {
             this.ui.statusBar.status = "Saving configuration...";
             this.ui.statusBar.render();
-
             const committed = await this.deviceModel.commitConfiguration();
-
-            this.ui.statusBar.status = committed
-                ? "Configuration saved"
-                : "No changes to save";
+            this.ui.statusBar.status = committed ? "Configuration saved" : "No changes to save";
             this.ui.statusBar.render();
         });
 
@@ -124,18 +110,36 @@ export class Application {
         });
     }
 
-    showInitialUserInterface() {
-        if (!this.ui || !this.screenHost) {
-            throw new Error("User interface has not been created.");
+    mountWorkspace(model) {
+        if (this.workspaceScreen) this.screenHost.show(this.workspaceScreen);
+        else {
+            this.workspaceScreen = new WorkspaceScreen(this.screenHost.element, this.eventBus, this.selectionManager, model);
+            this.screenHost.show(this.workspaceScreen);
         }
+        this.workspaceScreen.setModel?.(model);
+    }
 
+    async switchMockDevice(deviceId) {
+        if (!deviceId || deviceId === this.deviceModel.device?.id) return;
+        try {
+            this.ui.statusBar.status = "Loading device...";
+            this.ui.statusBar.render();
+            this.deviceModel.core.setMockDevice(deviceId);
+            await this.deviceModel.load();
+            this.selectionManager.clear?.();
+            this.ui.statusBar.status = "Device loaded";
+            this.ui.statusBar.render();
+        } catch (error) {
+            console.error("Could not switch mock device:", error);
+            this.ui.statusBar.status = `Device load failed: ${error?.message ?? error}`;
+            this.ui.statusBar.render();
+        }
+    }
+
+    showInitialUserInterface() {
         this.ui.header.show();
         this.ui.statusBar.show();
-
-        const progressScreen = new ProgressScreen(
-            this.screenHost.element,
-            this.eventBus
-        );
+        const progressScreen = new ProgressScreen(this.screenHost.element, this.eventBus);
         this.screenHost.show(progressScreen);
     }
 }
