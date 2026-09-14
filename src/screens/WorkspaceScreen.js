@@ -2,7 +2,7 @@
  * --------------------------------------------------------------------
  * Project : bipoStudio
  * File    : WorkspaceScreen.js
- * Version : 0.3.0
+ * Version : 0.3.1
  * Feature : Configuration + Runtime Monitor
  *
  * Copyright (c) bipoLab engineering
@@ -28,7 +28,7 @@ export default class WorkspaceScreen extends Screen {
     mount() {
         this.createDOM();
         this.createViews();
-        this.render();
+        this.setModel(this.deviceModel);
     }
 
     createDOM() {
@@ -59,16 +59,17 @@ export default class WorkspaceScreen extends Screen {
     }
 
     setModel(model) {
+        if (!model) return;
         this.deviceModel = model;
-        this.workspace.onModelReady(model);
-        this.inspector.onModelReady(model);
-        this.midiMonitor.render();
+        this.workspace?.onModelReady(model);
+        this.inspector?.onModelReady(model);
+        this.midiMonitor?.render();
     }
 
     render() {
-        this.workspace.render();
-        this.inspector.render();
-        this.midiMonitor.render();
+        this.workspace?.render();
+        this.inspector?.render();
+        this.midiMonitor?.render();
     }
 
     unmount() {
