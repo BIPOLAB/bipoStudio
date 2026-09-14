@@ -5,28 +5,27 @@ import Configuration from "./Configuration.js";
 import Runtime from "./Runtime.js";
 import WorkingCopy from "./WorkingCopy.js";
 
-/**
- * Aggregate root for one device loaded in bipoStudio.
- * The current bipoCore implementation is a device mock.
- */
 export default class DeviceModel {
-
     constructor(eventBus, core = bipoCore) {
         this.eventBus = eventBus;
         this.core = core;
-
         this.identity = null;
         this.hardware = null;
         this.configuration = null;
         this.runtime = null;
         this.workingCopy = null;
-
+        this.workingCopyDrafts = new Map();
         this.eventBus.on?.("transport:message", this.onTransportMessage.bind(this));
     }
 
     get device() { return this.identity; }
 
     async load() {
+        const previousDeviceId = this.identity?.id;
+        if (previousDeviceId && this.workingCopy) {
+            this.workingCopyDrafts.set(previousDeviceId, this.workingCopy.toJSON());
+        }
+
         this.eventBus.emit(Events.DEVICE_CONNECTING);
         this.identity = Object.freeze({ ...(await this.core.hello()) });
         this.eventBus.emit(Events.DEVICE_CONNECTED, this.identity);
@@ -39,9 +38,18 @@ export default class DeviceModel {
         this.eventBus.emit(Events.DEVICE_LOADING_RUNTIME);
         this.runtime = new Runtime(await this.core.read("/runtime"), this.hardware);
         this.eventBus.emit(Events.DEVICE_RUNTIME_LOADED, this.runtime);
+
         this.workingCopy = new WorkingCopy(this.configuration);
+        const draft = this.workingCopyDrafts.get(this.identity.id);
+        if (draft) this.workingCopy.restoreDraft(draft);
+
         this.eventBus.emit(Events.DEVICE_MODEL_READY, this);
         this.eventBus.emit(Events.SESSION_CHANGED, this.identity);
+        this.eventBus.emit(Events.WORKING_COPY_CHANGED, {
+            componentId: null,
+            configuration: null,
+            dirty: this.workingCopy.isDirty()
+        });
         return this;
     }
 
@@ -53,6 +61,7 @@ export default class DeviceModel {
         if (!this.workingCopy || !this.getComponent(componentId)) return false;
         const current = this.workingCopy.get(componentId) ?? {};
         this.workingCopy.set(componentId, { ...current, ...patch });
+        this.workingCopyDrafts.set(this.device.id, this.workingCopy.toJSON());
         this.eventBus.emit(Events.WORKING_COPY_CHANGED, {
             componentId,
             configuration: this.workingCopy.get(componentId),
@@ -64,6 +73,7 @@ export default class DeviceModel {
     resetWorkingCopy() {
         if (!this.workingCopy) return;
         this.workingCopy.reset();
+        this.workingCopyDrafts.set(this.device.id, this.workingCopy.toJSON());
         this.eventBus.emit(Events.WORKING_COPY_CHANGED, { componentId: null, configuration: null, dirty: false });
     }
 
@@ -73,6 +83,7 @@ export default class DeviceModel {
             await this.core.write("/configuration", this.workingCopy.toJSON());
             await this.core.commit();
             this.workingCopy.markCommitted();
+            this.workingCopyDrafts.set(this.device.id, this.workingCopy.toJSON());
             this.eventBus.emit(Events.CONFIGURATION_COMMITTED);
             this.eventBus.emit(Events.WORKING_COPY_CHANGED, { componentId: null, configuration: null, dirty: false });
             return true;
@@ -94,20 +105,13 @@ export default class DeviceModel {
     emitMidiMessage(componentId, value) {
         const configuration = this.getComponentConfiguration(componentId);
         if (!configuration) return;
-
         const messageType = configuration.messageType ?? "cc";
         const channel = Math.min(16, Math.max(1, Number(configuration.channel) || 1));
         const number = Math.min(127, Math.max(0, Number(configuration.number) || 0));
         const status = messageType === "note" ? 0x90 : 0xB0;
-
         this.eventBus.emit(Events.MIDI_MESSAGE, {
-            componentId,
-            type: messageType,
-            channel,
-            number,
-            value,
-            status: status + channel - 1,
-            timestamp: Date.now()
+            componentId, type: messageType, channel, number, value,
+            status: status + channel - 1, timestamp: Date.now()
         });
     }
 
