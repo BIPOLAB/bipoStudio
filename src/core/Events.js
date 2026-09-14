@@ -2,8 +2,7 @@
  * --------------------------------------------------------------------
  * Project : bipoStudio
  * File    : Events.js
- * Version : 0.4.0
- * Sprint  : 06
+ * Version : 0.7.0
  *
  * Centralized application events.
  * --------------------------------------------------------------------
@@ -28,6 +27,7 @@ export const Events = Object.freeze({
     SELECTION_CHANGED: "selection:changed",
     RUNTIME_CHANGED: "runtime:changed",
     MIDI_MESSAGE: "midi:message",
+    MOCK_DEVICE_CHANGE_REQUEST: "mock-device:change-request",
 
     WORKING_COPY_CHANGED: "working-copy:changed",
     CONFIGURATION_COMMIT_REQUEST: "configuration:commit-request",
