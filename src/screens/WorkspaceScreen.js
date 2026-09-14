@@ -2,7 +2,7 @@
  * --------------------------------------------------------------------
  * Project : bipoStudio
  * File    : WorkspaceScreen.js
- * Version : 0.2.0
+ * Version : 0.3.0
  * Feature : Configuration + Runtime Monitor
  *
  * Copyright (c) bipoLab engineering
@@ -15,7 +15,6 @@ import Inspector from "../ui/Inspector.js";
 import MidiMonitor from "../ui/MidiMonitor.js";
 
 export default class WorkspaceScreen extends Screen {
-
     constructor(element, eventBus, selectionManager, deviceModel) {
         super(element, eventBus);
         this.selectionManager = selectionManager;
@@ -57,9 +56,13 @@ export default class WorkspaceScreen extends Screen {
         this.workspace = new Workspace(this.workspaceElement, this.eventBus, this.selectionManager);
         this.inspector = new Inspector(this.inspectorElement, this.eventBus);
         this.midiMonitor = new MidiMonitor(this.monitorElement, this.eventBus);
+    }
 
-        this.workspace.onModelReady(this.deviceModel);
-        this.inspector.onModelReady(this.deviceModel);
+    setModel(model) {
+        this.deviceModel = model;
+        this.workspace.onModelReady(model);
+        this.inspector.onModelReady(model);
+        this.midiMonitor.render();
     }
 
     render() {
