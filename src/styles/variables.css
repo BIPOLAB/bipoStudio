@@ -40,3 +40,25 @@
   --border-radius-small: 1px;
   --border-radius-medium: 1px;
 }
+
+@keyframes bipo-modified-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .42;
+  }
+}
+
+.device-cell__controller.is-modified,
+.device-cell__led.is-modified {
+  animation: bipo-modified-pulse 1.35s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .device-cell__controller.is-modified,
+  .device-cell__led.is-modified {
+    animation: none;
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+  }
+}
