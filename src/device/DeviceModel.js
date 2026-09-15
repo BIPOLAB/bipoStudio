@@ -105,15 +105,117 @@ export default class DeviceModel {
     emitMidiMessage(componentId, value) {
         const configuration = this.getComponentConfiguration(componentId);
         if (!configuration) return;
-        const messageType = configuration.messageType ?? "cc";
-        const channel = Math.min(16, Math.max(1, Number(configuration.channel) || 1));
-        const number = Math.min(127, Math.max(0, Number(configuration.number) || 0));
-        const status = messageType === "note" ? 0x90 : 0xB0;
+
+        const type = configuration.messageType ?? "cc";
+        const channel = clamp(Number(configuration.channel ?? 1), 1, 16);
+        const channelIndex = channel - 1;
+        const normalized = clamp(Number(value), 0, 127);
+        const messages = this.buildMidiMessages(type, configuration, normalized, channelIndex);
+        if (!messages.length) return;
+
+        const primary = messages[0];
         this.eventBus.emit(Events.MIDI_MESSAGE, {
-            componentId, type: messageType, channel, number, value,
-            status: status + channel - 1, timestamp: Date.now()
+            componentId,
+            type,
+            channel,
+            number: configuration.number ?? configuration.parameterLsb ?? null,
+            value: normalized,
+            status: primary.status,
+            data1: primary.data1 ?? null,
+            data2: primary.data2 ?? null,
+            messages,
+            timestamp: Date.now()
         });
     }
 
+    buildMidiMessages(type, configuration, value, channelIndex) {
+        switch (type) {
+            case "cc": {
+                const number = clamp(Number(configuration.number ?? 0), 0, 127);
+                return [{ status: 0xB0 | channelIndex, data1: number, data2: this.mapRange(value, configuration.min, configuration.max) }];
+            }
+
+            case "note": {
+                const note = clamp(Number(configuration.number ?? 60), 0, 127);
+                const velocity = clamp(Number(configuration.velocity ?? 127), 0, 127);
+                const status = value > 0 ? 0x90 : 0x80;
+                return [{ status: status | channelIndex, data1: note, data2: value > 0 ? velocity : 0 }];
+            }
+
+            case "program": {
+                const program = clamp(Number(configuration.number ?? 0), 0, 127);
+                const messages = [];
+                const bankMsb = clamp(Number(configuration.bankMsb ?? 0), 0, 127);
+                const bankLsb = clamp(Number(configuration.bankLsb ?? 0), 0, 127);
+                if (bankMsb || bankLsb) {
+                    messages.push({ status: 0xB0 | channelIndex, data1: 0, data2: bankMsb });
+                    messages.push({ status: 0xB0 | channelIndex, data1: 32, data2: bankLsb });
+                }
+                messages.push({ status: 0xC0 | channelIndex, data1: program });
+                return messages;
+            }
+
+            case "nrpn":
+            case "rpn": {
+                const parameterMsb = clamp(Number(configuration.parameterMsb ?? 0), 0, 127);
+                const parameterLsb = clamp(Number(configuration.parameterLsb ?? 0), 0, 127);
+                const parameterController = type === "nrpn" ? 99 : 101;
+                const parameterControllerLsb = type === "nrpn" ? 98 : 100;
+                const data = this.mapRange(value, configuration.min, configuration.max);
+                const dataMsb = Math.floor(data / 128);
+                const dataLsb = data % 128;
+                return [
+                    { status: 0xB0 | channelIndex, data1: parameterController, data2: parameterMsb },
+                    { status: 0xB0 | channelIndex, data1: parameterControllerLsb, data2: parameterLsb },
+                    { status: 0xB0 | channelIndex, data1: 6, data2: dataMsb },
+                    { status: 0xB0 | channelIndex, data1: 38, data2: dataLsb }
+                ];
+            }
+
+            case "pitchbend": {
+                const min = Number(configuration.bendMin ?? -8192);
+                const max = Number(configuration.bendMax ?? 8191);
+                const bend = Math.round(min + (max - min) * (value / 127));
+                const raw = clamp(bend + 8192, 0, 16383);
+                return [{ status: 0xE0 | channelIndex, data1: raw & 0x7F, data2: (raw >> 7) & 0x7F }];
+            }
+
+            case "aftertouch": {
+                const aftertouch = this.mapRange(value, configuration.min, configuration.max);
+                return [{ status: 0xD0 | channelIndex, data1: aftertouch }];
+            }
+
+            case "mmc":
+                return [{ status: 0xF0, data1: 0x7F, data2: 0x7F, sysex: [0xF0, 0x7F, 0x7F, 0x06, this.mmcCommand(configuration.mmcCommand), 0xF7] }];
+
+            default:
+                return [];
+        }
+    }
+
+    mapRange(value, min = 0, max = 127) {
+        const low = Number(min ?? 0);
+        const high = Number(max ?? 127);
+        if (high === low) return clamp(Math.round(low), 0, 127);
+        return clamp(Math.round(low + (high - low) * (value / 127)), 0, 127);
+    }
+
+    mmcCommand(command) {
+        return ({
+            "stop": 0x01,
+            "play": 0x02,
+            "deferred-play": 0x03,
+            "fast-forward": 0x04,
+            "rewind": 0x05,
+            "record-punch-in": 0x06,
+            "record-punch-out": 0x07,
+            "pause": 0x09
+        })[command] ?? 0x01;
+    }
+
     onTransportMessage(message) { console.debug("[DeviceModel] transport:", message); }
+}
+
+function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, Number.isFinite(value) ? value : min));
 }
