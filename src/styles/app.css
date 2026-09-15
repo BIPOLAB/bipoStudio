@@ -109,3 +109,31 @@
 @media (max-width:760px){.brand__device{display:none}.header__dirty{display:none!important}.workspace-screen__inspector{padding:var(--spacing-4)}.inspector-panel{max-width:none}.inspector-panel__header{padding:var(--spacing-3) var(--spacing-4)}.inspector-group{padding:var(--spacing-4)}.inspector-runtime{padding:var(--spacing-3) var(--spacing-4)}}
 @media (max-width:560px){.workspace-screen{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto auto}.workspace-screen__stage{grid-column:1;grid-row:1;padding:var(--spacing-3)}.workspace-screen__inspector{grid-column:1;grid-row:2;max-height:260px;border-top:1px solid var(--color-border);border-left:0;padding:var(--spacing-3)}.workspace-screen__monitor{grid-column:1;grid-row:3;max-height:150px}.device-workspace{height:100%}.device-panel{width:min(100%,calc((100vh - 520px) * .9));min-width:0}.device-grid--4x4,.device-grid--faders{gap:5px;padding:8px}.device-panel__header{min-height:40px;padding:0 12px}.device-panel__header h1{font-size:14px}.device-panel__footer{min-height:24px;padding:0 12px}.inspector-grid{grid-template-columns:1fr 1fr}.inspector-field-row{grid-template-columns:1fr 1fr}.led-color-editor{grid-template-columns:minmax(0,1fr)!important}.led-color-wheel{margin:0 auto}.led-color-readout{width:100%}}
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+
+/* Inspector spacing refinement */
+.workspace-screen__inspector { padding:16px; }
+.inspector-panel { max-width:none; margin:0; }
+.inspector-panel__header { padding:16px 20px; }
+.inspector-group { padding:18px 20px; }
+.inspector-message-description { margin:0 0 14px; }
+.inspector-field { gap:5px; margin-bottom:14px; }
+.inspector-field-row { gap:12px; }
+.inspector-runtime { padding:12px 20px; }
+.led-color-editor { padding:18px 20px 16px !important; margin:0 !important; gap:18px; border-bottom:1px solid var(--color-border); }
+.led-color-readout { gap:8px; }
+.led-preview { margin:16px 20px 0; min-height:44px; }
+.rgb-fields { gap:6px; margin-top:8px; }
+.rgb-fields .inspector-field { margin-bottom:0; }
+@media (max-width:760px){
+  .workspace-screen__inspector { padding:12px; }
+  .inspector-panel__header { padding:14px 16px; }
+  .inspector-group { padding:16px; }
+  .led-color-editor { padding:16px !important; gap:12px; }
+  .led-preview { margin:12px 16px 0; }
+  .inspector-runtime { padding:12px 16px; }
+}
+@media (max-width:560px){
+  .inspector-panel { width:100%; }
+  .led-color-editor { padding:14px !important; }
+  .led-preview { margin:10px 14px 0; }
+}
