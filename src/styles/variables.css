@@ -1,17 +1,18 @@
 :root {
-  --color-background: #eeeeea;
-  --color-surface: #f8f8f5;
-  --color-panel: #ffffff;
-  --color-border: #d7d7d1;
+  /* bipoLab / bipoStudio system palette */
+  --color-background: #e7e3d9;
+  --color-surface: #f3f0e7;
+  --color-panel: #f3f0e7;
+  --color-border: #bdb8ad;
 
-  --color-text: #151515;
-  --color-text-muted: #75756f;
+  --color-text: #20201d;
+  --color-text-muted: #6f6b63;
 
-  --color-accent: #ef4b23;
-  --color-accent-hover: #d93d18;
+  --color-accent: #e84a2a;
+  --color-accent-hover: #c93d25;
 
-  --color-device: #1b1b1b;
-  --color-device-border: #333333;
+  --color-device: #20201d;
+  --color-device-border: #45423d;
 
   --font-family:
     Inter,
@@ -20,7 +21,7 @@
     Arial,
     sans-serif;
 
-  --font-size-small: 11px;
+  --font-size-small: 10px;
   --font-size-body: 13px;
   --font-size-header: 30px;
   --font-size-title: 15px;
@@ -36,6 +37,6 @@
   --spacing-5: 24px;
   --spacing-6: 32px;
 
-  --border-radius-small: 3px;
-  --border-radius-medium: 6px;
+  --border-radius-small: 1px;
+  --border-radius-medium: 1px;
 }
