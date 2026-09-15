@@ -8,10 +8,13 @@ export default class Workspace {
         this.model = null;
         this.selectedComponentId = null;
         this.runtimeValues = {};
+        this.modifiedComponentIds = new Set();
+        this.modifiedLedIds = new Set();
         this.eventBus.on(Events.DEVICE_MODEL_READY, this.onModelReady.bind(this));
         this.eventBus.on(Events.SELECTION_CHANGED, this.onSelectionChanged.bind(this));
         this.eventBus.on(Events.RUNTIME_CHANGED, this.onRuntimeChanged.bind(this));
         this.eventBus.on(Events.WORKING_COPY_CHANGED, this.onWorkingCopyChanged.bind(this));
+        this.eventBus.on(Events.CONFIGURATION_COMMITTED, this.onConfigurationCommitted.bind(this));
         this.bindSelectionEvents();
     }
 
@@ -35,6 +38,8 @@ export default class Workspace {
     onModelReady(model) {
         this.model = model;
         this.runtimeValues = model.runtime?.toJSON?.() ?? {};
+        this.modifiedComponentIds.clear();
+        this.modifiedLedIds.clear();
         this.render();
     }
 
@@ -50,8 +55,31 @@ export default class Workspace {
     }
 
     onWorkingCopyChanged(payload = {}) {
-        if (payload.componentId) this.updateLedVisual(payload.componentId);
-        else this.render();
+        if (payload.componentId) {
+            const isLed = String(this.selectedComponentId ?? "").endsWith("-LED") &&
+                this.getControllerIdFromLed(this.selectedComponentId) === payload.componentId;
+            if (isLed) this.modifiedLedIds.add(`${payload.componentId}-LED`);
+            else this.modifiedComponentIds.add(payload.componentId);
+            this.updateModifiedVisuals();
+            this.updateLedVisual(payload.componentId);
+            return;
+        }
+
+        if (payload.dirty === false) {
+            this.modifiedComponentIds.clear();
+            this.modifiedLedIds.clear();
+        }
+        this.render();
+    }
+
+    onConfigurationCommitted() {
+        this.modifiedComponentIds.clear();
+        this.modifiedLedIds.clear();
+        this.updateModifiedVisuals();
+    }
+
+    getControllerIdFromLed(id) {
+        return String(id ?? "").endsWith("-LED") ? String(id).slice(0, -4) : null;
     }
 
     render() {
@@ -99,12 +127,15 @@ export default class Workspace {
 
         this.bindComponentEvents();
         this.updateSelectionVisuals();
+        this.updateModifiedVisuals();
     }
 
     renderComponent(component) {
         const controllerSelected = component.id === this.selectedComponentId;
         const ledId = `${component.id}-LED`;
         const ledSelected = ledId === this.selectedComponentId;
+        const controllerModified = this.modifiedComponentIds.has(component.id);
+        const ledModified = this.modifiedLedIds.has(ledId);
         const value = Math.round(this.getRuntimeValue(component.id));
         const cfg = this.model.getComponentConfiguration(component.id) ?? {};
         const led = cfg.led ?? {
@@ -119,12 +150,12 @@ export default class Workspace {
 
         return `
             <div class="device-cell">
-                <div class="device-cell__controller ${controllerSelected ? "is-selected" : ""}">
+                <div class="device-cell__controller ${controllerSelected ? "is-selected" : ""} ${controllerModified ? "is-modified" : ""}">
                     <div class="device-control device-control--${component.type}" data-component-id="${component.id}" tabindex="0" role="button" title="${component.label}" aria-label="Configure ${component.label}" aria-valuemin="0" aria-valuemax="127" aria-valuenow="${value}">
                         <span class="device-control__visual" style="--runtime-value:${value}"></span>
                     </div>
                 </div>
-                <div class="device-cell__led ${ledSelected ? "is-selected" : ""}" data-led-id="${ledId}" data-led-component="${component.id}" title="Configure ${ledId}" role="button" tabindex="0" aria-label="Configure LED ${ledId}">
+                <div class="device-cell__led ${ledSelected ? "is-selected" : ""} ${ledModified ? "is-modified" : ""}" data-led-id="${ledId}" data-led-component="${component.id}" title="Configure ${ledId}" role="button" tabindex="0" aria-label="Configure LED ${ledId}">
                     <span class="device-control__led ${ledSelected ? "device-control__led--selected" : ""}" style="${ledStyle}"></span>
                 </div>
             </div>`;
@@ -234,6 +265,16 @@ export default class Workspace {
             const selected = led.dataset.ledId === this.selectedComponentId;
             led.classList.toggle("is-selected", selected);
             led.querySelector(".device-control__led")?.classList.toggle("device-control__led--selected", selected);
+        });
+    }
+
+    updateModifiedVisuals() {
+        this.element.querySelectorAll("[data-component-id]").forEach(control => {
+            const modified = this.modifiedComponentIds.has(control.dataset.componentId);
+            control.closest(".device-cell__controller")?.classList.toggle("is-modified", modified);
+        });
+        this.element.querySelectorAll("[data-led-id]").forEach(led => {
+            led.classList.toggle("is-modified", this.modifiedLedIds.has(led.dataset.ledId));
         });
     }
 
