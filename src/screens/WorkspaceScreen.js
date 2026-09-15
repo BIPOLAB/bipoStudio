@@ -11,7 +11,7 @@
 
 import Screen from "./Screen.js";
 import Workspace from "../ui/Workspace.js";
-import Inspector from "../ui/Inspector.js";
+import Inspector from "../ui/ResolutionInspector.js";
 import MidiMonitor from "../ui/MidiMonitor.js";
 
 export default class WorkspaceScreen extends Screen {
