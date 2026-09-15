@@ -135,6 +135,9 @@ function createKnobDevice(count) {
             messageType: "cc",
             channel: 1,
             number: 20 + i,
+            resolution: 10,
+            min: 0,
+            max: 1023,
             led: { mode: "static", color: { r: 255, g: 255, b: 255 }, brightness: 100 }
         };
         runtime[id] = 0;
@@ -180,6 +183,9 @@ function createFaderDevice(count) {
             messageType: "cc",
             channel: 1,
             number: 21 + i,
+            resolution: 10,
+            min: 0,
+            max: 1023,
             led: { mode: "static", color: { r: 255, g: 255, b: 255 }, brightness: 100 }
         };
         runtime[id] = 0;
