@@ -162,8 +162,8 @@ export default class Inspector {
         const mode = led.mode ?? "static";
         return `
             <style>
-                .led-color-editor{display:grid;grid-template-columns:190px minmax(0,1fr);gap:18px;align-items:center;margin:4px 0 18px}
-                .led-color-wheel{position:relative;width:178px;height:178px;border-radius:50%;cursor:crosshair;touch-action:none;background:radial-gradient(circle at 50% 50%,#fff 0%,rgba(255,255,255,0) 68%),conic-gradient(#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000);box-shadow:inset 0 0 0 1px rgba(0,0,0,.28),0 2px 8px rgba(0,0,0,.12)}
+                .led-color-editor{display:grid;grid-template-columns:190px minmax(0,1fr);gap:18px;align-items:center;margin:0 0 20px}
+                .led-color-wheel{position:relative;width:178px;height:178px;border-radius:50%;cursor:crosshair;touch-action:none;background:radial-gradient(circle at 50% 50%,#fff 0%,rgba(255,255,255,0) 68%),conic-gradient(from 90deg,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000);box-shadow:inset 0 0 0 1px rgba(0,0,0,.28),0 2px 8px rgba(0,0,0,.12)}
                 .led-color-wheel::after{content:"";position:absolute;inset:8px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.38),inset 0 0 18px rgba(0,0,0,.08);pointer-events:none}
                 .led-color-wheel__marker{position:absolute;width:14px;height:14px;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);left:50%;top:50%;box-sizing:border-box;box-shadow:0 0 0 1px rgba(0,0,0,.7),0 1px 3px rgba(0,0,0,.35);pointer-events:none}
                 .led-color-wheel__center{position:absolute;left:50%;top:50%;width:34px;height:34px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.8);box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none}
