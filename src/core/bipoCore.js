@@ -249,7 +249,11 @@ function createDevice(id, name, description, components, configuration, runtime)
             connectors: []
         },
         configuration,
-        runtime
+        runtime,
+        connectivity: {
+            usb: { enabled: true, status: "connected" },
+            bluetooth: { enabled: true, status: "advertising", name, connections: 0, midiEnabled: true }
+        }
     };
 }
 
