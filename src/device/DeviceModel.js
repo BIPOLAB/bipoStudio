@@ -145,6 +145,36 @@ export default class DeviceModel {
         return true;
     }
 
+    listPresets() {
+        try {
+            return JSON.parse(window.localStorage.getItem(`bipoStudio.presets.${this.device?.id}`) ?? "[]");
+        } catch { return []; }
+    }
+
+    savePreset(name) {
+        const normalized = String(name ?? "").trim().slice(0, 40);
+        if (!normalized || !this.workingCopy) return false;
+        const presets = this.listPresets().filter(preset => preset.name !== normalized);
+        presets.push({ name: normalized, savedAt: new Date().toISOString(), configuration: this.workingCopy.toJSON() });
+        try {
+            window.localStorage.setItem(`bipoStudio.presets.${this.device?.id}`, JSON.stringify(presets.slice(-20)));
+            return true;
+        } catch { return false; }
+    }
+
+    loadPreset(name) {
+        const preset = this.listPresets().find(item => item.name === name);
+        if (!preset) return false;
+        return this.importConfiguration(preset.configuration);
+    }
+
+    deletePreset(name) {
+        const presets = this.listPresets().filter(item => item.name !== name);
+        try {
+            window.localStorage.setItem(`bipoStudio.presets.${this.device?.id}`, JSON.stringify(presets));
+            return true;
+        } catch { return false; }
+    }
     validateConfiguration() {
         const issues = [];
         const seen = new Map();
