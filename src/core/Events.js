@@ -28,6 +28,11 @@ export const Events = Object.freeze({
     RUNTIME_CHANGED: "runtime:changed",
     MIDI_MESSAGE: "midi:message",
     MOCK_DEVICE_CHANGE_REQUEST: "mock-device:change-request",
+    CONNECTIVITY_CHANGED: "connectivity:changed",
+    CONNECTIVITY_REQUEST: "connectivity:request",
+    CONFIGURATION_UNDO_REQUEST: "configuration:undo-request",
+    CONFIGURATION_REDO_REQUEST: "configuration:redo-request",
+    CONFIGURATION_TOOLS_REQUEST: "configuration:tools-request",
 
     WORKING_COPY_CHANGED: "working-copy:changed",
     CONFIGURATION_COMMIT_REQUEST: "configuration:commit-request",
