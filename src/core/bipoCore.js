@@ -68,6 +68,7 @@ class BipoCore {
         const d = this.getActiveDevice();
         d.connectivity.bluetooth.enabled = Boolean(enabled);
         d.connectivity.bluetooth.status = d.connectivity.bluetooth.enabled ? "advertising" : "off";
+        this.persistConnectivity();
         return structuredClone(d.connectivity.bluetooth);
     }
 
@@ -76,6 +77,7 @@ class BipoCore {
         const d = this.getActiveDevice();
         const normalized = String(name ?? "").trim().slice(0, 32);
         if (normalized) d.connectivity.bluetooth.name = normalized;
+        this.persistConnectivity();
         return structuredClone(d.connectivity.bluetooth);
     }
 
