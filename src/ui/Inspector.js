@@ -113,6 +113,7 @@ export default class Inspector {
                     <label class="inspector-field"><span>Message type</span><select data-field="messageType">${types.map(([value, label]) => `<option value="${value}" ${selectedType === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>
                     <div class="inspector-message-description" data-message-description>${TYPE_DESCRIPTIONS[selectedType] ?? "MIDI message"}</div>
                     ${this.renderMessageFields(component, selectedType, cfg)}
+                    ${this.renderAdvancedControllerFields(component, cfg)}
                 </div>
                 <div class="inspector-runtime"><span>Runtime</span><strong data-runtime-value>${this.runtimeValue}</strong><small>0–127 input</small></div>
             </div>`;
@@ -154,6 +155,25 @@ export default class Inspector {
 
     buttonModeField(mode) { return `<label class="inspector-field"><span>Button mode</span><select data-field="mode"><option value="momentary" ${mode === "momentary" ? "selected" : ""}>Momentary</option><option value="toggle" ${mode === "toggle" ? "selected" : ""}>Toggle</option></select></label>`; }
 
+
+    renderAdvancedControllerFields(component, cfg) {
+        if (component.type === "button") return "";
+        const resolution = Number(cfg.resolution ?? 7);
+        return `
+            <div class="inspector-subgroup">
+                <span class="inspector-subgroup__title">Input behavior</span>
+                <div class="inspector-field-row">
+                    <label class="inspector-field"><span>Resolution</span><select data-field="resolution">
+                        <option value="7" ${resolution === 7 ? "selected" : ""}>7-bit</option>
+                        <option value="10" ${resolution === 10 ? "selected" : ""}>10-bit</option>
+                        <option value="14" ${resolution === 14 ? "selected" : ""}>14-bit</option>
+                    </select></label>
+                    <label class="inspector-field"><span>Invert</span><select data-field="invert"><option value="false" ${!cfg.invert ? "selected" : ""}>Normal</option><option value="true" ${cfg.invert ? "selected" : ""}>Inverted</option></select></label>
+                </div>
+                <label class="inspector-field"><span>Pickup / soft takeover</span><select data-field="pickup"><option value="off" ${(cfg.pickup ?? "off") === "off" ? "selected" : ""}>Off</option><option value="on" ${cfg.pickup === "on" ? "selected" : ""}>On</option></select></label>
+            </div>`;
+    }
+
     renderLedInspector(component) {
         const cfg = this.model.getComponentConfiguration(component.id) ?? {};
         const led = cfg.led ?? {};
@@ -179,7 +199,7 @@ export default class Inspector {
                 <div class="led-preview" style="--led-r:${rgb.r};--led-g:${rgb.g};--led-b:${rgb.b};--led-a:${brightness / 100}"><span></span></div>
                 <div class="inspector-group">
                     <label class="inspector-field"><span>Brightness</span><input type="range" data-field="brightness" min="0" max="100" value="${brightness}"><output data-brightness-value>${brightness}%</output></label>
-                    <label class="inspector-field"><span>Mode</span><select data-field="ledMode"><option value="static" ${mode === "static" ? "selected" : ""}>Static</option><option value="off" ${mode === "off" ? "selected" : ""}>Off</option><option value="runtime" ${mode === "runtime" ? "selected" : ""}>Runtime</option></select></label>
+                    <label class="inspector-field"><span>Mode</span><select data-field="ledMode"><option value="static" ${mode === "static" ? "selected" : ""}>Static</option><option value="off" ${mode === "off" ? "selected" : ""}>Off</option><option value="runtime" ${mode === "runtime" ? "selected" : ""}>Runtime value</option><option value="feedback" ${mode === "feedback" ? "selected" : ""}>MIDI feedback</option><option value="blink" ${mode === "blink" ? "selected" : ""}>Blink</option><option value="pulse" ${mode === "pulse" ? "selected" : ""}>Pulse</option></select></label>
                 </div>
             </div>`;
     }
@@ -193,8 +213,8 @@ export default class Inspector {
 
     commitControllerField(component, field) {
         const key = field.dataset.field;
-        const numeric = ["channel", "number", "velocity", "bankMsb", "bankLsb", "parameterMsb", "parameterLsb", "min", "max", "bendMin", "bendMax"].includes(key);
-        const value = numeric ? Number(field.value) : field.value;
+        const numeric = ["channel", "number", "velocity", "bankMsb", "bankLsb", "parameterMsb", "parameterLsb", "min", "max", "bendMin", "bendMax", "resolution"].includes(key);
+        const value = numeric ? Number(field.value) : field.value === "true" ? true : field.value === "false" ? false : field.value;
         const patch = { [key]: value };
         if (key === "messageType") Object.assign(patch, this.defaultsForMessageType(value, component));
         if (key === "min" || key === "max") {
