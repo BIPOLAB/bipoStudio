@@ -60,21 +60,97 @@ export default class DeviceModel {
     updateComponentConfiguration(componentId, patch) {
         if (!this.workingCopy || !this.getComponent(componentId)) return false;
         const current = this.workingCopy.get(componentId) ?? {};
-        this.workingCopy.set(componentId, { ...current, ...patch });
-        this.workingCopyDrafts.set(this.device.id, this.workingCopy.toJSON());
+        if (!this.workingCopy.set(componentId, { ...current, ...patch })) return true;
+        this.syncWorkingCopyDraft();
+        this.emitWorkingCopyChanged(componentId);
+        return true;
+    }
+
+    undoWorkingCopy() {
+        if (!this.workingCopy?.undo()) return false;
+        this.syncWorkingCopyDraft();
+        this.emitWorkingCopyChanged();
+        return true;
+    }
+
+    redoWorkingCopy() {
+        if (!this.workingCopy?.redo()) return false;
+        this.syncWorkingCopyDraft();
+        this.emitWorkingCopyChanged();
+        return true;
+    }
+
+    canUndo() { return Boolean(this.workingCopy?.canUndo()); }
+    canRedo() { return Boolean(this.workingCopy?.canRedo()); }
+
+    createSnapshot() { return this.workingCopy?.snapshot() ?? null; }
+
+    restoreSnapshot(snapshot) {
+        if (!this.workingCopy?.restoreSnapshot(snapshot)) return false;
+        this.syncWorkingCopyDraft();
+        this.emitWorkingCopyChanged();
+        return true;
+    }
+
+    exportConfiguration() {
+        return {
+            format: "bipoStudio.configuration",
+            version: 1,
+            device: this.device?.id ?? null,
+            model: this.device?.name ?? null,
+            exportedAt: new Date().toISOString(),
+            configuration: this.workingCopy?.toJSON() ?? {}
+        };
+    }
+
+    importConfiguration(payload) {
+        const values = payload?.configuration ?? payload;
+        if (!values || typeof values !== "object") return false;
+        const componentIds = new Set(this.hardware?.components?.map(component => component.id) ?? []);
+        const filtered = Object.fromEntries(Object.entries(values).filter(([id]) => componentIds.has(id)));
+        if (!Object.keys(filtered).length) return false;
+        this.workingCopy.restoreDraft({ ...this.workingCopy.toJSON(), ...filtered });
+        this.syncWorkingCopyDraft();
+        this.emitWorkingCopyChanged();
+        return true;
+    }
+
+    validateConfiguration() {
+        const issues = [];
+        const seen = new Map();
+        for (const component of this.hardware?.components ?? []) {
+            const cfg = this.getComponentConfiguration(component.id) ?? {};
+            const channel = Number(cfg.channel ?? 1);
+            if (channel < 1 || channel > 16) issues.push({ id: component.id, severity: "error", message: "MIDI channel must be 1–16." });
+            const number = Number(cfg.number ?? 0);
+            if (["cc", "note", "program"].includes(cfg.messageType) && (number < 0 || number > 127)) issues.push({ id: component.id, severity: "error", message: "MIDI number must be 0–127." });
+            const key = `${cfg.messageType ?? "cc"}:${channel}:${number}`;
+            if (seen.has(key)) issues.push({ id: component.id, severity: "warning", message: `Duplicate MIDI mapping with ${seen.get(key)}.` });
+            else seen.set(key, component.id);
+            if (cfg.min != null && cfg.max != null && Number(cfg.min) > Number(cfg.max)) issues.push({ id: component.id, severity: "error", message: "Minimum cannot exceed maximum." });
+        }
+        return issues;
+    }
+
+    syncWorkingCopyDraft() {
+        if (this.device?.id && this.workingCopy) this.workingCopyDrafts.set(this.device.id, this.workingCopy.toJSON());
+    }
+
+    emitWorkingCopyChanged(componentId = null) {
         this.eventBus.emit(Events.WORKING_COPY_CHANGED, {
             componentId,
-            configuration: this.workingCopy.get(componentId),
-            dirty: this.workingCopy.isDirty()
+            configuration: componentId ? this.workingCopy.get(componentId) : null,
+            dirty: this.workingCopy.isDirty(),
+            canUndo: this.canUndo(),
+            canRedo: this.canRedo()
         });
-        return true;
     }
 
     resetWorkingCopy() {
         if (!this.workingCopy) return;
         this.workingCopy.reset();
-        this.workingCopyDrafts.set(this.device.id, this.workingCopy.toJSON());
-        this.eventBus.emit(Events.WORKING_COPY_CHANGED, { componentId: null, configuration: null, dirty: false });
+        this.syncWorkingCopyDraft();
+        this.emitWorkingCopyChanged();
     }
 
     async commitConfiguration() {
