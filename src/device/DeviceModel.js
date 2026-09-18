@@ -37,7 +37,9 @@ export default class DeviceModel {
         this.eventBus.emit(Events.DEVICE_CONFIGURATION_LOADED, this.configuration);
         this.eventBus.emit(Events.DEVICE_LOADING_RUNTIME);
         this.runtime = new Runtime(await this.core.read("/runtime"), this.hardware);
+        this.connectivity = structuredClone(await this.core.read("/connectivity"));
         this.eventBus.emit(Events.DEVICE_RUNTIME_LOADED, this.runtime);
+        this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.connectivity);
 
         this.workingCopy = new WorkingCopy(this.configuration);
         const draft = this.workingCopyDrafts.get(this.identity.id);
@@ -56,6 +58,34 @@ export default class DeviceModel {
     getComponent(componentId) { return this.hardware?.getComponent(componentId) ?? null; }
     getComponentConfiguration(componentId) { return this.workingCopy?.get(componentId) ?? null; }
     getComponentRuntime(componentId) { return this.runtime?.get(componentId) ?? null; }
+
+    getConnectivity() { return structuredClone(this.connectivity ?? {}); }
+
+    async setBluetoothEnabled(enabled) {
+        if (!this.connectivity?.bluetooth) return false;
+        try {
+            const bluetooth = await this.core.setBluetoothEnabled(Boolean(enabled));
+            this.connectivity = { ...this.connectivity, bluetooth };
+            this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
+            return true;
+        } catch (error) {
+            this.eventBus.emit(Events.CONFIGURATION_ERROR, error);
+            return false;
+        }
+    }
+
+    async setBluetoothName(name) {
+        if (!this.connectivity?.bluetooth) return false;
+        try {
+            const bluetooth = await this.core.setBluetoothName(name);
+            this.connectivity = { ...this.connectivity, bluetooth };
+            this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
+            return true;
+        } catch (error) {
+            this.eventBus.emit(Events.CONFIGURATION_ERROR, error);
+            return false;
+        }
+    }
 
     updateComponentConfiguration(componentId, patch) {
         if (!this.workingCopy || !this.getComponent(componentId)) return false;
