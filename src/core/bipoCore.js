@@ -13,12 +13,13 @@ class BipoCore {
         this.mockDevices = this.createMockDevices();
         this.activeDeviceId = this.getStoredMockDeviceId() ?? "lab-16k";
         this.restorePersistedConfiguration();
+        this.restorePersistedConnectivity();
     }
 
     async hello() {
         await this.delay(150);
         const d = this.getActiveDevice();
-        return { id: d.id, name: d.name, firmware: "MOCK 1.0.0", protocol: "MOCK 1.0" };
+        return { id: d.id, name: d.name, firmware: "MOCK 1.0.0", protocol: "MOCK 1.0", connectivity: structuredClone(d.connectivity) };
     }
 
     async read(resource) {
@@ -27,6 +28,7 @@ class BipoCore {
         if (resource === "/hardware") return d.hardware;
         if (resource === "/configuration") return d.configuration;
         if (resource === "/runtime") return d.runtime;
+        if (resource === "/connectivity") return d.connectivity;
         throw new Error(`Unknown resource: ${resource}`);
     }
 
@@ -40,6 +42,8 @@ class BipoCore {
             d.configuration = structuredClone(data);
         } else if (resource === "/runtime") {
             d.runtime = structuredClone(data);
+        } else if (resource === "/connectivity") {
+            d.connectivity = { ...d.connectivity, ...structuredClone(data) };
         } else {
             throw new Error(`Unknown writable resource: ${resource}`);
         }
@@ -50,7 +54,44 @@ class BipoCore {
     async commit() {
         await this.delay(60);
         this.persistCommittedConfiguration();
+        this.persistConnectivity();
         console.log("MOCK COMMIT");
+    }
+
+    async readConnectivity() {
+        await this.delay(40);
+        return structuredClone(this.getActiveDevice().connectivity);
+    }
+
+    async setBluetoothEnabled(enabled) {
+        await this.delay(60);
+        const d = this.getActiveDevice();
+        d.connectivity.bluetooth.enabled = Boolean(enabled);
+        d.connectivity.bluetooth.status = d.connectivity.bluetooth.enabled ? "advertising" : "off";
+        return structuredClone(d.connectivity.bluetooth);
+    }
+
+    async setBluetoothName(name) {
+        await this.delay(60);
+        const d = this.getActiveDevice();
+        const normalized = String(name ?? "").trim().slice(0, 32);
+        if (normalized) d.connectivity.bluetooth.name = normalized;
+        return structuredClone(d.connectivity.bluetooth);
+    }
+
+    persistConnectivity() {
+        try {
+            const d = this.getActiveDevice();
+            window.localStorage.setItem(`bipoStudio.mockConnectivity.${d.id}`, JSON.stringify(d.connectivity));
+        } catch {}
+    }
+
+    restorePersistedConnectivity() {
+        try {
+            const d = this.getActiveDevice();
+            const raw = window.localStorage.getItem(`bipoStudio.mockConnectivity.${d.id}`);
+            if (raw) d.connectivity = { ...d.connectivity, ...JSON.parse(raw) };
+        } catch {}
     }
 
     setMockDevice(id) {
@@ -58,6 +99,7 @@ class BipoCore {
         this.activeDeviceId = id;
         this.storeMockDeviceId(id);
         this.restorePersistedConfiguration();
+        this.restorePersistedConnectivity();
     }
 
     getMockDevices() {
