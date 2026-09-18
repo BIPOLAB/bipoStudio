@@ -32,6 +32,7 @@ export class Application {
         this.screenHost = null;
         this.ui = null;
         this.workspaceScreen = null;
+        this.snapshot = null;
     }
 
     async start() {
@@ -72,6 +73,10 @@ export class Application {
     bindApplicationEvents() {
         this.eventBus.on(Events.DEVICE_MODEL_READY, model => this.mountWorkspace(model));
         this.eventBus.on(Events.MOCK_DEVICE_CHANGE_REQUEST, deviceId => this.switchMockDevice(deviceId));
+        this.eventBus.on(Events.CONNECTIVITY_REQUEST, payload => this.handleConnectivityRequest(payload));
+        this.eventBus.on(Events.CONFIGURATION_UNDO_REQUEST, () => this.handleUndo());
+        this.eventBus.on(Events.CONFIGURATION_REDO_REQUEST, () => this.handleRedo());
+        this.eventBus.on(Events.CONFIGURATION_TOOLS_REQUEST, payload => this.handleConfigurationTool(payload));
         this.eventBus.on(Events.CONFIGURATION_RESET_REQUEST, () => {
             this.deviceModel.resetWorkingCopy();
             this.ui.statusBar.status = "Changes reset";
@@ -97,6 +102,89 @@ export class Application {
             return;
         }
         this.workspaceScreen.setModel(model);
+    }
+
+
+    async handleConnectivityRequest(payload = {}) {
+        if (payload.action === "bluetooth-enabled") {
+            this.ui.statusBar.status = payload.value ? "Enabling Bluetooth MIDI..." : "Disabling Bluetooth MIDI...";
+            this.ui.statusBar.render();
+            const ok = await this.deviceModel.setBluetoothEnabled(payload.value);
+            this.ui.statusBar.status = ok ? (payload.value ? "Bluetooth MIDI enabled" : "Bluetooth MIDI disabled") : "Bluetooth update failed";
+            this.ui.statusBar.render();
+            return;
+        }
+        if (payload.action === "bluetooth-name") {
+            const ok = await this.deviceModel.setBluetoothName(payload.value);
+            this.ui.statusBar.status = ok ? "Bluetooth MIDI name updated" : "Bluetooth name update failed";
+            this.ui.statusBar.render();
+        }
+    }
+
+    handleUndo() {
+        if (!this.deviceModel.undoWorkingCopy()) return;
+        this.ui.statusBar.status = "Undid last change";
+        this.ui.statusBar.render();
+    }
+
+    handleRedo() {
+        if (!this.deviceModel.redoWorkingCopy()) return;
+        this.ui.statusBar.status = "Redid last change";
+        this.ui.statusBar.render();
+    }
+
+    handleConfigurationTool(payload = {}) {
+        switch (payload.action) {
+            case "snapshot":
+                this.snapshot = this.deviceModel.createSnapshot();
+                this.ui.statusBar.status = "Configuration snapshot captured";
+                this.ui.statusBar.render();
+                break;
+            case "export":
+                this.downloadConfiguration();
+                break;
+            case "import":
+                if (this.deviceModel.importConfiguration(payload.payload)) {
+                    this.ui.statusBar.status = "Configuration imported into working copy";
+                } else {
+                    this.ui.statusBar.status = "Import rejected: no matching components";
+                }
+                this.ui.statusBar.render();
+                break;
+            case "validate":
+                this.showValidationResult();
+                break;
+            case "error":
+                this.ui.statusBar.status = payload.message ?? "Configuration tool error";
+                this.ui.statusBar.render();
+                break;
+        }
+    }
+
+    downloadConfiguration() {
+        const payload = this.deviceModel.exportConfiguration();
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `${payload.model ?? "bipoStudio"}-configuration.json`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+        this.ui.statusBar.status = "Configuration exported";
+        this.ui.statusBar.render();
+    }
+
+    showValidationResult() {
+        const issues = this.deviceModel.validateConfiguration();
+        if (!issues.length) {
+            this.ui.statusBar.status = "Configuration check: no issues";
+        } else {
+            const errors = issues.filter(issue => issue.severity === "error").length;
+            const warnings = issues.filter(issue => issue.severity === "warning").length;
+            this.ui.statusBar.status = `Configuration check: ${errors} errors · ${warnings} warnings`;
+            console.table(issues);
+        }
+        this.ui.statusBar.render();
     }
 
     async switchMockDevice(deviceId) {
