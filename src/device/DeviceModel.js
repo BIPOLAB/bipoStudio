@@ -13,6 +13,7 @@ export default class DeviceModel {
         this.hardware = null;
         this.configuration = null;
         this.runtime = null;
+        this.connectivity = null;
         this.workingCopy = null;
         this.workingCopyDrafts = new Map();
         this.eventBus.on?.("transport:message", this.onTransportMessage.bind(this));
@@ -183,7 +184,8 @@ export default class DeviceModel {
             const channel = Number(cfg.channel ?? 1);
             if (channel < 1 || channel > 16) issues.push({ id: component.id, severity: "error", message: "MIDI channel must be 1–16." });
             const number = Number(cfg.number ?? 0);
-            if (["cc", "note", "program"].includes(cfg.messageType) && (number < 0 || number > 127)) issues.push({ id: component.id, severity: "error", message: "MIDI number must be 0–127." });
+            const maxNumber = cfg.messageType === "cc14" ? 31 : 127;
+            if (["cc", "cc14", "note", "program"].includes(cfg.messageType) && (number < 0 || number > maxNumber)) issues.push({ id: component.id, severity: "error", message: `MIDI number must be 0–${maxNumber}.` });
             const key = `${cfg.messageType ?? "cc"}:${channel}:${number}`;
             if (seen.has(key)) issues.push({ id: component.id, severity: "warning", message: `Duplicate MIDI mapping with ${seen.get(key)}.` });
             else seen.set(key, component.id);
