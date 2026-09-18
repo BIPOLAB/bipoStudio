@@ -30,10 +30,10 @@ export default class Sidebar {
         const devMode = Boolean(import.meta.env?.DEV);
         const devices = devMode ? bipoCore.getMockDevices() : [];
 
-        this.element.innerHTML = \`
-            <aside class="studio-sidebar \${this.open ? "is-open" : ""}" aria-label="bipoStudio navigation">
+        this.element.innerHTML = `
+            <aside class="studio-sidebar ${this.open ? "is-open" : ""}" aria-label="bipoStudio navigation">
                 <header class="studio-sidebar__header">
-                    <button class="studio-sidebar__toggle" type="button" aria-label="\${this.open ? "Collapse" : "Expand"} bipoStudio navigation" aria-expanded="\${this.open}" data-action="toggle">
+                    <button class="studio-sidebar__toggle" type="button" aria-label="${this.open ? "Collapse" : "Expand"} bipoStudio navigation" aria-expanded="${this.open}" data-action="toggle">
                         <span class="studio-sidebar__mark" aria-hidden="true">b</span>
                         <span class="studio-sidebar__toggle-icon" aria-hidden="true">‹</span>
                     </button>
@@ -58,17 +58,17 @@ export default class Sidebar {
                     </button>
                 </nav>
 
-                \${devMode ? \`
+                ${devMode ? `
                 <section class="studio-sidebar__section">
                     <span class="studio-sidebar__eyebrow">Development</span>
                     <label class="studio-sidebar__field">
                         <span>Mock controller</span>
                         <select data-action="mock-device">
-                            \${devices.map(device => \`<option value="\${device.id}" \${device.id === this.device?.id ? "selected" : ""}>\${device.name}</option>\`).join("")}
+                            ${devices.map(device => `<option value="${device.id}" ${device.id === this.device?.id ? "selected" : ""}>${device.name}</option>`).join("")}
                         </select>
                     </label>
                     <p>Development-only hardware emulation. Production bipoCore will identify the connected controller automatically.</p>
-                </section>\` : ""}
+                </section>` : ""}
 
                 <section class="studio-sidebar__account">
                     <span class="studio-sidebar__eyebrow">bipoLab account</span>
@@ -83,11 +83,11 @@ export default class Sidebar {
 
                 <footer class="studio-sidebar__footer">
                     <span>bipoLab / bipoStudio</span>
-                    <span>\${this.device?.firmware ?? "DEVICE OFFLINE"}</span>
+                    <span>${this.device?.firmware ?? "DEVICE OFFLINE"}</span>
                 </footer>
             </aside>
-            \${this.renderAuthModal()}
-        \`;
+            ${this.renderAuthModal()}
+        `;
 
         this.bindEvents();
     }
