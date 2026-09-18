@@ -104,7 +104,7 @@ export default class Sidebar {
                         <button type="button" data-action="undo" ${this.model?.canUndo?.() ? "" : "disabled"}>Undo</button>
                         <button type="button" data-action="redo" ${this.model?.canRedo?.() ? "" : "disabled"}>Redo</button>
                         <button type="button" data-action="snapshot">Snapshot</button>
-                        <button type="button" data-action="restore-snapshot" disabled>Restore</button>
+                        <button type="button" data-action="restore-snapshot">Restore</button>
                         <button type="button" data-action="preset-save">Save preset</button>
                         <button type="button" data-action="preset-load">Load preset</button>
                         <button type="button" data-action="export">Export</button>
