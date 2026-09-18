@@ -20,6 +20,7 @@ import ProgressScreen from "../screens/ProgressScreen.js";
 import WorkspaceScreen from "../screens/WorkspaceScreen.js";
 import Header from "../ui/Header.js";
 import StatusBar from "../ui/StatusBar.js";
+import Sidebar from "../ui/Sidebar.js";
 
 export class Application {
     constructor() {
@@ -55,16 +56,17 @@ export class Application {
     }
 
     renderApplicationShell(app) {
-        app.innerHTML = `<div class="studio"><header id="header"></header><div id="screen-host"></div><footer id="statusbar"></footer></div>`;
+        app.innerHTML = `<div class="studio"><header id="header"></header><div id="screen-host"></div><footer id="statusbar"></footer><div id="sidebar-host"></div></div>`;
     }
 
     createUserInterface() {
         const headerElement = document.getElementById("header");
         const screenHostElement = document.getElementById("screen-host");
         const statusBarElement = document.getElementById("statusbar");
-        if (!headerElement || !screenHostElement || !statusBarElement) throw new Error("Application shell could not be initialized.");
+        const sidebarElement = document.getElementById("sidebar-host");
+        if (!headerElement || !screenHostElement || !statusBarElement || !sidebarElement) throw new Error("Application shell could not be initialized.");
         this.screenHost = new ScreenHost(screenHostElement);
-        this.ui = { header: new Header(headerElement, this.eventBus), statusBar: new StatusBar(statusBarElement, this.eventBus) };
+        this.ui = { header: new Header(headerElement, this.eventBus), statusBar: new StatusBar(statusBarElement, this.eventBus), sidebar: new Sidebar(sidebarElement, this.eventBus) };
     }
 
     bindApplicationEvents() {
@@ -121,6 +123,7 @@ export class Application {
     showInitialUserInterface() {
         this.ui.header.show();
         this.ui.statusBar.show();
+        this.ui.sidebar.show();
         const progressScreen = new ProgressScreen(this.screenHost.element, this.eventBus);
         this.screenHost.show(progressScreen);
     }
