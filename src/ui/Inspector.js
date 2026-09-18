@@ -115,6 +115,7 @@ export default class Inspector {
                     <label class="inspector-field"><span>Message type</span><select data-field="messageType">${types.map(([value, label]) => `<option value="${value}" ${selectedType === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>
                     <div class="inspector-message-description" data-message-description>${TYPE_DESCRIPTIONS[selectedType] ?? "MIDI message"}</div>
                     ${this.renderMessageFields(component, selectedType, cfg)}
+                    ${this.renderIdentityField(component, cfg)}
                     ${this.renderAdvancedControllerFields(component, cfg)}
                 </div>
                 <div class="inspector-runtime"><span>Runtime</span><strong data-runtime-value>${this.runtimeValue}</strong><small>0–127 input</small></div>
@@ -156,8 +157,12 @@ export default class Inspector {
 
     rangeFields(min, max, minField = "min", maxField = "max") { return `<div class="inspector-field-row">${this.numberField("Minimum", min, min, max, minField)}${this.numberField("Maximum", max, min, max, maxField)}</div>`; }
 
-    buttonModeField(mode) { return `<label class="inspector-field"><span>Button mode</span><select data-field="mode"><option value="momentary" ${mode === "momentary" ? "selected" : ""}>Momentary</option><option value="toggle" ${mode === "toggle" ? "selected" : ""}>Toggle</option></select></label>`; }
+    buttonModeField(mode) { return `<label class="inspector-field"><span>Button mode</span><select data-field="mode"><option value="momentary" ${mode === "momentary" ? "selected" : ""}>Momentary</option><option value="toggle" ${mode === "toggle" ? "selected" : ""}>Toggle</option><option value="one-shot" ${mode === "one-shot" ? "selected" : ""}>One-shot</option><option value="long-press" ${mode === "long-press" ? "selected" : ""}>Long press</option><option value="double-press" ${mode === "double-press" ? "selected" : ""}>Double press</option></select></label>`; }
 
+
+    renderIdentityField(component, cfg) {
+        return `<label class="inspector-field"><span>Control name</span><input type="text" data-field="customName" maxlength="32" value="${escapeAttribute(cfg.customName ?? component.label)}"></label>`;
+    }
 
     renderAdvancedControllerFields(component, cfg) {
         if (component.type === "button") return "";
@@ -344,4 +349,8 @@ export default class Inspector {
         const output = this.element.querySelector("[data-runtime-value]");
         if (output) output.textContent = this.runtimeValue;
     }
+}
+
+function escapeAttribute(value) {
+    return String(value ?? "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
