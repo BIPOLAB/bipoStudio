@@ -655,3 +655,31 @@
   letter-spacing:.12em;
   text-transform:uppercase;
 }
+
+.studio-sidebar__system {
+  display:none;
+}
+.studio-sidebar.is-open .studio-sidebar__system {
+  display:block;
+}
+.studio-system-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.studio-system-grid span {
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.studio-system-grid small {
+  color:var(--color-text-muted);
+  font:7px/1 monospace;
+  letter-spacing:.08em;
+}
+.studio-system-grid b {
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:9px;
+}
