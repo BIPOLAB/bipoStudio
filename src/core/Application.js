@@ -56,7 +56,7 @@ export class Application {
     }
 
     renderApplicationShell(app) {
-        app.innerHTML = `<div class="studio"><header id="header"></header><div id="screen-host"></div><footer id="statusbar"></footer><div id="sidebar-host"></div></div>`;
+        app.innerHTML = `<div class="studio"><div id="sidebar-host"></div><header id="header"></header><div id="screen-host"></div><footer id="statusbar"></footer></div>`;
     }
 
     createUserInterface() {
