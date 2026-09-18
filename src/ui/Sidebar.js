@@ -104,6 +104,9 @@ export default class Sidebar {
                         <button type="button" data-action="undo" ${this.model?.canUndo?.() ? "" : "disabled"}>Undo</button>
                         <button type="button" data-action="redo" ${this.model?.canRedo?.() ? "" : "disabled"}>Redo</button>
                         <button type="button" data-action="snapshot">Snapshot</button>
+                        <button type="button" data-action="restore-snapshot" disabled>Restore</button>
+                        <button type="button" data-action="preset-save">Save preset</button>
+                        <button type="button" data-action="preset-load">Load preset</button>
                         <button type="button" data-action="export">Export</button>
                         <button type="button" data-action="import">Import</button>
                         <button type="button" data-action="validate">Check</button>
@@ -208,6 +211,9 @@ export default class Sidebar {
         this.element.querySelector('[data-action="undo"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_UNDO_REQUEST));
         this.element.querySelector('[data-action="redo"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_REDO_REQUEST));
         this.element.querySelector('[data-action="snapshot"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "snapshot" }));
+        this.element.querySelector('[data-action="restore-snapshot"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "restore-snapshot" }));
+        this.element.querySelector('[data-action="preset-save"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "preset-save" }));
+        this.element.querySelector('[data-action="preset-load"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "preset-load" }));
         this.element.querySelector('[data-action="export"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "export" }));
         this.element.querySelector('[data-action="validate"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "validate" }));
         this.element.querySelector('[data-action="import"]')?.addEventListener("click", () => this.element.querySelector("[data-import-input]")?.click());
