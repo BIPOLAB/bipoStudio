@@ -127,7 +127,17 @@ export default class Sidebar {
                     <p>Development-only hardware emulation. Production bipoCore will identify the connected controller automatically.</p>
                 </section>` : ""}
 
-                <section class="studio-sidebar__section studio-sidebar__system">\n                    <span class="studio-sidebar__eyebrow">Device</span>\n                    <div class="studio-system-grid">\n                        <span><small>MODEL</small><b>${this.device?.name ?? "—"}</b></span>\n                        <span><small>FIRMWARE</small><b>${this.device?.firmware ?? "—"}</b></span>\n                        <span><small>HARDWARE</small><b>${this.model?.hardware?.hardwareRevision ?? "—"}</b></span>\n                        <span><small>PROTOCOL</small><b>${this.device?.protocol ?? "—"}</b></span>\n                    </div>\n                </section>\n\n                <section class="studio-sidebar__account">
+                <section class="studio-sidebar__section studio-sidebar__system">
+                    <span class="studio-sidebar__eyebrow">Device</span>
+                    <div class="studio-system-grid">
+                        <span><small>MODEL</small><b>${this.device?.name ?? "—"}</b></span>
+                        <span><small>FIRMWARE</small><b>${this.device?.firmware ?? "—"}</b></span>
+                        <span><small>HARDWARE</small><b>${this.model?.hardware?.hardwareRevision ?? "—"}</b></span>
+                        <span><small>PROTOCOL</small><b>${this.device?.protocol ?? "—"}</b></span>
+                    </div>
+                </section>
+
+                <section class="studio-sidebar__account">
                     <span class="studio-sidebar__eyebrow">bipoLab account</span>
                     <div class="studio-sidebar__account-copy">
                         <h3>Sync your studio</h3>
@@ -235,8 +245,8 @@ export default class Sidebar {
     bindAuthEvents() {
         this.element.querySelectorAll("[data-auth-view]").forEach(button => button.addEventListener("click", () => {
             this.authView = button.dataset.authView;
-            this.render();
             this.authOpen = true;
+            this.render();
         }));
         this.element.querySelectorAll('[data-action="auth-close"]').forEach(button => button.addEventListener("click", () => {
             this.authOpen = false;
