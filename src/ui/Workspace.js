@@ -164,98 +164,18 @@ export default class Workspace {
     bindComponentEvents() {
         this.element.querySelectorAll("[data-component-id]").forEach(control => {
             const id = control.dataset.componentId;
-            const component = this.model.getComponent(id);
-            const configuration = this.model.getComponentConfiguration(id) ?? {};
-            const isButton = component?.type === "switch" || component?.type === "button";
-            const isContinuous = component?.type === "knob" || component?.type === "fader";
-
-            control.addEventListener("click", () => this.selectionManager.select(id));
+            control.addEventListener("click", event => {
+                event.preventDefault();
+                this.selectionManager.select(id);
+            });
             control.addEventListener("keydown", event => {
                 if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
                     this.selectionManager.select(id);
-                    if (isButton && (configuration.mode ?? configuration.buttonMode ?? "momentary") === "toggle") {
-                        this.setRuntimeValue(id, this.getRuntimeValue(id) > 0 ? 0 : 127);
-                    }
-                    return;
-                }
-
-                if (!isContinuous) return;
-
-                const current = this.getRuntimeValue(id);
-                const step = event.shiftKey ? 10 : 1;
-                if (event.key === "ArrowUp" || event.key === "ArrowRight") {
-                    event.preventDefault();
-                    this.setRuntimeValue(id, current + step);
-                } else if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
-                    event.preventDefault();
-                    this.setRuntimeValue(id, current - step);
-                } else if (event.key === "Home") {
-                    event.preventDefault();
-                    this.setRuntimeValue(id, 0);
-                } else if (event.key === "End") {
-                    event.preventDefault();
-                    this.setRuntimeValue(id, 127);
                 }
             });
-
-            if (isContinuous) {
-                let dragging = false;
-                let lastY = 0;
-                control.addEventListener("pointerdown", event => {
-                    dragging = true;
-                    lastY = event.clientY;
-                    control.setPointerCapture?.(event.pointerId);
-                    this.selectionManager.select(id);
-                    event.preventDefault();
-                });
-                control.addEventListener("pointermove", event => {
-                    if (!dragging) return;
-                    const delta = lastY - event.clientY;
-                    lastY = event.clientY;
-                    const multiplier = component.type === "fader" ? 1.2 : 0.8;
-                    this.setRuntimeValue(id, this.getRuntimeValue(id) + delta * multiplier);
-                    event.preventDefault();
-                });
-                control.addEventListener("wheel", event => {
-                    event.preventDefault();
-                    this.selectionManager.select(id);
-                    const direction = event.deltaY < 0 ? 1 : -1;
-                    const step = event.shiftKey ? 10 : 2;
-                    this.setRuntimeValue(id, this.getRuntimeValue(id) + direction * step);
-                }, { passive: false });
-                control.addEventListener("dblclick", event => {
-                    event.preventDefault();
-                    this.setRuntimeValue(id, 0);
-                });
-                const stop = event => {
-                    dragging = false;
-                    control.releasePointerCapture?.(event.pointerId);
-                };
-                control.addEventListener("pointerup", stop);
-                control.addEventListener("pointercancel", stop);
-            }
-
-            if (isButton) {
-                const mode = configuration.mode ?? configuration.buttonMode ?? "momentary";
-                if (mode === "toggle") {
-                    control.addEventListener("click", () => this.setRuntimeValue(id, this.getRuntimeValue(id) > 0 ? 0 : 127));
-                } else {
-                    control.addEventListener("pointerdown", event => {
-                        this.setRuntimeValue(id, 127);
-                        control.setPointerCapture?.(event.pointerId);
-                    });
-                    const release = event => {
-                        this.setRuntimeValue(id, 0);
-                        control.releasePointerCapture?.(event.pointerId);
-                    };
-                    control.addEventListener("pointerup", release);
-                    control.addEventListener("pointercancel", release);
-                }
-            }
         });
     }
-
     updateSelectionVisuals() {
         this.element.querySelectorAll("[data-component-id]").forEach(control => {
             const selected = control.dataset.componentId === this.selectedComponentId;
