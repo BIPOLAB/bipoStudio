@@ -271,6 +271,16 @@ export default class DeviceModel {
                 return [{ status: 0xB0 | channelIndex, data1: number, data2: this.mapRange(value, configuration.min, configuration.max) }];
             }
 
+            case "cc14": {
+                const msb = clamp(Number(configuration.number ?? 0), 0, 31);
+                const lsb = clamp(Number(configuration.lsbNumber ?? msb + 32), 32, 63);
+                const raw = this.mapRange(value, configuration.min ?? 0, configuration.max ?? 16383, 16383);
+                return [
+                    { status: 0xB0 | channelIndex, data1: msb, data2: (raw >> 7) & 0x7F },
+                    { status: 0xB0 | channelIndex, data1: lsb, data2: raw & 0x7F }
+                ];
+            }
+
             case "note": {
                 const note = clamp(Number(configuration.number ?? 60), 0, 127);
                 const velocity = clamp(Number(configuration.velocity ?? 127), 0, 127);
@@ -329,11 +339,11 @@ export default class DeviceModel {
         }
     }
 
-    mapRange(value, min = 0, max = 127) {
+    mapRange(value, min = 0, max = 127, outputMax = 127) {
         const low = Number(min ?? 0);
-        const high = Number(max ?? 127);
-        if (high === low) return clamp(Math.round(low), 0, 127);
-        return clamp(Math.round(low + (high - low) * (value / 127)), 0, 127);
+        const high = Number(max ?? outputMax);
+        if (high === low) return clamp(Math.round(low), 0, outputMax);
+        return clamp(Math.round(low + (high - low) * (value / 127)), 0, outputMax);
     }
 
     mmcCommand(command) {
