@@ -2,6 +2,7 @@ import { Events } from "../core/Events.js";
 
 const KNOB_MESSAGE_TYPES = [
     ["cc", "Control Change"],
+    ["cc14", "14-bit Control Change"],
     ["nrpn", "NRPN"],
     ["rpn", "RPN"],
     ["pitchbend", "Pitch Bend"],
@@ -20,6 +21,7 @@ const BUTTON_MESSAGE_TYPES = [
 
 const TYPE_DESCRIPTIONS = {
     cc: "7-bit continuous controller",
+    cc14: "14-bit controller pair (MSB + LSB)",
     note: "Note trigger with velocity",
     program: "Program and bank selection",
     nrpn: "14-bit non-registered parameter",
@@ -129,6 +131,7 @@ export default class Inspector {
         const mode = cfg.mode ?? "momentary";
         const channelField = `<label class="inspector-field"><span>MIDI channel</span><select data-field="channel">${Array.from({ length: 16 }, (_, i) => `<option value="${i + 1}" ${channel === i + 1 ? "selected" : ""}>Channel ${i + 1}</option>`).join("")}</select></label>`;
         if (type === "cc") return `${channelField}${this.numberField("CC number", number, 0, 127, "number")}${this.rangeFields(min, max)}${component.type === "button" ? this.buttonModeField(mode) : this.responseCurveField(cfg)}`;
+        if (type === "cc14") return `${channelField}${this.numberField("MSB CC", number, 0, 31, "number")}${this.numberField("LSB CC", Number(cfg.lsbNumber ?? number + 32), 32, 63, "lsbNumber")}${this.rangeFields(0, 16383)}${this.responseCurveField(cfg)}`;
         if (type === "note") return `${channelField}${this.noteField(number)}${this.numberField("Velocity", Number(cfg.velocity ?? 127), 1, 127, "velocity")}${this.buttonModeField(mode)}`;
         if (type === "program") return `${channelField}${this.numberField("Program", number, 0, 127, "number")}${this.numberField("Bank MSB", Number(cfg.bankMsb ?? 0), 0, 127, "bankMsb")}${this.numberField("Bank LSB", Number(cfg.bankLsb ?? 0), 0, 127, "bankLsb")}`;
         if (type === "nrpn" || type === "rpn") return `${channelField}${this.numberField("Parameter MSB", Number(cfg.parameterMsb ?? 0), 0, 127, "parameterMsb")}${this.numberField("Parameter LSB", Number(cfg.parameterLsb ?? 0), 0, 127, "parameterLsb")}${this.rangeFields(min, max)}${this.responseCurveField(cfg)}`;
@@ -213,7 +216,7 @@ export default class Inspector {
 
     commitControllerField(component, field) {
         const key = field.dataset.field;
-        const numeric = ["channel", "number", "velocity", "bankMsb", "bankLsb", "parameterMsb", "parameterLsb", "min", "max", "bendMin", "bendMax", "resolution"].includes(key);
+        const numeric = ["channel", "number", "lsbNumber", "velocity", "bankMsb", "bankLsb", "parameterMsb", "parameterLsb", "min", "max", "bendMin", "bendMax", "resolution"].includes(key);
         const value = numeric ? Number(field.value) : field.value === "true" ? true : field.value === "false" ? false : field.value;
         const patch = { [key]: value };
         if (key === "messageType") Object.assign(patch, this.defaultsForMessageType(value, component));
@@ -233,6 +236,7 @@ export default class Inspector {
 
     defaultsForMessageType(type, component) {
         if (type === "cc") return { number: component.type === "knob" ? 20 : 0, min: 0, max: 127, curve: "linear" };
+        if (type === "cc14") return { number: component.type === "knob" ? 20 : 0, lsbNumber: component.type === "knob" ? 52 : 32, min: 0, max: 16383, curve: "linear" };
         if (type === "note") return { number: 60, velocity: 127, mode: "momentary" };
         if (type === "program") return { number: 0, bankMsb: 0, bankLsb: 0 };
         if (type === "nrpn" || type === "rpn") return { parameterMsb: 0, parameterLsb: 0, min: 0, max: 127, curve: "linear" };
