@@ -140,6 +140,35 @@ export class Application {
                 this.ui.statusBar.status = "Configuration snapshot captured";
                 this.ui.statusBar.render();
                 break;
+            case "restore-snapshot":
+                if (this.snapshot && this.deviceModel.restoreSnapshot(this.snapshot)) {
+                    this.ui.statusBar.status = "Configuration snapshot restored";
+                } else {
+                    this.ui.statusBar.status = "No snapshot available";
+                }
+                this.ui.statusBar.render();
+                break;
+            case "preset-save": {
+                const name = window.prompt("Preset name", "My preset");
+                if (name && this.deviceModel.savePreset(name)) this.ui.statusBar.status = `Preset "${name}" saved`;
+                else this.ui.statusBar.status = "Preset was not saved";
+                this.ui.statusBar.render();
+                break;
+            }
+            case "preset-load": {
+                const presets = this.deviceModel.listPresets();
+                if (!presets.length) {
+                    this.ui.statusBar.status = "No saved presets for this device";
+                    this.ui.statusBar.render();
+                    break;
+                }
+                const names = presets.map((preset, index) => `${index + 1}. ${preset.name}`).join("\\n");
+                const selected = window.prompt(`Load preset:\\n\\n${names}\\n\\nEnter preset name`, presets[0].name);
+                if (selected && this.deviceModel.loadPreset(selected)) this.ui.statusBar.status = `Preset "${selected}" loaded into working copy`;
+                else this.ui.statusBar.status = "Preset was not loaded";
+                this.ui.statusBar.render();
+                break;
+            }
             case "export":
                 this.downloadConfiguration();
                 break;
