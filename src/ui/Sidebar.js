@@ -6,20 +6,31 @@ export default class Sidebar {
         this.element = element;
         this.eventBus = eventBus;
         this.device = null;
+        this.model = null;
+        this.connectivity = null;
         this.open = false;
         this.authView = "signin";
         this.authOpen = false;
         this.eventBus.on(Events.SESSION_CHANGED, this.onSessionChanged.bind(this));
+        this.eventBus.on(Events.DEVICE_MODEL_READY, model => {
+            this.model = model;
+            this.connectivity = model.getConnectivity?.() ?? null;
+            this.render();
+        });
+        this.eventBus.on(Events.CONNECTIVITY_CHANGED, connectivity => {
+            this.connectivity = connectivity;
+            this.render();
+        });
+        this.eventBus.on(Events.WORKING_COPY_CHANGED, () => this.render());
     }
 
     onSessionChanged(device) {
         this.device = device;
+        this.connectivity = device?.connectivity ?? this.connectivity;
         this.render();
     }
 
-    show() {
-        this.render();
-    }
+    show() { this.render(); }
 
     toggle() {
         this.open = !this.open;
@@ -29,6 +40,9 @@ export default class Sidebar {
     render() {
         const devMode = Boolean(import.meta.env?.DEV);
         const devices = devMode ? bipoCore.getMockDevices() : [];
+        const bt = this.connectivity?.bluetooth;
+        const usb = this.connectivity?.usb;
+        const dirty = Boolean(this.model?.workingCopy?.isDirty?.());
 
         this.element.innerHTML = `
             <aside class="studio-sidebar ${this.open ? "is-open" : ""}" aria-label="bipoStudio navigation">
@@ -48,18 +62,58 @@ export default class Sidebar {
                         <span class="studio-sidebar__icon" aria-hidden="true">▦</span>
                         <span class="studio-sidebar__nav-copy"><strong>Studio</strong><small>CONTROL CONFIGURATION</small></span>
                     </button>
+                    <button class="studio-sidebar__nav-item" type="button" title="Connectivity" data-action="connectivity">
+                        <span class="studio-sidebar__icon" aria-hidden="true">⌁</span>
+                        <span class="studio-sidebar__nav-copy"><strong>Connectivity</strong><small>USB / BLUETOOTH MIDI</small></span>
+                    </button>
+                    <button class="studio-sidebar__nav-item" type="button" title="Tools" data-action="tools">
+                        <span class="studio-sidebar__icon" aria-hidden="true">⚙</span>
+                        <span class="studio-sidebar__nav-copy"><strong>Tools</strong><small>PRESETS / SNAPSHOT / MIDI</small></span>
+                    </button>
                     <button class="studio-sidebar__nav-item" type="button" title="Account" data-action="account">
                         <span class="studio-sidebar__icon" aria-hidden="true">◎</span>
                         <span class="studio-sidebar__nav-copy"><strong>Account</strong><small>SIGN IN / REGISTER</small></span>
                     </button>
-                    <button class="studio-sidebar__nav-item" type="button" title="About bipoLab">
-                        <span class="studio-sidebar__icon" aria-hidden="true">i</span>
-                        <span class="studio-sidebar__nav-copy"><strong>About bipoLab</strong><small>ENGINEERING / PLATFORM</small></span>
-                    </button>
                 </nav>
 
+                <section class="studio-sidebar__section studio-sidebar__connectivity">
+                    <span class="studio-sidebar__eyebrow">Connectivity</span>
+                    <div class="studio-connectivity__row">
+                        <span><b>USB MIDI</b><small>${usb?.status ?? "unknown"}</small></span>
+                        <i class="studio-status-dot ${usb?.enabled ? "is-on" : ""}" aria-hidden="true"></i>
+                    </div>
+                    <div class="studio-connectivity__row">
+                        <span><b>Bluetooth MIDI</b><small>${bt?.status ?? "unknown"}</small></span>
+                        <i class="studio-status-dot ${bt?.enabled ? "is-on" : ""}" aria-hidden="true"></i>
+                    </div>
+                    <label class="studio-sidebar__switch">
+                        <span>Bluetooth power</span>
+                        <input type="checkbox" data-action="bluetooth-toggle" ${bt?.enabled ? "checked" : ""}>
+                        <span class="studio-sidebar__switch-ui" aria-hidden="true"></span>
+                    </label>
+                    <label class="studio-sidebar__field">
+                        <span>Bluetooth MIDI name</span>
+                        <input type="text" maxlength="32" value="${escapeHtml(bt?.name ?? this.device?.name ?? "")}" data-action="bluetooth-name">
+                    </label>
+                    <p>USB and Bluetooth can remain enabled simultaneously. Connection state is runtime; the power setting is persisted by the device.</p>
+                </section>
+
+                <section class="studio-sidebar__section studio-sidebar__tools">
+                    <span class="studio-sidebar__eyebrow">Configuration tools</span>
+                    <div class="studio-sidebar__tool-grid">
+                        <button type="button" data-action="undo" ${this.model?.canUndo?.() ? "" : "disabled"}>Undo</button>
+                        <button type="button" data-action="redo" ${this.model?.canRedo?.() ? "" : "disabled"}>Redo</button>
+                        <button type="button" data-action="snapshot">Snapshot</button>
+                        <button type="button" data-action="export">Export</button>
+                        <button type="button" data-action="import">Import</button>
+                        <button type="button" data-action="validate">Check</button>
+                    </div>
+                    <small class="studio-sidebar__draft-status">${dirty ? "Draft has unsaved changes" : "Configuration is saved"}</small>
+                    <input type="file" accept="application/json,.json" data-import-input hidden>
+                </section>
+
                 ${devMode ? `
-                <section class="studio-sidebar__section">
+                <section class="studio-sidebar__section studio-sidebar__development">
                     <span class="studio-sidebar__eyebrow">Development</span>
                     <label class="studio-sidebar__field">
                         <span>Mock controller</span>
@@ -95,16 +149,13 @@ export default class Sidebar {
     renderAuthModal() {
         if (!this.authView) return "";
         return `
-            <div class="studio-auth ${this.authView === "hidden" ? "" : "is-hidden"}" data-auth-modal>
+            <div class="studio-auth ${this.authOpen ? "" : "is-hidden"}" data-auth-modal>
                 <div class="studio-auth__backdrop" data-action="auth-close"></div>
                 <section class="studio-auth__panel" role="dialog" aria-modal="true" aria-labelledby="studio-auth-title">
                     <span class="section-label">bipoLab account</span>
                     <h2 id="studio-auth-title">Start a session</h2>
                     <p>Account authentication will connect bipoStudio to your saved configurations and devices.</p>
-                    <button type="button" class="studio-auth__google" data-action="google">
-                        <span class="studio-auth__google-mark">G</span>
-                        Continue with Google
-                    </button>
+                    <button type="button" class="studio-auth__google" data-action="google"><span class="studio-auth__google-mark">G</span>Continue with Google</button>
                     <div class="studio-auth__divider"><span>or</span></div>
                     <div class="studio-auth__tabs">
                         <button type="button" class="${this.authView === "register" ? "" : "is-active"}" data-auth-view="signin">Sign in</button>
@@ -125,42 +176,67 @@ export default class Sidebar {
     openAuth() {
         this.authView = "signin";
         this.authOpen = true;
-        this.renderAuth();
+        this.render();
     }
 
-    renderAuth() {
-        const current = this.element.querySelector("[data-auth-modal]");
-        const html = this.renderAuthModal();
-        if (!current) {
-            this.render();
-            return;
-        }
-        current.outerHTML = html;
-        this.bindAuthEvents();
+    showTools() {
+        this.open = true;
+        this.render();
+        this.element.querySelector(".studio-sidebar__tools")?.scrollIntoView({ block: "nearest" });
+    }
+
+    showConnectivity() {
+        this.open = true;
+        this.render();
+        this.element.querySelector(".studio-sidebar__connectivity")?.scrollIntoView({ block: "nearest" });
     }
 
     bindEvents() {
         this.element.querySelector('[data-action="toggle"]')?.addEventListener("click", () => this.toggle());
-        this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => {
-            this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value);
-        });
+        this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value));
         this.element.querySelectorAll('[data-action="account"]').forEach(button => button.addEventListener("click", () => this.openAuth()));
+        this.element.querySelector('[data-action="tools"]')?.addEventListener("click", () => this.showTools());
+        this.element.querySelector('[data-action="connectivity"]')?.addEventListener("click", () => this.showConnectivity());
+
+        this.element.querySelector('[data-action="bluetooth-toggle"]')?.addEventListener("change", event => {
+            this.eventBus.emit(Events.CONNECTIVITY_REQUEST, { action: "bluetooth-enabled", value: event.target.checked });
+        });
+        this.element.querySelector('[data-action="bluetooth-name"]')?.addEventListener("change", event => {
+            this.eventBus.emit(Events.CONNECTIVITY_REQUEST, { action: "bluetooth-name", value: event.target.value });
+        });
+
+        this.element.querySelector('[data-action="undo"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_UNDO_REQUEST));
+        this.element.querySelector('[data-action="redo"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_REDO_REQUEST));
+        this.element.querySelector('[data-action="snapshot"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "snapshot" }));
+        this.element.querySelector('[data-action="export"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "export" }));
+        this.element.querySelector('[data-action="validate"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "validate" }));
+        this.element.querySelector('[data-action="import"]')?.addEventListener("click", () => this.element.querySelector("[data-import-input]")?.click());
+        this.element.querySelector("[data-import-input]")?.addEventListener("change", async event => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            try {
+                const payload = JSON.parse(await file.text());
+                this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "import", payload });
+            } catch {
+                this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "error", message: "The selected file is not valid JSON." });
+            }
+            event.target.value = "";
+        });
+
         this.bindAuthEvents();
     }
 
     bindAuthEvents() {
         this.element.querySelectorAll("[data-auth-view]").forEach(button => button.addEventListener("click", () => {
             this.authView = button.dataset.authView;
-            this.renderAuth();
+            this.render();
+            this.authOpen = true;
         }));
         this.element.querySelectorAll('[data-action="auth-close"]').forEach(button => button.addEventListener("click", () => {
-            const modal = this.element.querySelector("[data-auth-modal]");
             this.authOpen = false;
-            modal?.classList.add("is-hidden");
+            this.render();
         }));
-        this.element.querySelector('[data-action="google"]')?.addEventListener("click", () => {
-            this.showAuthMessage("Google authentication will be connected when the bipoLab account service is implemented.");
-        });
+        this.element.querySelector('[data-action="google"]')?.addEventListener("click", () => this.showAuthMessage("Google authentication will be connected when the bipoLab account service is implemented."));
         this.element.querySelector("[data-auth-form]")?.addEventListener("submit", event => {
             event.preventDefault();
             this.showAuthMessage("Account authentication is reserved for the bipoLab account service.");
@@ -171,4 +247,8 @@ export default class Sidebar {
         const note = this.element.querySelector(".studio-auth__note");
         if (note) note.textContent = message;
     }
+}
+
+function escapeHtml(value) {
+    return String(value ?? "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
