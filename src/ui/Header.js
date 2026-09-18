@@ -1,5 +1,4 @@
 import { Events } from "../core/Events.js";
-import bipoCore from "../core/bipoCore.js";
 
 export default class Header {
     constructor(element, eventBus) {
@@ -271,15 +270,12 @@ export default class Header {
     }
 
     render() {
-        const devMode = Boolean(import.meta.env?.DEV);
-        const mockDevices = devMode ? bipoCore.getMockDevices() : [];
         this.element.innerHTML = `
             <div class="brand">
                 <span class="brand__name">bipoStudio</span>
                 <span class="brand__device">${this.device ? `${this.device.name} · FW ${this.device.firmware}` : "Waiting for device..."}</span>
             </div>
             <div class="header__actions">
-                ${devMode ? `<label class="dev-selector"><span>MOCK</span><select data-action="mock-device" aria-label="Mock device">${mockDevices.map(device => `<option value="${device.id}" ${device.id === this.device?.id ? "selected" : ""}>${device.name}</option>`).join("")}</select></label>` : ""}
                 <span class="header__dirty ${this.dirty ? "header__dirty--visible" : ""}">${this.dirty ? "Unsaved changes" : "Saved"}</span>
                 <button class="button button--secondary" type="button" data-action="reset" ${this.dirty ? "" : "disabled"}>Reset</button>
                 <button class="button button--primary" type="button" data-action="save" ${this.dirty ? "" : "disabled"}>Save</button>
@@ -288,6 +284,5 @@ export default class Header {
 
         this.element.querySelector('[data-action="reset"]')?.addEventListener("click", () => this.confirmReset());
         this.element.querySelector('[data-action="save"]')?.addEventListener("click", () => this.confirmSave());
-        this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value));
     }
 }
