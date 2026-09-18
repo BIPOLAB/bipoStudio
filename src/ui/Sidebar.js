@@ -29,60 +29,65 @@ export default class Sidebar {
     render() {
         const devMode = Boolean(import.meta.env?.DEV);
         const devices = devMode ? bipoCore.getMockDevices() : [];
-        this.element.innerHTML = `
-            <button class="studio-menu-button" type="button" aria-label="Open bipoStudio menu" aria-expanded="${this.open}" data-action="toggle">
-                <span></span><span></span><span></span>
-            </button>
-            <aside class="studio-sidebar ${this.open ? "is-open" : ""}" aria-label="bipoStudio menu">
-                <div class="studio-sidebar__backdrop" data-action="close"></div>
-                <section class="studio-sidebar__panel">
-                    <header class="studio-sidebar__header">
-                        <div>
-                            <span class="section-label">bipoLab engineering</span>
-                            <h2>bipoStudio</h2>
-                        </div>
-                        <button type="button" class="studio-sidebar__close" data-action="close" aria-label="Close menu">×</button>
-                    </header>
 
-                    <nav class="studio-sidebar__nav" aria-label="Studio navigation">
-                        <button class="studio-sidebar__nav-item is-active" type="button">
-                            <span>Studio</span><small>CONTROL CONFIGURATION</small>
-                        </button>
-                        <button class="studio-sidebar__nav-item" type="button" data-action="account">
-                            <span>Account</span><small>SIGN IN / REGISTER</small>
-                        </button>
-                        <button class="studio-sidebar__nav-item" type="button">
-                            <span>About bipoLab</span><small>ENGINEERING / PLATFORM</small>
-                        </button>
-                    </nav>
+        this.element.innerHTML = \`
+            <aside class="studio-sidebar \${this.open ? "is-open" : ""}" aria-label="bipoStudio navigation">
+                <header class="studio-sidebar__header">
+                    <button class="studio-sidebar__toggle" type="button" aria-label="\${this.open ? "Collapse" : "Expand"} bipoStudio navigation" aria-expanded="\${this.open}" data-action="toggle">
+                        <span class="studio-sidebar__mark" aria-hidden="true">b</span>
+                        <span class="studio-sidebar__toggle-icon" aria-hidden="true">‹</span>
+                    </button>
+                    <div class="studio-sidebar__brand">
+                        <span class="section-label">bipoLab engineering</span>
+                        <strong>bipoStudio</strong>
+                    </div>
+                </header>
 
-                    ${devMode ? `
-                    <section class="studio-sidebar__section">
-                        <span class="studio-sidebar__eyebrow">Development</span>
-                        <label class="studio-sidebar__field">
-                            <span>Mock controller</span>
-                            <select data-action="mock-device">
-                                ${devices.map(device => `<option value="${device.id}" ${device.id === this.device?.id ? "selected" : ""}>${device.name}</option>`).join("")}
-                            </select>
-                        </label>
-                        <p>Development-only hardware emulation. Production bipoCore will identify the connected controller automatically.</p>
-                    </section>` : ""}
+                <nav class="studio-sidebar__nav" aria-label="Studio navigation">
+                    <button class="studio-sidebar__nav-item is-active" type="button" title="Studio">
+                        <span class="studio-sidebar__icon" aria-hidden="true">▦</span>
+                        <span class="studio-sidebar__nav-copy"><strong>Studio</strong><small>CONTROL CONFIGURATION</small></span>
+                    </button>
+                    <button class="studio-sidebar__nav-item" type="button" title="Account" data-action="account">
+                        <span class="studio-sidebar__icon" aria-hidden="true">◎</span>
+                        <span class="studio-sidebar__nav-copy"><strong>Account</strong><small>SIGN IN / REGISTER</small></span>
+                    </button>
+                    <button class="studio-sidebar__nav-item" type="button" title="About bipoLab">
+                        <span class="studio-sidebar__icon" aria-hidden="true">i</span>
+                        <span class="studio-sidebar__nav-copy"><strong>About bipoLab</strong><small>ENGINEERING / PLATFORM</small></span>
+                    </button>
+                </nav>
 
-                    <section class="studio-sidebar__account">
-                        <span class="studio-sidebar__eyebrow">bipoLab account</span>
+                \${devMode ? \`
+                <section class="studio-sidebar__section">
+                    <span class="studio-sidebar__eyebrow">Development</span>
+                    <label class="studio-sidebar__field">
+                        <span>Mock controller</span>
+                        <select data-action="mock-device">
+                            \${devices.map(device => \`<option value="\${device.id}" \${device.id === this.device?.id ? "selected" : ""}>\${device.name}</option>\`).join("")}
+                        </select>
+                    </label>
+                    <p>Development-only hardware emulation. Production bipoCore will identify the connected controller automatically.</p>
+                </section>\` : ""}
+
+                <section class="studio-sidebar__account">
+                    <span class="studio-sidebar__eyebrow">bipoLab account</span>
+                    <div class="studio-sidebar__account-copy">
                         <h3>Sync your studio</h3>
                         <p>Save configurations and access your bipoLab devices from your account.</p>
-                        <button class="studio-sidebar__account-button" type="button" data-action="account">Start session</button>
-                    </section>
-
-                    <footer class="studio-sidebar__footer">
-                        <span>bipoLab / bipoStudio</span>
-                        <span>${this.device?.firmware ?? "DEVICE OFFLINE"}</span>
-                    </footer>
+                    </div>
+                    <button class="studio-sidebar__account-button" type="button" data-action="account">
+                        <span aria-hidden="true">→</span><span>Start session</span>
+                    </button>
                 </section>
+
+                <footer class="studio-sidebar__footer">
+                    <span>bipoLab / bipoStudio</span>
+                    <span>\${this.device?.firmware ?? "DEVICE OFFLINE"}</span>
+                </footer>
             </aside>
-            ${this.renderAuthModal()}
-        `;
+            \${this.renderAuthModal()}
+        \`;
 
         this.bindEvents();
     }
@@ -136,10 +141,6 @@ export default class Sidebar {
 
     bindEvents() {
         this.element.querySelector('[data-action="toggle"]')?.addEventListener("click", () => this.toggle());
-        this.element.querySelectorAll('[data-action="close"]').forEach(button => button.addEventListener("click", () => {
-            this.open = false;
-            this.render();
-        }));
         this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => {
             this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value);
         });
