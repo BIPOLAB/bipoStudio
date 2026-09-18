@@ -8,6 +8,7 @@ export default class Sidebar {
         this.device = null;
         this.open = false;
         this.authView = "signin";
+        this.authOpen = false;
         this.eventBus.on(Events.SESSION_CHANGED, this.onSessionChanged.bind(this));
     }
 
@@ -118,6 +119,7 @@ export default class Sidebar {
 
     openAuth() {
         this.authView = "signin";
+        this.authOpen = true;
         this.renderAuth();
     }
 
@@ -152,6 +154,7 @@ export default class Sidebar {
         }));
         this.element.querySelectorAll('[data-action="auth-close"]').forEach(button => button.addEventListener("click", () => {
             const modal = this.element.querySelector("[data-auth-modal]");
+            this.authOpen = false;
             modal?.classList.add("is-hidden");
         }));
         this.element.querySelector('[data-action="google"]')?.addEventListener("click", () => {
