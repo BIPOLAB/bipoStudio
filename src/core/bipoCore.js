@@ -72,6 +72,15 @@ class BipoCore {
         return structuredClone(d.connectivity.bluetooth);
     }
 
+    async setMidiOutputEnabled(output, enabled) {
+        await this.delay(40);
+        const d = this.getActiveDevice();
+        if (!["usb", "bluetooth"].includes(output)) throw new Error(`Unknown MIDI output: ${output}`);
+        d.connectivity.midiOutputs[output] = Boolean(enabled);
+        this.persistConnectivity();
+        return structuredClone(d.connectivity);
+    }
+
     async setBluetoothName(name) {
         await this.delay(60);
         const d = this.getActiveDevice();
@@ -260,6 +269,7 @@ function createDevice(id, name, description, components, configuration, runtime)
         },
         connectivity: {
             usb: { enabled: true, status: "connected" },
+            midiOutputs: { usb: true, bluetooth: true },
             bluetooth: { enabled: true, status: "advertising", name, connections: 0, midiEnabled: true }
         }
     };
