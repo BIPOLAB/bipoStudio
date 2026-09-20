@@ -190,8 +190,18 @@ export default class DeviceModel {
             if (seen.has(key)) issues.push({ id: component.id, severity: "warning", message: `Duplicate MIDI mapping with ${seen.get(key)}.` });
             else seen.set(key, component.id);
             if (cfg.min != null && cfg.max != null && Number(cfg.min) > Number(cfg.max)) issues.push({ id: component.id, severity: "error", message: "Minimum cannot exceed maximum." });
+            if (cfg.messageType === "cc14") {
+                const lsb = Number(cfg.lsbNumber ?? number + 32);
+                if (lsb < 32 || lsb > 63) issues.push({ id: component.id, severity: "error", message: "14-bit CC LSB must be 32–63." });
+                if (lsb === number) issues.push({ id: component.id, severity: "error", message: "14-bit CC MSB and LSB cannot use the same controller." });
+            }
         }
         return issues;
+    }
+
+    mappingKey(cfg, channel, number) {
+        if (cfg.messageType === "cc14") return `cc14:${channel}:${number}:${Number(cfg.lsbNumber ?? number + 32)}`;
+        return `${cfg.messageType ?? "cc"}:${channel}:${number}`;
     }
 
     syncWorkingCopyDraft() {
