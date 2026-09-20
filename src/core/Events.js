@@ -33,6 +33,7 @@ export const Events = Object.freeze({
     CONFIGURATION_UNDO_REQUEST: "configuration:undo-request",
     CONFIGURATION_REDO_REQUEST: "configuration:redo-request",
     CONFIGURATION_TOOLS_REQUEST: "configuration:tools-request",
+    DEVICE_RECONNECT_REQUEST: "device:reconnect-request",
 
     WORKING_COPY_CHANGED: "working-copy:changed",
     CONFIGURATION_COMMIT_REQUEST: "configuration:commit-request",
