@@ -110,6 +110,7 @@ export default class Sidebar {
                         <button type="button" data-action="export">Export</button>
                         <button type="button" data-action="import">Import</button>
                         <button type="button" data-action="validate">Check</button>
+                        <button type="button" data-action="reconnect">Reconnect</button>
                     </div>
                     <small class="studio-sidebar__draft-status">${dirty ? "Draft has unsaved changes" : "Configuration is saved"}</small>
                     <input type="file" accept="application/json,.json" data-import-input hidden>
@@ -209,6 +210,7 @@ export default class Sidebar {
         this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value));
         this.element.querySelectorAll('[data-action="account"]').forEach(button => button.addEventListener("click", () => this.openAuth()));
         this.element.querySelector('[data-action="tools"]')?.addEventListener("click", () => this.showTools());
+        this.element.querySelector('[data-action="reconnect"]')?.addEventListener("click", () => this.eventBus.emit(Events.DEVICE_RECONNECT_REQUEST));
         this.element.querySelector('[data-action="connectivity"]')?.addEventListener("click", () => this.showConnectivity());
 
         this.element.querySelector('[data-action="bluetooth-toggle"]')?.addEventListener("change", event => {
