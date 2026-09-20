@@ -78,6 +78,19 @@ export default class DeviceModel {
         }
     }
 
+    async setMidiOutputEnabled(output, enabled) {
+        if (!this.connectivity?.midiOutputs) return false;
+        try {
+            const connectivity = await this.core.setMidiOutputEnabled(output, enabled);
+            this.connectivity = connectivity;
+            this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
+            return true;
+        } catch (error) {
+            this.eventBus.emit(Events.CONFIGURATION_ERROR, error);
+            return false;
+        }
+    }
+
     async setBluetoothName(name) {
         if (!this.connectivity?.bluetooth) return false;
         try {
