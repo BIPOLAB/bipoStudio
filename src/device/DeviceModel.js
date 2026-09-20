@@ -91,7 +91,7 @@ export default class DeviceModel {
     updateComponentConfiguration(componentId, patch) {
         if (!this.workingCopy || !this.getComponent(componentId)) return false;
         const current = this.workingCopy.get(componentId) ?? {};
-        if (!this.workingCopy.set(componentId, { ...current, ...patch })) return true;
+        this.workingCopy.set(componentId, { ...current, ...patch });
         this.syncWorkingCopyDraft();
         this.emitWorkingCopyChanged(componentId);
         return true;
@@ -270,7 +270,7 @@ export default class DeviceModel {
         switch (type) {
             case "cc": {
                 const number = clamp(Number(configuration.number ?? 0), 0, 127);
-                return [{ status: 0xB0 | channelIndex, data1: number, data2: this.mapRange(value, configuration.min, configuration.max) }];
+                return [{ status: 0xB0 | channelIndex, data1: number, data2: this.mapRange(value, configuration.min, configuration.max, this.resolutionMax(configuration)) }];
             }
 
             case "cc14": {
@@ -329,7 +329,7 @@ export default class DeviceModel {
             }
 
             case "aftertouch": {
-                const aftertouch = this.mapRange(value, configuration.min, configuration.max);
+                const aftertouch = this.mapRange(value, configuration.min, configuration.max, 127);
                 return [{ status: 0xD0 | channelIndex, data1: aftertouch }];
             }
 
@@ -339,6 +339,13 @@ export default class DeviceModel {
             default:
                 return [];
         }
+    }
+
+    resolutionMax(configuration = {}) {
+        const resolution = Number(configuration.resolution ?? 7);
+        if (resolution >= 14) return 16383;
+        if (resolution >= 10) return 1023;
+        return 127;
     }
 
     mapRange(value, min = 0, max = 127, outputMax = 127) {
