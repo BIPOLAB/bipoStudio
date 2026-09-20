@@ -87,6 +87,16 @@ export default class Sidebar {
                         <i class="studio-status-dot ${bt?.enabled ? "is-on" : ""}" aria-hidden="true"></i>
                     </div>
                     <label class="studio-sidebar__switch">
+                        <span>USB MIDI output</span>
+                        <input type="checkbox" data-action="midi-output" data-output="usb" ${this.connectivity?.midiOutputs?.usb ? "checked" : ""}>
+                        <span class="studio-sidebar__switch-ui" aria-hidden="true"></span>
+                    </label>
+                    <label class="studio-sidebar__switch">
+                        <span>Bluetooth MIDI output</span>
+                        <input type="checkbox" data-action="midi-output" data-output="bluetooth" ${this.connectivity?.midiOutputs?.bluetooth ? "checked" : ""}>
+                        <span class="studio-sidebar__switch-ui" aria-hidden="true"></span>
+                    </label>
+                    <label class="studio-sidebar__switch">
                         <span>Bluetooth power</span>
                         <input type="checkbox" data-action="bluetooth-toggle" ${bt?.enabled ? "checked" : ""}>
                         <span class="studio-sidebar__switch-ui" aria-hidden="true"></span>
@@ -212,6 +222,8 @@ export default class Sidebar {
         this.element.querySelector('[data-action="tools"]')?.addEventListener("click", () => this.showTools());
         this.element.querySelector('[data-action="reconnect"]')?.addEventListener("click", () => this.eventBus.emit(Events.DEVICE_RECONNECT_REQUEST));
         this.element.querySelector('[data-action="connectivity"]')?.addEventListener("click", () => this.showConnectivity());
+
+        this.element.querySelectorAll('[data-action="midi-output"]').forEach(input => input.addEventListener("change", event => this.eventBus.emit(Events.CONNECTIVITY_REQUEST, { action: "midi-output", output: input.dataset.output, value: event.target.checked })));
 
         this.element.querySelector('[data-action="bluetooth-toggle"]')?.addEventListener("change", event => {
             this.eventBus.emit(Events.CONNECTIVITY_REQUEST, { action: "bluetooth-enabled", value: event.target.checked });
