@@ -77,6 +77,7 @@ export class Application {
         this.eventBus.on(Events.CONFIGURATION_UNDO_REQUEST, () => this.handleUndo());
         this.eventBus.on(Events.CONFIGURATION_REDO_REQUEST, () => this.handleRedo());
         this.eventBus.on(Events.CONFIGURATION_TOOLS_REQUEST, payload => this.handleConfigurationTool(payload));
+        this.eventBus.on(Events.DEVICE_RECONNECT_REQUEST, () => this.reconnectDevice());
         this.eventBus.on(Events.CONFIGURATION_RESET_REQUEST, () => {
             this.deviceModel.resetWorkingCopy();
             this.ui.statusBar.status = "Changes reset";
@@ -162,8 +163,8 @@ export class Application {
                     this.ui.statusBar.render();
                     break;
                 }
-                const names = presets.map((preset, index) => `${index + 1}. ${preset.name}`).join("\\n");
-                const selected = window.prompt(`Load preset:\\n\\n${names}\\n\\nEnter preset name`, presets[0].name);
+                const names = presets.map((preset, index) => `${index + 1}. ${preset.name}`).join("\n");
+                const selected = window.prompt(`Load preset:\n\n${names}\n\nEnter preset name`, presets[0].name);
                 if (selected && this.deviceModel.loadPreset(selected)) this.ui.statusBar.status = `Preset "${selected}" loaded into working copy`;
                 else this.ui.statusBar.status = "Preset was not loaded";
                 this.ui.statusBar.render();
@@ -212,6 +213,19 @@ export class Application {
             const warnings = issues.filter(issue => issue.severity === "warning").length;
             this.ui.statusBar.status = `Configuration check: ${errors} errors · ${warnings} warnings`;
             console.table(issues);
+        }
+        this.ui.statusBar.render();
+    }
+
+    async reconnectDevice() {
+        try {
+            this.ui.statusBar.status = "Reconnecting device...";
+            this.ui.statusBar.render();
+            this.selectionManager.clear();
+            await this.deviceModel.load();
+            this.ui.statusBar.status = "Device reconnected";
+        } catch (error) {
+            this.ui.statusBar.status = `Reconnect failed: ${error?.message ?? error}`;
         }
         this.ui.statusBar.render();
     }
