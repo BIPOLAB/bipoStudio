@@ -19,7 +19,7 @@ class BipoCore {
     async hello() {
         await this.delay(150);
         const d = this.getActiveDevice();
-        return { id: d.id, name: d.name, firmware: "MOCK 1.0.0", protocol: "MOCK 1.0", connectivity: structuredClone(d.connectivity) };
+        return { id: d.id, name: d.name, firmware: "MOCK 1.0.0", protocol: "MOCK 1.0", hardware: d.hardware.hardwareRevision, capabilities: structuredClone(d.capabilities), connectivity: structuredClone(d.connectivity) };
     }
 
     async read(resource) {
@@ -252,6 +252,12 @@ function createDevice(id, name, description, components, configuration, runtime)
         },
         configuration,
         runtime,
+        capabilities: {
+            midi: { usb: true, bluetooth: true, virtual: true },
+            bluetooth: { midi: true, rename: true, power: true },
+            configuration: { presets: true, importExport: true, snapshots: true, undoRedo: true },
+            controls: components.map(component => component.type)
+        },
         connectivity: {
             usb: { enabled: true, status: "connected" },
             bluetooth: { enabled: true, status: "advertising", name, connections: 0, midiEnabled: true }
