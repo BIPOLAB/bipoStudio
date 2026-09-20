@@ -14,6 +14,7 @@ export default class DeviceModel {
         this.configuration = null;
         this.runtime = null;
         this.connectivity = null;
+        this.capabilities = null;
         this.workingCopy = null;
         this.workingCopyDrafts = new Map();
         this.eventBus.on?.("transport:message", this.onTransportMessage.bind(this));
@@ -39,6 +40,7 @@ export default class DeviceModel {
         this.eventBus.emit(Events.DEVICE_LOADING_RUNTIME);
         this.runtime = new Runtime(await this.core.read("/runtime"), this.hardware);
         this.connectivity = structuredClone(await this.core.read("/connectivity"));
+        this.capabilities = structuredClone(this.identity?.capabilities ?? {});
         this.eventBus.emit(Events.DEVICE_RUNTIME_LOADED, this.runtime);
         this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.connectivity);
 
@@ -61,6 +63,7 @@ export default class DeviceModel {
     getComponentRuntime(componentId) { return this.runtime?.get(componentId) ?? null; }
 
     getConnectivity() { return structuredClone(this.connectivity ?? {}); }
+    getCapabilities() { return structuredClone(this.capabilities ?? {}); }
 
     async setBluetoothEnabled(enabled) {
         if (!this.connectivity?.bluetooth) return false;
@@ -126,7 +129,7 @@ export default class DeviceModel {
     exportConfiguration() {
         return {
             format: "bipoStudio.configuration",
-            version: 1,
+            version: 2,
             device: this.device?.id ?? null,
             model: this.device?.name ?? null,
             exportedAt: new Date().toISOString(),
