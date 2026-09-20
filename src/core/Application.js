@@ -115,6 +115,12 @@ export class Application {
             this.ui.statusBar.render();
             return;
         }
+        if (payload.action === "midi-output") {
+            const ok = await this.deviceModel.setMidiOutputEnabled(payload.output, payload.value);
+            this.ui.statusBar.status = ok ? `${payload.output.toUpperCase()} MIDI output ${payload.value ? "enabled" : "disabled"}` : "MIDI output update failed";
+            this.ui.statusBar.render();
+            return;
+        }
         if (payload.action === "bluetooth-name") {
             const ok = await this.deviceModel.setBluetoothName(payload.value);
             this.ui.statusBar.status = ok ? "Bluetooth MIDI name updated" : "Bluetooth name update failed";
