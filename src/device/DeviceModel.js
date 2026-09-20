@@ -212,6 +212,9 @@ export default class DeviceModel {
                 if (lsb === number) issues.push({ id: component.id, severity: "error", message: "14-bit CC MSB and LSB cannot use the same controller." });
             }
         }
+        const outputs = this.connectivity?.midiOutputs;
+        if (outputs && !outputs.usb && !outputs.bluetooth) issues.push({ id: "device", severity: "warning", message: "All MIDI outputs are disabled." });
+        if (outputs?.bluetooth && !this.connectivity?.bluetooth?.enabled) issues.push({ id: "device", severity: "warning", message: "Bluetooth MIDI output is enabled but Bluetooth power is off." });
         return issues;
     }
 
