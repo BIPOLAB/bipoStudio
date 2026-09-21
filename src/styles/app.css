@@ -899,3 +899,141 @@
     padding-right: 18px;
   }
 }
+
+
+/* Sidebar: reliable collapse control and contained scrolling */
+#sidebar-host {
+  min-width: 0;
+  overflow: visible;
+}
+
+#sidebar-host:has(.studio-sidebar.is-open) {
+  width: var(--sidebar-expanded-width);
+}
+
+.studio-sidebar {
+  min-width: 0;
+}
+
+.studio-sidebar__header {
+  z-index: 3;
+}
+
+.studio-sidebar__toggle {
+  z-index: 4;
+  position: relative;
+  cursor: pointer;
+}
+
+.studio-sidebar__toggle-icon {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.studio-sidebar.is-open .studio-sidebar__toggle-icon {
+  opacity: 1;
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.studio-sidebar__content {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+  border-top: 0;
+}
+
+.studio-sidebar__content::-webkit-scrollbar {
+  width: 7px;
+}
+
+.studio-sidebar__content::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+
+.studio-sidebar__panel {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 16px 18px 22px;
+}
+
+.studio-sidebar__panel-heading {
+  margin-bottom: 14px;
+}
+
+.studio-sidebar__panel-heading h2 {
+  margin: 3px 0 6px;
+  font-size: 19px;
+}
+
+.studio-sidebar__panel-heading p {
+  max-width: 34ch;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.studio-sidebar__subheading {
+  margin-top: 14px;
+  padding-top: 9px;
+}
+
+.studio-sidebar__content .studio-sidebar__tool-grid {
+  gap: 5px;
+}
+
+.studio-sidebar__content .studio-sidebar__tool-grid button {
+  min-height: 32px;
+  padding: 0 5px;
+}
+
+.studio-sidebar__content .studio-sidebar__device-card,
+.studio-sidebar__content .studio-dev-card {
+  margin-top: 16px;
+}
+
+.studio-sidebar__content .studio-sidebar__draft-status {
+  margin-top: 9px;
+  padding-top: 8px;
+}
+
+.studio-sidebar__content .studio-sidebar__wide-button {
+  margin-top: 13px;
+}
+
+.studio-sidebar__footer {
+  flex: 0 0 auto;
+  min-height: 42px;
+  box-sizing: border-box;
+}
+
+@media (max-height: 760px) {
+  .studio-sidebar__header {
+    flex-basis: 54px;
+    min-height: 54px;
+  }
+
+  .studio-sidebar__nav {
+    padding: 3px 0;
+  }
+
+  .studio-sidebar__nav-item {
+    min-height: 42px;
+  }
+
+  .studio-sidebar__panel {
+    padding-top: 12px;
+    padding-bottom: 16px;
+  }
+
+  .studio-sidebar__panel-heading {
+    margin-bottom: 10px;
+  }
+
+  .studio-sidebar__subheading {
+    margin-top: 11px;
+    padding-top: 7px;
+  }
+}
