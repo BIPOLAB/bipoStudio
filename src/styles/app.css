@@ -313,7 +313,7 @@
 
 .studio-sidebar.is-open .studio-sidebar__toggle-icon {
   opacity: 1;
-  transform: translateY(-50%) rotate(180deg);
+  transform: translateY(-50%);
 }
 
 .studio-sidebar__brand {
