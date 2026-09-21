@@ -47,6 +47,14 @@ export default class Sidebar {
 
         if (!devMode && this.activeSection === "tools") this.activeSection = "studio";
 
+        const sectionMeta = {
+            studio: { title: "Studio", subtitle: "CONTROL CONFIGURATION" },
+            connectivity: { title: "Connectivity", subtitle: "USB / BLUETOOTH MIDI" },
+            tools: { title: "Tools", subtitle: "DEVELOPER MODE" },
+            account: { title: "Account", subtitle: "SIGN IN / PROFILE" }
+        };
+        const activeMeta = sectionMeta[this.activeSection] ?? sectionMeta.studio;
+
         const navItem = (section, icon, title, subtitle) =>
             '<button class="studio-sidebar__nav-item ' + (this.activeSection === section ? "is-active" : "") + '" type="button" title="' + title + '" data-section="' + section + '" aria-current="' + (this.activeSection === section ? "page" : "false") + '">' +
                 '<span class="studio-sidebar__icon" aria-hidden="true">' + icon + '</span>' +
@@ -119,7 +127,7 @@ export default class Sidebar {
                     '<button class="studio-sidebar__toggle" type="button" aria-label="' + (this.open ? "Collapse" : "Expand") + ' bipoStudio navigation" aria-expanded="' + this.open + '" data-action="toggle">' +
                         '<span class="studio-sidebar__mark" aria-hidden="true">b</span><span class="studio-sidebar__toggle-icon" aria-hidden="true">‹</span>' +
                     '</button>' +
-                    '<div class="studio-sidebar__brand"><span class="section-label">bipoLab engineering</span><strong>bipoStudio</strong></div>' +
+                    '<div class="studio-sidebar__brand"><span class="section-label">bipoLab engineering</span><strong>' + activeMeta.title + '</strong><small>' + activeMeta.subtitle + '</small></div>' +
                 '</header>' +
                 '<nav class="studio-sidebar__nav" aria-label="Studio navigation">' +
                     navItem("studio", "▦", "Studio", "CONTROL CONFIGURATION") +
