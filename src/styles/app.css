@@ -1357,3 +1357,138 @@
     font-size: 20px;
   }
 }
+
+
+/* Final sidebar geometry: explicit vertical regions */
+.studio-sidebar {
+  display: grid;
+  grid-template-rows: 86px auto minmax(0, 1fr) 34px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.studio-sidebar__header {
+  grid-row: 1;
+  position: relative;
+  height: auto;
+  min-height: 0;
+  flex: none;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.studio-sidebar__nav {
+  grid-row: 2;
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  flex: none;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.studio-sidebar__nav-item {
+  box-sizing: border-box;
+  height: 50px;
+  min-height: 50px;
+}
+
+.studio-sidebar__content {
+  grid-row: 3;
+  min-height: 0;
+  height: auto;
+  flex: none;
+  display: none;
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.studio-sidebar.is-open .studio-sidebar__content {
+  display: block;
+}
+
+.studio-sidebar__footer {
+  grid-row: 4;
+  min-height: 0;
+  height: auto;
+  flex: none;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* The active section header is self-contained; it cannot overlap the content below. */
+.studio-sidebar.is-open .studio-sidebar__header {
+  height: auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  align-items: center;
+  column-gap: 11px;
+  padding: 0 14px;
+}
+
+.studio-sidebar.is-open .studio-sidebar__brand {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.studio-sidebar.is-open .studio-sidebar__active-title {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  overflow: hidden;
+}
+
+.studio-sidebar.is-open .studio-sidebar__active-title strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.studio-sidebar.is-open .studio-sidebar__brand small {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin: 0;
+  line-height: 1;
+}
+
+.studio-sidebar.is-open .studio-sidebar__nav-copy {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-height: 760px) {
+  .studio-sidebar {
+    grid-template-rows: 76px auto minmax(0, 1fr) 32px;
+  }
+
+  .studio-sidebar__nav-item {
+    height: 46px;
+    min-height: 46px;
+  }
+
+  .studio-sidebar.is-open .studio-sidebar__active-title strong {
+    font-size: 20px;
+  }
+}
