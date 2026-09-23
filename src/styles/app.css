@@ -1259,3 +1259,101 @@
     padding-bottom: 20px;
   }
 }
+
+
+/* Active section header: explicit geometry prevents title overlap */
+.studio-sidebar__header {
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.studio-sidebar.is-open .studio-sidebar__header {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 11px;
+  padding: 0 14px;
+}
+
+.studio-sidebar.is-open .studio-sidebar__toggle {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+}
+
+.studio-sidebar.is-open .studio-sidebar__brand {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  align-self: center;
+  overflow: hidden;
+}
+
+.studio-sidebar.is-open .studio-sidebar__brand .section-label,
+.studio-sidebar.is-open .studio-sidebar__brand small,
+.studio-sidebar.is-open .studio-sidebar__active-title {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.studio-sidebar.is-open .studio-sidebar__active-title {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.studio-sidebar.is-open .studio-sidebar__active-title > span {
+  flex: 0 0 auto;
+}
+
+.studio-sidebar.is-open .studio-sidebar__active-title strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 23px;
+  line-height: .95;
+}
+
+.studio-sidebar.is-open .studio-sidebar__brand small {
+  display: block;
+  margin: 0;
+  line-height: 1;
+}
+
+.studio-sidebar.is-open .studio-sidebar__toggle-icon {
+  left: 50%;
+  right: auto;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.studio-sidebar.is-open .studio-sidebar__mark {
+  opacity: 0;
+}
+
+@media (max-width: 760px) {
+  .studio-sidebar.is-open .studio-sidebar__header {
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: 9px;
+    padding: 0 10px;
+  }
+
+  .studio-sidebar.is-open .studio-sidebar__toggle {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .studio-sidebar.is-open .studio-sidebar__active-title strong {
+    font-size: 20px;
+  }
+}
