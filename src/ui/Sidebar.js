@@ -48,17 +48,18 @@ export default class Sidebar {
         if (!devMode && this.activeSection === "tools") this.activeSection = "studio";
 
         const sectionMeta = {
-            studio: { title: "Studio", subtitle: "CONTROL CONFIGURATION" },
-            connectivity: { title: "Connectivity", subtitle: "USB / BLUETOOTH MIDI" },
-            tools: { title: "Tools", subtitle: "DEVELOPER MODE" },
-            account: { title: "Account", subtitle: "SIGN IN / PROFILE" }
+            studio: { index: "01", title: "Studio", subtitle: "CONTROL CONFIGURATION" },
+            connectivity: { index: "02", title: "Connectivity", subtitle: "USB / BLUETOOTH MIDI" },
+            tools: { index: "03", title: "Tools", subtitle: "DEVELOPER MODE" },
+            account: { index: "04", title: "Account", subtitle: "SIGN IN / PROFILE" }
         };
         const activeMeta = sectionMeta[this.activeSection] ?? sectionMeta.studio;
 
-        const navItem = (section, icon, title, subtitle) =>
+        const navItem = (section, index, icon, title) =>
             '<button class="studio-sidebar__nav-item ' + (this.activeSection === section ? "is-active" : "") + '" type="button" title="' + title + '" data-section="' + section + '" aria-current="' + (this.activeSection === section ? "page" : "false") + '">' +
+                '<span class="studio-sidebar__nav-index">' + index + '</span>' +
                 '<span class="studio-sidebar__icon" aria-hidden="true">' + icon + '</span>' +
-                '<span class="studio-sidebar__nav-copy"><strong>' + title + '</strong><small>' + subtitle + '</small></span>' +
+                '<span class="studio-sidebar__nav-copy"><strong>' + title + '</strong></span>' +
             '</button>';
 
         let content = "";
@@ -130,10 +131,10 @@ export default class Sidebar {
                     '<div class="studio-sidebar__brand"><span class="section-label">bipoLab engineering</span><strong>' + activeMeta.title + '</strong><small>' + activeMeta.subtitle + '</small></div>' +
                 '</header>' +
                 '<nav class="studio-sidebar__nav" aria-label="Studio navigation">' +
-                    navItem("studio", "▦", "Studio", "CONTROL CONFIGURATION") +
-                    navItem("connectivity", "⌁", "Connectivity", "USB / BLUETOOTH MIDI") +
-                    (devMode ? navItem("tools", "⚙", "Tools", "DEVELOPER MODE") : "") +
-                    navItem("account", "◎", "Account", "SIGN IN / PROFILE") +
+                    navItem("studio", "01", "▦", "Studio") +
+                    navItem("connectivity", "02", "⌁", "Connectivity") +
+                    (devMode ? navItem("tools", "03", "⚙", "Tools") : "") +
+                    navItem("account", "04", "◎", "Account") +
                 '</nav>' +
                 '<div class="studio-sidebar__content">' + content + '</div>' +
                 '<footer class="studio-sidebar__footer"><span>bipoLab / bipoStudio</span><span>' + (this.device?.firmware ?? "DEVICE OFFLINE") + '</span></footer>' +
