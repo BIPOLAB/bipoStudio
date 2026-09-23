@@ -128,7 +128,7 @@ export default class Sidebar {
                     '<button class="studio-sidebar__toggle" type="button" aria-label="' + (this.open ? "Collapse" : "Expand") + ' bipoStudio navigation" aria-expanded="' + this.open + '" data-action="toggle">' +
                         '<span class="studio-sidebar__mark" aria-hidden="true">b</span><span class="studio-sidebar__toggle-icon" aria-hidden="true">‹</span>' +
                     '</button>' +
-                    '<div class="studio-sidebar__brand"><span class="section-label">bipoLab engineering</span><strong>' + activeMeta.title + '</strong><small>' + activeMeta.subtitle + '</small></div>' +
+                    '<div class="studio-sidebar__brand"><span class="section-label">bipoLab engineering</span><div class="studio-sidebar__active-title"><span>' + activeMeta.index + '</span><strong>' + activeMeta.title + '</strong></div><small>' + activeMeta.subtitle + '</small></div>' +
                 '</header>' +
                 '<nav class="studio-sidebar__nav" aria-label="Studio navigation">' +
                     navItem("studio", "01", "▦", "Studio") +
