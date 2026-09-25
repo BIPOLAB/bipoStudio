@@ -1,5 +1,5 @@
 {
-  "name": "studio",
+  "name": "bipostudio",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-     "test:run": "vitest run"
+    "test:run": "vitest run"
   },
   "devDependencies": {
     "vite": "^8.1.1",
