@@ -1,12 +1,58 @@
-# devices
+# bipoStudio
 
-Esta carpeta contiene la definición completa de cada producto soportado por bipoStudio.
+**bipoStudio** is the fixed-layout configuration studio for bipoLab MIDI controllers built around bipoCore.
 
-Cada dispositivo es autosuficiente y contiene:
+The application currently runs against a local hardware mock. The mock supports development of configuration workflows before integration with physical bipoCore firmware.
 
-- package.json
-- definition.json
-- panel.svg
-- recursos propios
+## Product principles
 
-El motor (`core`) nunca contiene información específica de un dispositivo.
+- bipoStudio is a configuration studio, not a graphical hardware editor.
+- Device layouts are fixed by the device model. Users configure controller behavior, MIDI mappings, LEDs, and supported device settings.
+- The device/firmware is the source of truth for hardware identity, capabilities, runtime values, and committed configuration.
+- Mock behavior is development-only and must not be represented as physical-device connectivity.
+- Keep the runtime lightweight: vanilla JavaScript, HTML, and CSS, built with Vite.
+
+## Requirements
+
+Install a Node.js version compatible with the installed Vite and Vitest releases, then use npm.
+
+## Development
+
+```sh
+npm install
+npm run dev
+```
+
+In development, the Tools section exposes mock controller selection.
+
+## Validation
+
+```sh
+npm run build
+npm run test:run
+```
+
+## Repository map
+
+```
+src/
+  core/       Application lifecycle, event bus, screen host, mock core provider
+  device/     Device identity, hardware model, configuration, runtime, working copy
+  screens/    Screen composition and lifecycle
+  studio/     UI state and selection coordination
+  ui/         Sidebar, workspace, Inspector, MIDI monitor, header, status bar
+  styles/     Design tokens, base styles, shell layout, application styling
+  main.js     Browser entry point
+assets/       Licensed fonts and static design assets
+public/       Public static resources
+docs/         Architecture, principles, vocabulary, feature notes
+tests/        Automated Vitest tests
+```
+
+## Configuration lifecycle
+
+Edits are staged in a per-device working copy. Saving commits the working configuration through the provider; reset restores the working copy to its committed baseline. The mock persists committed state locally per mock device.
+
+## Current scope
+
+This build is a development mock, not a production firmware client. USB/Bluetooth routing and device identity shown in development are simulated. Mock capabilities and version strings are not verified physical-device behavior.
