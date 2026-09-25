@@ -134,3 +134,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# OS/editor noise
+.DS_Store
+.AppleDouble
+._*
