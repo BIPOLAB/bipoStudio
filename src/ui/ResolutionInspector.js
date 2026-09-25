@@ -22,15 +22,7 @@ export default class ResolutionInspector extends Inspector {
         const max = Number(cfg.max ?? option.max);
         const warning = option.recommended ? "" : `<span class="inspector-resolution__warning">NOT RECOMMENDED</span>`;
         const control = `
-            <style>
-                .inspector-resolution{margin:18px 0 20px;padding:14px 0 2px;border-top:1px solid var(--color-border)}
-                .inspector-resolution__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font:700 9px/1 monospace;letter-spacing:.08em;text-transform:uppercase}
-                .inspector-resolution__range{color:var(--color-text-muted);font-weight:400;letter-spacing:0}
-                .inspector-resolution select{width:100%;min-height:34px;padding:0 9px;border:1px solid var(--color-border);border-radius:1px;background:var(--color-surface);color:var(--color-text);font:12px/1.2 var(--font-family)}
-                .inspector-resolution__meta{display:flex;justify-content:space-between;gap:10px;margin-top:7px;font:9px/1.2 monospace;color:var(--color-text-muted)}
-                .inspector-resolution__warning{color:var(--color-accent);font-weight:700;letter-spacing:.05em}
-                .inspector-resolution .inspector-hint{margin-top:9px}
-            </style>
+            
             <div class="inspector-resolution">
                 <div class="inspector-resolution__header">
                     <span>Resolution</span>
