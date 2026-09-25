@@ -12,7 +12,6 @@
 import EventBus from "./EventBus.js";
 import { Events } from "./Events.js";
 import ScreenHost from "./ScreenHost.js";
-import Bridge from "./Bridge.js";
 import DeviceModel from "../device/DeviceModel.js";
 import UIState from "../studio/UIState.js";
 import SelectionManager from "../studio/SelectionManager.js";
@@ -26,7 +25,6 @@ export class Application {
     constructor() {
         this.eventBus = new EventBus();
         this.uiState = new UIState();
-        this.bridge = new Bridge(this.eventBus);
         this.selectionManager = new SelectionManager(this.eventBus, this.uiState);
         this.deviceModel = new DeviceModel(this.eventBus);
         this.screenHost = null;
@@ -42,7 +40,6 @@ export class Application {
         this.renderApplicationShell(app);
         this.createUserInterface();
         this.bindApplicationEvents();
-        this.bridge.start();
         this.showInitialUserInterface();
         this.eventBus.emit(Events.APPLICATION_STARTING);
         try {
