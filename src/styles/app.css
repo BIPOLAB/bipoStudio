@@ -1492,3 +1492,222 @@
     font-size: 20px;
   }
 }
+
+
+/* -------------------------------------------------------------------------
+   bipoLab hardware language
+   Braun / Dieter Rams inspired: restrained geometry, warm instrument panels,
+   functional typography and a slightly imperfect "drawn by hand" edge.
+   ------------------------------------------------------------------------- */
+
+:root {
+  --lab-paper: #d8d2c4;
+  --lab-paper-light: #e5dfd2;
+  --lab-paper-dark: #bdb6a8;
+  --lab-ink: #282823;
+  --lab-ink-soft: #555249;
+  --lab-well: #35342f;
+  --lab-orange: #e84a2a;
+}
+
+.device-panel {
+  box-sizing: border-box;
+  width: min(100%, 760px);
+  border: 1px solid var(--lab-ink);
+  border-radius: 0;
+  background: var(--lab-paper);
+  color: var(--lab-ink);
+  box-shadow:
+    4px 4px 0 rgba(40,40,35,.10),
+    8px 8px 0 rgba(40,40,35,.035);
+  position: relative;
+}
+
+/* A second, intentionally slightly offset line gives the panel the feeling
+   of an illustrated piece of laboratory equipment rather than a 3D render. */
+.device-panel::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(40,40,35,.16);
+  pointer-events: none;
+  transform: rotate(.08deg);
+}
+
+.device-panel__header {
+  min-height: 58px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--lab-ink);
+  background: var(--lab-paper);
+  color: var(--lab-ink);
+  box-shadow: none;
+}
+
+.device-panel__header h1 {
+  margin: 4px 0 0;
+  color: var(--lab-ink);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.035em;
+  text-transform: none;
+}
+
+.device-panel__header .section-label {
+  color: var(--lab-ink-soft);
+  font-size: 7px;
+  letter-spacing: .18em;
+}
+
+.device-workspace__mode {
+  color: var(--lab-ink-soft);
+  font-size: 7px;
+  letter-spacing: .12em;
+}
+
+.device-grid {
+  gap: 8px;
+  padding: 12px;
+  background: var(--lab-paper-dark);
+  border: 0;
+}
+
+/* Module cells read as small functional instruments, not cards. */
+.device-cell {
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--lab-ink);
+  border-radius: 0;
+  background: var(--lab-paper-light);
+  box-shadow:
+    2px 2px 0 rgba(40,40,35,.13),
+    inset 0 0 0 1px rgba(255,255,255,.22);
+}
+
+.device-cell::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(40,40,35,.11);
+  pointer-events: none;
+  transform: rotate(-.12deg);
+}
+
+.device-cell__controller {
+  border-bottom: 1px solid var(--lab-ink);
+  background: var(--lab-paper-light);
+}
+
+.device-cell__led {
+  border-bottom: 0;
+  background: var(--lab-paper);
+}
+
+.device-cell__led:hover {
+  background: var(--lab-paper-light);
+}
+
+.device-cell__controller.is-selected,
+.device-cell__led.is-selected,
+.device-cell__name.is-selected {
+  background: #ded7c8;
+  box-shadow: inset 0 0 0 1px var(--lab-orange);
+}
+
+.device-control--knob .device-control__visual {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--lab-ink);
+  border-radius: 50%;
+  background: #c7c0b2;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.45),
+    inset -2px -2px 0 rgba(40,40,35,.18),
+    2px 2px 0 rgba(40,40,35,.16);
+}
+
+.device-control--knob .device-control__visual::before {
+  inset: 6px;
+  border: 1px solid rgba(40,40,35,.16);
+}
+
+.device-control--knob .device-control__visual::after {
+  background: var(--lab-ink);
+  box-shadow: none;
+}
+
+.device-control--fader .device-control__visual {
+  width: 5px;
+  height: 58px;
+  background: var(--lab-ink);
+  box-shadow: none;
+}
+
+.device-control--fader .device-control__visual::before {
+  left: -6px;
+  width: 16px;
+  opacity: .65;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 7px,
+    var(--lab-ink-soft) 7px 8px,
+    transparent 8px 12px
+  );
+}
+
+.device-control--fader .device-control__visual::after {
+  left: -10px;
+  width: 25px;
+  height: 12px;
+  border: 1px solid var(--lab-ink);
+  border-radius: 0;
+  background: var(--lab-paper-light);
+  box-shadow: 2px 2px 0 rgba(40,40,35,.14);
+}
+
+.device-control--button .device-control__visual,
+.device-control--switch .device-control__visual {
+  width: 42px;
+  height: 30px;
+  border: 1px solid var(--lab-ink);
+  border-radius: 0;
+  background: var(--lab-paper-dark);
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.35),
+    2px 2px 0 rgba(40,40,35,.15);
+}
+
+.device-control--button .device-control__visual::after,
+.device-control--switch .device-control__visual::after {
+  inset: 4px;
+  border: 1px solid rgba(40,40,35,.14);
+  box-shadow: none;
+}
+
+.device-control--button:hover .device-control__visual,
+.device-control--switch:hover .device-control__visual {
+  background: var(--lab-paper-light);
+}
+
+.device-panel__footer {
+  min-height: 28px;
+  padding: 0 14px;
+  border-top: 1px solid var(--lab-ink);
+  background: var(--lab-paper);
+  color: var(--lab-ink-soft);
+  font: 700 7px monospace;
+  letter-spacing: .1em;
+}
+
+/* Hardware LED: deliberately small and restrained, like an old instrument lamp. */
+.device-control__led {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--lab-ink);
+  box-shadow:
+    0 0 0 2px var(--lab-paper-dark),
+    0 0 7px rgba(var(--led-r),var(--led-g),var(--led-b),calc(var(--led-a) * .65));
+}
+
+.device-control__led--selected {
+  outline: 1px solid var(--lab-orange);
+  outline-offset: 4px;
+}

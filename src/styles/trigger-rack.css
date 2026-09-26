@@ -723,3 +723,245 @@
     max-height: none;
   }
 }
+
+
+/* LAB-16D: convert the trigger rack from "rendered black hardware" into a
+   warm technical instrument illustration consistent with the main modules. */
+.device-panel--triggers {
+  width: min(1040px, 100%);
+  border: 1px solid var(--lab-ink);
+  border-radius: 0;
+  background: var(--lab-paper);
+  color: var(--lab-ink);
+  box-shadow:
+    4px 4px 0 rgba(40,40,35,.10),
+    8px 8px 0 rgba(40,40,35,.035);
+}
+
+.device-panel--triggers::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(40,40,35,.14);
+  pointer-events: none;
+  transform: rotate(.08deg);
+}
+
+.device-panel--triggers .device-panel__header {
+  min-height: 58px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--lab-ink);
+  background: var(--lab-paper);
+  box-shadow: none;
+}
+
+.device-panel--triggers .device-panel__header::before,
+.device-panel--triggers .device-panel__header::after {
+  width: 5px;
+  height: 5px;
+  margin-top: -3px;
+  border: 1px solid var(--lab-ink);
+  background: var(--lab-paper-light);
+  box-shadow: none;
+}
+
+.device-panel--triggers .device-panel__header::before { left: 7px; }
+.device-panel--triggers .device-panel__header::after { right: 7px; }
+
+.device-panel--triggers .device-panel__header h1 {
+  color: var(--lab-ink);
+  text-shadow: none;
+}
+
+.device-panel--triggers .device-panel__header .section-label,
+.device-panel--triggers .device-workspace__mode {
+  color: var(--lab-ink-soft);
+}
+
+.trigger-rack__surface {
+  gap: 12px;
+  padding: 12px;
+  background: var(--lab-paper-dark);
+  box-shadow: none;
+}
+
+.trigger-rack__pad-bank,
+.trigger-rack__input-bank {
+  border: 1px solid var(--lab-ink);
+  background: var(--lab-paper);
+  box-shadow: 2px 2px 0 rgba(40,40,35,.10);
+}
+
+.trigger-rack__section-header {
+  min-height: 31px;
+  padding: 5px 11px;
+  border-bottom: 1px solid var(--lab-ink);
+  background: var(--lab-paper-light);
+  color: var(--lab-ink);
+  box-shadow: none;
+}
+
+.trigger-rack__eyebrow,
+.trigger-rack__section-meta {
+  color: var(--lab-ink-soft);
+  font-size: 6px;
+  letter-spacing: .13em;
+}
+
+.trigger-rack__section-header strong {
+  color: var(--lab-ink);
+  font-size: 9px;
+  letter-spacing: .07em;
+}
+
+.trigger-rack__pads {
+  gap: 8px;
+  padding: 10px;
+  background: #c8c1b3;
+}
+
+.trigger-performance-pad {
+  min-height: 118px;
+  border: 1px solid var(--lab-ink);
+  border-radius: 0;
+  background: #cfc8ba;
+  color: var(--lab-ink);
+  box-shadow:
+    2px 2px 0 rgba(40,40,35,.14),
+    inset 0 0 0 1px rgba(255,255,255,.24);
+}
+
+.trigger-performance-pad::before {
+  inset: 8px;
+  border: 1px solid #6e685d;
+  border-radius: 1px;
+  background: #b8b0a1;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.22),
+    inset -1px -1px 0 rgba(40,40,35,.16);
+}
+
+.trigger-performance-pad__rim {
+  inset: 13px;
+  border: 1px solid rgba(40,40,35,.16);
+}
+
+.trigger-performance-pad__label {
+  left: 20px;
+  bottom: 18px;
+  color: var(--lab-ink);
+  font-size: 10px;
+  text-shadow: none;
+}
+
+.trigger-performance-pad__input {
+  top: 18px;
+  left: 20px;
+  color: var(--lab-ink-soft);
+}
+
+.trigger-performance-pad__value {
+  right: 20px;
+  bottom: 18px;
+  color: var(--lab-ink-soft);
+}
+
+.trigger-performance-pad:hover {
+  border-color: var(--lab-orange);
+}
+
+.trigger-performance-pad.is-selected {
+  border-color: var(--lab-orange);
+  box-shadow:
+    2px 2px 0 rgba(40,40,35,.12),
+    inset 0 0 0 1px var(--lab-orange);
+}
+
+.trigger-rack__inputs {
+  gap: 5px;
+  padding: 8px;
+  background: #c8c1b3;
+}
+
+.trigger-rack__inputs .device-cell {
+  min-height: 86px;
+  border: 1px solid var(--lab-ink);
+  background: var(--lab-paper-light);
+  box-shadow: 1px 1px 0 rgba(40,40,35,.12);
+}
+
+.trigger-rack__inputs .device-cell::before,
+.trigger-rack__inputs .device-cell::after {
+  width: 4px;
+  height: 4px;
+  border: 1px solid var(--lab-ink);
+  background: var(--lab-paper);
+  box-shadow: none;
+}
+
+.trigger-rack__inputs .device-cell__controller {
+  padding: 5px;
+  border-bottom: 1px solid var(--lab-ink);
+  background: var(--lab-paper-light);
+}
+
+.trigger-rack__inputs .device-control--trigger {
+  min-height: 62px;
+  border: 1px solid var(--lab-ink);
+  border-radius: 0;
+  background: #b8b0a1;
+  color: var(--lab-ink);
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.22),
+    inset -1px -1px 0 rgba(40,40,35,.16);
+}
+
+.trigger-rack__inputs .device-control--trigger::before {
+  width: 29px;
+  height: 29px;
+  border: 1px solid var(--lab-ink);
+  background: #aaa294;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.22),
+    inset -1px -1px 0 rgba(40,40,35,.15),
+    0 0 0 2px #d2cabb;
+}
+
+.trigger-rack__inputs .device-control--trigger::after {
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--lab-ink);
+  background: var(--lab-paper);
+  box-shadow: none;
+}
+
+.trigger-rack__inputs .trigger-pad__input,
+.trigger-rack__inputs .trigger-pad__name,
+.trigger-rack__inputs .trigger-pad__value {
+  color: var(--lab-ink-soft);
+  text-shadow: none;
+}
+
+.trigger-rack__inputs .device-cell__led {
+  min-height: 15px;
+  background: var(--lab-paper);
+}
+
+.trigger-rack__inputs .device-cell__led::before {
+  background: var(--lab-ink);
+  box-shadow: none;
+}
+
+.trigger-rack__inputs .device-control__led {
+  box-shadow:
+    0 0 0 1px var(--lab-paper-dark),
+    0 0 6px rgba(var(--led-r), var(--led-g), var(--led-b), var(--led-a));
+}
+
+.device-panel--triggers .device-panel__footer {
+  min-height: 28px;
+  border-top: 1px solid var(--lab-ink);
+  background: var(--lab-paper);
+  color: var(--lab-ink-soft);
+  box-shadow: none;
+}
