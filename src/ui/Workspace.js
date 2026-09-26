@@ -119,9 +119,10 @@ export default class Workspace {
                         </div>
                         <span class="device-workspace__mode">CONFIGURATION · MOCK</span>
                     </header>
+                    ${kind === "trigger" ? this.renderTriggerWorkspace(components) : `
                     <div class="${gridClass}" aria-label="${name} controls">
                         ${components.map(component => this.renderComponent(component)).join("")}
-                    </div>
+                    </div>`}
                     <footer class="device-panel__footer">
                         <span>${components.length} ${label}</span>
                         <span>${kind === "fader" ? "4 × 1" : "4 × 4"}</span>
@@ -134,6 +135,56 @@ export default class Workspace {
         this.updateModifiedVisuals();
     }
 
+    renderTriggerWorkspace(components) {
+        const pads = components.slice(0, 6);
+        const padNames = ["KICK", "SNARE", "HI-HAT", "TOM 1", "CRASH", "RIDE"];
+
+        return `
+            <div class="trigger-rack__surface" aria-label="LAB-16D drum pad and trigger rack">
+                <section class="trigger-rack__pad-bank">
+                    <header class="trigger-rack__section-header">
+                        <div>
+                            <span class="trigger-rack__eyebrow">DRUM PAD INTERFACE</span>
+                            <strong>PERFORMANCE PADS</strong>
+                        </div>
+                        <span class="trigger-rack__section-meta">3 × 2</span>
+                    </header>
+                    <div class="trigger-rack__pads">
+                        ${pads.map((component, index) => this.renderTriggerPad(component, padNames[index] ?? component.metadata?.defaultName ?? `PAD ${index + 1}`)).join("")}
+                    </div>
+                </section>
+
+                <section class="trigger-rack__input-bank">
+                    <header class="trigger-rack__section-header">
+                        <div>
+                            <span class="trigger-rack__eyebrow">ANALOG SENSOR INPUTS</span>
+                            <strong>TRIGGER PATCH</strong>
+                        </div>
+                        <span class="trigger-rack__section-meta">8 × 2 · 16 INPUTS</span>
+                    </header>
+                    <div class="trigger-rack__inputs">
+                        ${components.map(component => this.renderComponent(component)).join("")}
+                    </div>
+                </section>
+            </div>`;
+    }
+
+    renderTriggerPad(component, label) {
+        const controllerSelected = component.id === this.selectedComponentId;
+        const value = Math.round(this.getRuntimeValue(component.id));
+
+        return `
+            <button class="trigger-performance-pad ${controllerSelected ? "is-selected" : ""}"
+                data-component-id="${component.id}"
+                type="button"
+                aria-label="Configure ${label}"
+                title="${label}">
+                <span class="trigger-performance-pad__rim"></span>
+                <span class="trigger-performance-pad__label">${label}</span>
+                <span class="trigger-performance-pad__input">IN ${String(component.metadata?.input ?? "").padStart(2, "0")}</span>
+                <span class="trigger-performance-pad__value">${value}</span>
+            </button>`;
+    }
     renderComponent(component) {
         const controllerSelected = component.id === this.selectedComponentId;
         const ledId = `${component.id}-LED`;
