@@ -593,3 +593,133 @@
     transition: none;
   }
 }
+
+
+/* Final fit pass: keep LAB-16D fully contained inside the workspace stage. */
+.workspace-screen__stage {
+  padding: 10px;
+}
+
+.device-workspace {
+  width: 100%;
+  max-width: 1080px;
+  height: 100%;
+  min-height: 0;
+}
+
+.device-panel--triggers {
+  width: min(1040px, 100%);
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.device-panel--triggers .trigger-rack__surface {
+  max-height: calc(100vh - var(--header-height) - var(--status-bar-height) - 210px);
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #5a5750 #151513;
+}
+
+.device-panel--triggers .trigger-rack__pads {
+  grid-template-rows: repeat(2, minmax(80px, 1fr));
+  padding: 7px;
+  gap: 6px;
+}
+
+.device-panel--triggers .trigger-performance-pad {
+  min-height: 80px;
+}
+
+.device-panel--triggers .trigger-rack__inputs {
+  grid-template-rows: repeat(2, minmax(58px, 1fr));
+  padding: 6px;
+  gap: 3px;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-cell {
+  min-height: 58px;
+  grid-template-rows: minmax(0, 1fr) 12px;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-control--trigger {
+  min-height: 42px;
+}
+
+@media (max-height: 820px) {
+  .device-panel--triggers .device-panel__header {
+    min-height: 58px;
+  }
+
+  .device-panel--triggers .trigger-rack__surface {
+    gap: 7px;
+    padding: 7px;
+    max-height: calc(100vh - var(--header-height) - var(--status-bar-height) - 165px);
+  }
+
+  .device-panel--triggers .trigger-rack__section-header {
+    min-height: 30px;
+    padding: 5px 10px;
+  }
+
+  .device-panel--triggers .trigger-rack__pads {
+    grid-template-rows: repeat(2, minmax(68px, 1fr));
+    padding: 6px;
+    gap: 5px;
+  }
+
+  .device-panel--triggers .trigger-performance-pad {
+    min-height: 68px;
+  }
+
+  .device-panel--triggers .trigger-rack__inputs {
+    grid-template-rows: repeat(2, minmax(48px, 1fr));
+    padding: 5px;
+  }
+
+  .device-panel--triggers .trigger-rack__inputs .device-cell {
+    min-height: 48px;
+    grid-template-rows: minmax(0, 1fr) 10px;
+  }
+
+  .device-panel--triggers .trigger-rack__inputs .device-control--trigger {
+    min-height: 34px;
+  }
+
+  .device-panel--triggers .trigger-performance-pad__label {
+    left: 16px;
+    bottom: 14px;
+    font-size: 9px;
+  }
+
+  .device-panel--triggers .trigger-performance-pad__input {
+    top: 14px;
+    left: 16px;
+  }
+
+  .device-panel--triggers .trigger-performance-pad__value {
+    right: 16px;
+    bottom: 14px;
+  }
+}
+
+@media (max-width: 900px) {
+  .workspace-screen__stage {
+    padding: 8px;
+  }
+
+  .device-panel--triggers .trigger-rack__surface {
+    max-height: calc(100vh - var(--header-height) - var(--status-bar-height) - 145px);
+  }
+}
+
+@media (max-width: 560px) {
+  .workspace-screen__stage {
+    padding: 6px;
+  }
+
+  .device-panel--triggers .trigger-rack__surface {
+    max-height: none;
+  }
+}
