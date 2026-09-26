@@ -6,6 +6,13 @@ bipoStudio is a fixed-layout configuration client for bipoLab controllers, not a
 
 The firmware/device is the source of truth for identity, capabilities, runtime values, and committed configuration. During development, `src/core/bipoCore.js` provides a local mock with the same broad read/write/commit shape.
 
+Current development mock families include:
+
+- `LAB-16K`: 16 potentiometers
+- `LAB-16B`: 16 buttons
+- `LAB-4F`: 4 faders
+- `LAB-16D`: 16 analog drum-trigger inputs
+
 ## Runtime flow
 
 1. `src/main.js` imports design tokens and styles, creates `Application`, and starts it.
