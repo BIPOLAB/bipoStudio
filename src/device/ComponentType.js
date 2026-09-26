@@ -8,7 +8,8 @@ export const ComponentType = Object.freeze({
     BUTTON: "button",
     ENCODER: "encoder",
     LED: "led",
-    DISPLAY: "display"
+    DISPLAY: "display",
+    TRIGGER: "trigger"
 });
 
 const values = new Set(Object.values(ComponentType));

@@ -9,6 +9,10 @@ const KNOB_MESSAGE_TYPES = [
     ["aftertouch", "Channel Aftertouch"]
 ];
 
+const TRIGGER_MESSAGE_TYPES = [
+    ["note", "MIDI Note"]
+];
+
 const BUTTON_MESSAGE_TYPES = [
     ["cc", "Control Change"],
     ["note", "Note"],
@@ -122,7 +126,10 @@ export default class Inspector {
             </div>`;
     }
 
-    getMessageTypes(component) { return component.type === "knob" || component.type === "fader" ? KNOB_MESSAGE_TYPES : BUTTON_MESSAGE_TYPES; }
+    getMessageTypes(component) {
+        if (component.type === "trigger") return TRIGGER_MESSAGE_TYPES;
+        return component.type === "knob" || component.type === "fader" ? KNOB_MESSAGE_TYPES : BUTTON_MESSAGE_TYPES;
+    }
 
     renderMessageFields(component, type, cfg) {
         const channel = Number(cfg.channel ?? 1);
@@ -131,6 +138,7 @@ export default class Inspector {
         const max = Number(cfg.max ?? 127);
         const mode = cfg.mode ?? "momentary";
         const channelField = `<label class="inspector-field"><span>MIDI channel</span><select data-field="channel">${Array.from({ length: 16 }, (_, i) => `<option value="${i + 1}" ${channel === i + 1 ? "selected" : ""}>Channel ${i + 1}</option>`).join("")}</select></label>`;
+        if (component.type === "trigger") return `${channelField}${this.noteField(number)}${this.numberField("Velocity ceiling", Number(cfg.maxVelocity ?? 127), 1, 127, "maxVelocity")}${this.renderTriggerFields(cfg)}`;
         if (type === "cc") return `${channelField}${this.numberField("CC number", number, 0, 127, "number")}${this.rangeFields(min, max)}${component.type === "button" ? this.buttonModeField(mode) : this.responseCurveField(cfg)}`;
         if (type === "cc14") return `${channelField}${this.numberField("MSB CC", number, 0, 31, "number")}${this.numberField("LSB CC", Number(cfg.lsbNumber ?? number + 32), 32, 63, "lsbNumber")}${this.rangeFields(0, 16383)}${this.responseCurveField(cfg)}`;
         if (type === "note") return `${channelField}${this.noteField(number)}${this.numberField("Velocity", Number(cfg.velocity ?? 127), 1, 127, "velocity")}${this.buttonModeField(mode)}`;
@@ -146,6 +154,48 @@ export default class Inspector {
         const note = Math.max(0, Math.min(127, Number(value) || 0));
         const name = `${NOTE_NAMES[note % 12]}${Math.floor(note / 12) - 1}`;
         return `<label class="inspector-field"><span>Note</span><div class="inspector-field-inline"><input type="number" data-field="number" min="0" max="127" value="${note}"><output data-note-name>${name}</output></div></label>`;
+    }
+
+    renderTriggerFields(cfg) {
+        const capabilities = this.model.getCapabilities?.().trigger ?? {};
+        const resolutions = Array.isArray(capabilities.resolutions) && capabilities.resolutions.length
+            ? capabilities.resolutions
+            : [7, 10, 12, 14];
+        const curves = Array.isArray(capabilities.curves) && capabilities.curves.length
+            ? capabilities.curves
+            : ["linear", "soft", "hard", "log", "exp"];
+        const resolution = Number(cfg.resolution ?? resolutions[0] ?? 10);
+        const curve = cfg.curve ?? "linear";
+
+        return `
+            <div class="inspector-subgroup inspector-subgroup--trigger">
+                <span class="inspector-subgroup__title">Trigger response</span>
+                <div class="inspector-field-row">
+                    <label class="inspector-field"><span>Resolution</span><select data-field="resolution">
+                        ${resolutions.map(value => `<option value="${value}" ${resolution === value ? "selected" : ""}>${value}-bit</option>`).join("")}
+                    </select></label>
+                    <label class="inspector-field"><span>Curve</span><select data-field="curve">
+                        ${curves.map(value => `<option value="${value}" ${curve === value ? "selected" : ""}>${value === "log" ? "Logarithmic" : value === "exp" ? "Exponential" : value[0].toUpperCase() + value.slice(1)}</option>`).join("")}
+                    </select></label>
+                </div>
+                <div class="inspector-field-row">
+                    ${this.numberField("Threshold", Number(cfg.threshold ?? 12), 0, 100, "threshold")}
+                    ${this.numberField("Sensitivity", Number(cfg.sensitivity ?? 80), 0, 100, "sensitivity")}
+                </div>
+                <div class="inspector-field-row">
+                    ${this.numberField("Min velocity", Number(cfg.minVelocity ?? 1), 1, 127, "minVelocity")}
+                    ${this.numberField("Retrigger", Number(cfg.retriggerMs ?? 80), 0, 500, "retriggerMs")}
+                </div>
+                <div class="inspector-field-row">
+                    ${this.numberField("Scan time", Number(cfg.scanTimeMs ?? 4), 1, 50, "scanTimeMs")}
+                    ${this.numberField("Cross-talk", Number(cfg.crossTalk ?? 0), 0, 100, "crossTalk")}
+                </div>
+                <label class="inspector-field"><span>Input polarity</span><select data-field="invert">
+                    <option value="false" ${!cfg.invert ? "selected" : ""}>Normal</option>
+                    <option value="true" ${cfg.invert ? "selected" : ""}>Inverted</option>
+                </select></label>
+                <p class="inspector-hint">Analog trigger input. Resolution and response settings describe sensor acquisition; the mock represents the resulting velocity as a 0–127 runtime value.</p>
+            </div>`;
     }
 
     responseCurveField(cfg) {
@@ -221,7 +271,7 @@ export default class Inspector {
 
     commitControllerField(component, field) {
         const key = field.dataset.field;
-        const numeric = ["channel", "number", "lsbNumber", "velocity", "bankMsb", "bankLsb", "parameterMsb", "parameterLsb", "min", "max", "bendMin", "bendMax", "resolution"].includes(key);
+        const numeric = ["channel", "number", "lsbNumber", "velocity", "bankMsb", "bankLsb", "parameterMsb", "parameterLsb", "min", "max", "bendMin", "bendMax", "resolution", "threshold", "sensitivity", "minVelocity", "maxVelocity", "retriggerMs", "scanTimeMs", "crossTalk"].includes(key);
         const value = numeric ? Number(field.value) : field.value === "true" ? true : field.value === "false" ? false : field.value;
         const patch = { [key]: value };
         if (key === "messageType") Object.assign(patch, this.defaultsForMessageType(value, component));
@@ -242,7 +292,7 @@ export default class Inspector {
     defaultsForMessageType(type, component) {
         if (type === "cc") return { number: component.type === "knob" ? 20 : 0, min: 0, max: 127, curve: "linear" };
         if (type === "cc14") return { number: component.type === "knob" ? 20 : 0, lsbNumber: component.type === "knob" ? 52 : 32, min: 0, max: 16383, curve: "linear" };
-        if (type === "note") return { number: 60, velocity: 127, mode: "momentary" };
+        if (type === "note") return component.type === "trigger" ? { number: 36, velocity: 127, resolution: 10, curve: "linear", threshold: 12, sensitivity: 80, minVelocity: 1, maxVelocity: 127, retriggerMs: 80, scanTimeMs: 4, crossTalk: 0, invert: false } : { number: 60, velocity: 127, mode: "momentary" };
         if (type === "program") return { number: 0, bankMsb: 0, bankLsb: 0 };
         if (type === "nrpn" || type === "rpn") return { parameterMsb: 0, parameterLsb: 0, min: 0, max: 127, curve: "linear" };
         if (type === "pitchbend") return { bendMin: -8192, bendMax: 8191 };

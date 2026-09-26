@@ -142,7 +142,7 @@ export default class DeviceModel {
     exportConfiguration() {
         return {
             format: "bipoStudio.configuration",
-            version: 2,
+            version: 3,
             device: this.device?.id ?? null,
             model: this.device?.name ?? null,
             exportedAt: new Date().toISOString(),
@@ -153,7 +153,7 @@ export default class DeviceModel {
     importConfiguration(payload) {
         const values = payload?.configuration ?? payload;
         if (!values || typeof values !== "object") return false;
-        const componentIds = new Set(this.hardware?.components?.map(component => component.id) ?? []);
+        const componentIds = new Set(this.hardware?.components()?.map(component => component.id) ?? []);
         const filtered = Object.fromEntries(Object.entries(values).filter(([id]) => componentIds.has(id)));
         if (!Object.keys(filtered).length) return false;
         this.workingCopy.restoreDraft({ ...this.workingCopy.toJSON(), ...filtered });
@@ -195,11 +195,50 @@ export default class DeviceModel {
     validateConfiguration() {
         const issues = [];
         const seen = new Map();
-        for (const component of this.hardware?.components ?? []) {
+        for (const component of this.hardware?.components?.() ?? []) {
             const cfg = this.getComponentConfiguration(component.id) ?? {};
             const channel = Number(cfg.channel ?? 1);
             if (channel < 1 || channel > 16) issues.push({ id: component.id, severity: "error", message: "MIDI channel must be 1–16." });
             const number = Number(cfg.number ?? 0);
+            if (component.type === "trigger") {
+                const resolution = Number(cfg.resolution ?? 10);
+                const threshold = Number(cfg.threshold ?? 0);
+                const sensitivity = Number(cfg.sensitivity ?? 100);
+                const curve = String(cfg.curve ?? "linear");
+                const allowedResolutions = this.capabilities?.trigger?.resolutions ?? [7, 10, 12, 14];
+                const allowedCurves = this.capabilities?.trigger?.curves ?? ["linear", "soft", "hard", "log", "exp"];
+
+                if (!allowedResolutions.includes(resolution)) {
+                    issues.push({ id: component.id, severity: "error", message: "Trigger resolution is not supported by this device." });
+                }
+                if (!allowedCurves.includes(curve)) {
+                    issues.push({ id: component.id, severity: "error", message: "Trigger response curve is not supported by this device." });
+                }
+                if (threshold < 0 || threshold > 100) {
+                    issues.push({ id: component.id, severity: "error", message: "Trigger threshold must be 0–100." });
+                }
+                if (sensitivity < 0 || sensitivity > 100) {
+                    issues.push({ id: component.id, severity: "error", message: "Trigger sensitivity must be 0–100." });
+                }
+                if (Number(cfg.minVelocity ?? 1) < 1 || Number(cfg.minVelocity ?? 1) > 127) {
+                    issues.push({ id: component.id, severity: "error", message: "Minimum velocity must be 1–127." });
+                }
+                if (Number(cfg.maxVelocity ?? 127) < 1 || Number(cfg.maxVelocity ?? 127) > 127) {
+                    issues.push({ id: component.id, severity: "error", message: "Maximum velocity must be 1–127." });
+                }
+                if (Number(cfg.minVelocity ?? 1) > Number(cfg.maxVelocity ?? 127)) {
+                    issues.push({ id: component.id, severity: "error", message: "Minimum velocity cannot exceed maximum velocity." });
+                }
+                if (Number(cfg.retriggerMs ?? 80) < 0 || Number(cfg.retriggerMs ?? 80) > 500) {
+                    issues.push({ id: component.id, severity: "error", message: "Retrigger time must be 0–500 ms." });
+                }
+                if (Number(cfg.scanTimeMs ?? 4) < 1 || Number(cfg.scanTimeMs ?? 4) > 50) {
+                    issues.push({ id: component.id, severity: "error", message: "Scan time must be 1–50 ms." });
+                }
+                if (Number(cfg.crossTalk ?? 0) < 0 || Number(cfg.crossTalk ?? 0) > 100) {
+                    issues.push({ id: component.id, severity: "error", message: "Cross-talk must be 0–100." });
+                }
+            }
             const maxNumber = cfg.messageType === "cc14" ? 31 : 127;
             if (["cc", "cc14", "note", "program"].includes(cfg.messageType) && (number < 0 || number > maxNumber)) issues.push({ id: component.id, severity: "error", message: `MIDI number must be 0–${maxNumber}.` });
             const key = `${cfg.messageType ?? "cc"}:${channel}:${number}`;
@@ -373,6 +412,7 @@ export default class DeviceModel {
     resolutionMax(configuration = {}) {
         const resolution = Number(configuration.resolution ?? 7);
         if (resolution >= 14) return 16383;
+        if (resolution >= 12) return 4095;
         if (resolution >= 10) return 1023;
         return 127;
     }

@@ -5,7 +5,8 @@ const PREFIX_BY_TYPE = Object.freeze({
     button: "B",
     encoder: "E",
     led: "L",
-    display: "D"
+    display: "D",
+    trigger: "T"
 });
 
 const COMPONENT_ID_PATTERN = /^[A-Z][0-9]{3}$/;
