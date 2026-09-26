@@ -1,61 +1,195 @@
-/* LAB-16D fixed analog drum-trigger rack */
+/* LAB-16D — vintage studio drum trigger rack
+ * Fixed hardware representation. Decorative only; no layout editing.
+ */
 
 .device-panel--triggers {
-  width: min(760px, 100%);
+  width: min(920px, 100%);
+  border: 1px solid #292824;
+  border-radius: 2px;
+  overflow: hidden;
   background:
-    linear-gradient(rgba(255,255,255,.025), rgba(255,255,255,0)),
-    #181816;
-  border-color: #3b3934;
+    linear-gradient(180deg, #46443e 0, #272622 2px, #1a1917 100%);
+  box-shadow:
+    12px 12px 0 rgba(25,24,21,.16),
+    0 24px 42px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.12);
 }
+
+/* Rack faceplate */
+.device-panel--triggers .device-panel__header {
+  position: relative;
+  min-height: 70px;
+  padding: 0 22px;
+  border-bottom: 1px solid #11110f;
+  background:
+    linear-gradient(180deg, #4a4842 0%, #34332f 48%, #292824 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -1px 0 rgba(0,0,0,.7);
+}
+
+.device-panel--triggers .device-panel__header::before,
+.device-panel--triggers .device-panel__header::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border: 1px solid #171614;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #858078 0 14%, #3b3934 18% 55%, #151412 60%);
+  box-shadow: 0 1px 1px rgba(255,255,255,.12);
+}
+
+.device-panel--triggers .device-panel__header::before { left: 8px; }
+.device-panel--triggers .device-panel__header::after { right: 8px; }
 
 .device-panel--triggers .device-panel__header h1 {
-  letter-spacing: .02em;
+  margin-top: 4px;
+  color: #e8e3d8;
+  font-size: 20px;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 1px #111;
 }
 
+.device-panel--triggers .device-panel__header .section-label {
+  color: #aaa59b;
+  font-size: 8px;
+  letter-spacing: .18em;
+}
+
+.device-panel--triggers .device-workspace__mode {
+  color: #b7b1a5;
+  font: 700 8px/1 monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* Recessed rack bay */
 .device-panel--triggers .device-grid--4x4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  padding: 22px;
+  gap: 6px;
+  padding: 12px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+    #11110f;
+  background-size: 24px 24px;
+  box-shadow: inset 0 1px 10px rgba(0,0,0,.7);
 }
 
 .device-panel--triggers .device-cell {
+  position: relative;
   min-width: 0;
-  min-height: 122px;
+  min-height: 142px;
+  aspect-ratio: 1 / 1.05;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) 24px;
-  gap: 8px;
+  grid-template-rows: minmax(0, 1fr) 19px;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid #11110f;
+  border-radius: 1px;
+  background: #2c2b27;
+  box-shadow:
+    inset 1px 1px 0 rgba(255,255,255,.08),
+    inset -1px -1px 0 rgba(0,0,0,.65),
+    0 1px 0 rgba(255,255,255,.04);
+}
+
+/* Four panel screws make each input read as a physical rack channel. */
+.device-panel--triggers .device-cell::before,
+.device-panel--triggers .device-cell::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #141311;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #817c72 0 12%, #383631 20% 58%, #151412 62%);
+  box-shadow: 0 1px 1px rgba(255,255,255,.08);
+  pointer-events: none;
+}
+
+.device-panel--triggers .device-cell::before {
+  top: 5px;
+  left: 5px;
+}
+
+.device-panel--triggers .device-cell::after {
+  top: 5px;
+  right: 5px;
 }
 
 .device-panel--triggers .device-cell__controller {
+  position: relative;
   min-height: 0;
-  padding: 8px;
-  border: 1px solid #383631;
-  background: #22221f;
+  padding: 9px;
+  border-bottom: 1px solid #11110f;
+  background:
+    linear-gradient(180deg, #3a3934 0%, #282723 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
 }
 
 .device-panel--triggers .device-control--trigger {
   position: relative;
-  min-height: 86px;
   width: 100%;
   height: 100%;
+  min-height: 104px;
   display: grid;
   place-items: center;
   overflow: hidden;
-  border: 1px solid #4a4841;
+  border: 1px solid #11110f;
+  border-radius: 2px;
+  background:
+    linear-gradient(180deg, #20201d 0%, #161614 100%);
+  color: #d8d2c7;
+  cursor: pointer;
+  box-shadow:
+    inset 0 2px 7px rgba(0,0,0,.65),
+    inset 0 -1px 0 rgba(255,255,255,.06),
+    0 1px 0 rgba(255,255,255,.06);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+/* Old electronic-drum style recessed trigger/input plate. */
+.device-panel--triggers .device-control--trigger::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58px;
+  height: 58px;
+  transform: translate(-50%, -50%);
+  border: 1px solid #4b4943;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 50% 38%, #47453e 0%, #302f2b 38%, #1f1f1c 68%, #141412 100%);
+    radial-gradient(circle at 36% 30%, #59564f 0 5%, #383631 7% 39%, #22211e 41% 67%, #0e0e0c 69% 100%);
   box-shadow:
     inset 0 2px 4px rgba(255,255,255,.08),
-    inset 0 -5px 10px rgba(0,0,0,.5),
-    0 1px 0 rgba(255,255,255,.04);
-  color: #d9d5cb;
-  cursor: pointer;
-  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+    inset 0 -4px 7px rgba(0,0,0,.75),
+    0 0 0 3px #1a1917,
+    0 0 0 4px #4b4943;
+  opacity: .9;
+}
+
+/* Small jack-like marker at the top of every input strip. */
+.device-panel--triggers .device-control--trigger::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 11px;
+  height: 11px;
+  border: 2px solid #0e0e0d;
+  border-radius: 50%;
+  background: radial-gradient(circle, #858078 0 12%, #3a3833 20% 50%, #0c0c0b 56%);
+  box-shadow: 0 1px 0 rgba(255,255,255,.1);
 }
 
 .device-panel--triggers .device-control--trigger:hover {
-  border-color: #777168;
+  border-color: #767168;
 }
 
 .device-panel--triggers .device-control--trigger:focus-visible,
@@ -63,79 +197,134 @@
   outline: none;
   border-color: var(--color-accent);
   box-shadow:
-    inset 0 2px 4px rgba(255,255,255,.08),
-    inset 0 -5px 10px rgba(0,0,0,.5),
-    0 0 0 2px rgba(232,74,42,.22);
+    inset 0 2px 7px rgba(0,0,0,.65),
+    inset 0 -1px 0 rgba(255,255,255,.06),
+    0 0 0 1px var(--color-accent),
+    0 0 0 3px rgba(232,74,42,.18);
 }
 
-.device-panel--triggers .device-control--trigger:active {
-  transform: scale(.985);
+.device-panel--triggers .device-cell__controller.is-selected .device-control--trigger::before {
+  border-color: #6c675e;
+}
+
+/* Text floats above the physical trigger plate. */
+.device-panel--triggers .trigger-pad__input,
+.device-panel--triggers .trigger-pad__name,
+.device-panel--triggers .trigger-pad__value {
+  z-index: 2;
 }
 
 .trigger-pad__input {
   position: absolute;
-  top: 9px;
-  left: 11px;
-  color: #858078;
-  font: 700 8px/1 monospace;
-  letter-spacing: .08em;
+  top: 10px;
+  left: 29px;
+  color: #aaa59b;
+  font: 700 7px/1 monospace;
+  letter-spacing: .1em;
 }
 
 .trigger-pad__name {
-  max-width: 80%;
+  max-width: 78%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: 700 10px/1 var(--font-family);
+  color: #ddd8cd;
+  font: 700 9px/1 var(--font-family);
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: .1em;
+  text-shadow: 0 1px 1px #000;
 }
 
 .trigger-pad__value {
   position: absolute;
-  right: 11px;
-  bottom: 9px;
-  color: #858078;
-  font: 700 8px/1 monospace;
+  right: 9px;
+  bottom: 8px;
+  color: #77736b;
+  font: 700 7px/1 monospace;
 }
 
+/* LED/status rail under each input. */
 .device-panel--triggers .device-cell__led {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   min-width: 0;
+  border: 0;
+  background:
+    linear-gradient(180deg, #34332f 0%, #24231f 100%);
+  cursor: pointer;
+}
+
+.device-panel--triggers .device-cell__led::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  height: 1px;
+  background: #11110f;
+  box-shadow: 0 1px 0 rgba(255,255,255,.08);
 }
 
 .device-panel--triggers .device-control__led {
-  width: 9px;
-  height: 9px;
+  position: relative;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #11110f;
   border-radius: 50%;
+  background: rgb(var(--led-r), var(--led-g), var(--led-b));
   box-shadow:
-    0 0 0 1px rgba(255,255,255,.08),
-    0 0 8px rgba(var(--led-r), var(--led-g), var(--led-b), var(--led-a));
+    0 0 0 2px #262520,
+    0 0 9px rgba(var(--led-r), var(--led-g), var(--led-b), var(--led-a));
+}
+
+.device-panel--triggers .device-cell__led.is-selected {
+  background: #3a3832;
+  box-shadow: inset 0 0 0 1px var(--color-accent);
 }
 
 .device-panel--triggers .device-panel__footer {
-  color: #8f8a80;
+  min-height: 30px;
+  padding: 0 15px;
+  border-top: 1px solid #0e0e0c;
+  background: #252420;
+  color: #8e897f;
+  font: 700 8px/1 monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
+  .device-panel--triggers {
+    width: 100%;
+  }
+
   .device-panel--triggers .device-grid--4x4 {
-    gap: 8px;
-    padding: 12px;
+    gap: 5px;
+    padding: 8px;
   }
 
   .device-panel--triggers .device-cell {
-    min-height: 96px;
-    grid-template-rows: minmax(0, 1fr) 18px;
+    min-height: 110px;
+  }
+
+  .device-panel--triggers .device-cell__controller {
+    padding: 7px;
   }
 
   .device-panel--triggers .device-control--trigger {
-    min-height: 68px;
+    min-height: 78px;
   }
 
-  .trigger-pad__name {
-    font-size: 8px;
+  .device-panel--triggers .device-control--trigger::before {
+    width: 46px;
+    height: 46px;
+  }
+}
+
+@media (max-width: 560px) {
+  .device-panel--triggers .device-grid--4x4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
