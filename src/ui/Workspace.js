@@ -124,8 +124,8 @@ export default class Workspace {
                         ${components.map(component => this.renderComponent(component)).join("")}
                     </div>`}
                     <footer class="device-panel__footer">
-                        <span>${components.length} ${label}</span>
-                        <span>${kind === "fader" ? "4 × 1" : "4 × 4"}</span>
+                        <span>${kind === "trigger" ? "6 PERFORMANCE PADS · 16 ANALOG INPUTS" : `${components.length} ${label}`}</span>
+                        <span>${kind === "trigger" ? "3 × 2 · 8 × 2" : kind === "fader" ? "4 × 1" : "4 × 4"}</span>
                     </footer>
                 </div>
             </section>`;
