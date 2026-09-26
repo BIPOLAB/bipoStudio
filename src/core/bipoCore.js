@@ -163,7 +163,8 @@ class BipoCore {
         return {
             "lab-16k": createKnobDevice(16),
             "lab-16b": createButtonDevice(16),
-            "lab-4f": createFaderDevice(4)
+            "lab-4f": createFaderDevice(4),
+            "lab-16d": createDrumTriggerDevice(16)
         };
     }
 
@@ -246,7 +247,82 @@ function createFaderDevice(count) {
     return createDevice("lab-4f", "LAB-4F", "4 faders · RGB LED per control", components, configuration, runtime);
 }
 
-function createDevice(id, name, description, components, configuration, runtime) {
+
+function createDrumTriggerDevice(count) {
+    const components = [], configuration = {}, runtime = {};
+    const padNames = [
+        "Kick", "Snare", "Hi-Hat", "Tom 1",
+        "Tom 2", "Tom 3", "Crash 1", "Crash 2",
+        "Ride", "China", "Splash", "Aux 1",
+        "Aux 2", "Aux 3", "Aux 4", "Aux 5"
+    ];
+
+    for (let i = 0; i < count; i++) {
+        const row = Math.floor(i / 4);
+        const col = i % 4;
+        const id = `T${String(i + 1).padStart(3, "0")}`;
+
+        components.push({
+            id,
+            label: `Trigger ${i + 1}`,
+            type: "trigger",
+            position: { x: 50 + col * 116, y: 28 + row * 82 },
+            metadata: {
+                input: i + 1,
+                defaultName: padNames[i] ?? `Input ${i + 1}`,
+                sensor: "analog"
+            },
+            led: {
+                type: "rgb",
+                id: `L${String(i + 1).padStart(3, "0")}`,
+                configurable: true
+            }
+        });
+
+        configuration[id] = {
+            messageType: "note",
+            channel: 10,
+            number: [36, 38, 42, 45, 48, 50, 49, 57, 51, 52, 55, 41, 43, 47, 46, 44][i] ?? 36,
+            velocity: 127,
+            resolution: 10,
+            curve: "linear",
+            threshold: 12,
+            sensitivity: 80,
+            minVelocity: 1,
+            maxVelocity: 127,
+            retriggerMs: 80,
+            scanTimeMs: 4,
+            crossTalk: 0,
+            invert: false,
+            led: {
+                mode: "runtime",
+                color: { r: 255, g: 255, b: 255 },
+                brightness: 100
+            }
+        };
+
+        runtime[id] = 0;
+    }
+
+    return createDevice(
+        "lab-16d",
+        "LAB-16D",
+        "16 analog drum trigger inputs · 4 × 4 rack · RGB LED per input",
+        components,
+        configuration,
+        runtime,
+        {
+            trigger: {
+                inputs: count,
+                sensorType: "analog",
+                resolutions: [7, 10, 12, 14],
+                curves: ["linear", "soft", "hard", "log", "exp"]
+            }
+        }
+    );
+}
+
+function createDevice(id, name, description, components, configuration, runtime, extraCapabilities = {}) {
     return {
         id,
         name,
@@ -265,7 +341,8 @@ function createDevice(id, name, description, components, configuration, runtime)
             midi: { usb: true, bluetooth: true, virtual: true },
             bluetooth: { midi: true, rename: true, power: true },
             configuration: { presets: true, importExport: true, snapshots: true, undoRedo: true },
-            controls: components.map(component => component.type)
+            controls: components.map(component => component.type),
+            ...extraCapabilities
         },
         connectivity: {
             usb: { enabled: true, status: "connected" },
