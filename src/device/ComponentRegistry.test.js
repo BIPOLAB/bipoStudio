@@ -34,6 +34,6 @@ describe("ComponentRegistry", () => {
         expect(hardware.components()).toHaveLength(4);
         expect(hardware.getComponents()).toHaveLength(4);
         expect(hardware.componentCount(ComponentType.KNOB)).toBe(2);
-        expect(hardware.toJSON().components).toHaveLength(3);
+        expect(hardware.toJSON().components).toHaveLength(4);
     });
 });
