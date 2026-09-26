@@ -333,3 +333,263 @@
     transition: none;
   }
 }
+
+
+/* --- LAB-16D performance-pad / patch-bay layout --- */
+
+.device-panel--triggers {
+  width: min(1040px, 100%);
+}
+
+.trigger-rack__surface {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background:
+    linear-gradient(180deg, #252421 0%, #11110f 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.trigger-rack__pad-bank,
+.trigger-rack__input-bank {
+  border: 1px solid #0d0d0c;
+  background: #191916;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 2px 4px rgba(0,0,0,.35);
+}
+
+.trigger-rack__section-header {
+  min-height: 34px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #0d0d0c;
+  background:
+    linear-gradient(180deg, #44423c 0%, #302f2b 100%);
+  color: #d9d4ca;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.trigger-rack__section-header > div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.trigger-rack__eyebrow,
+.trigger-rack__section-meta {
+  color: #979188;
+  font: 700 7px/1 monospace;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.trigger-rack__section-header strong {
+  color: #e4dfd5;
+  font: 700 10px/1 var(--font-family);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.trigger-rack__pads {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(118px, 1fr));
+  gap: 7px;
+  padding: 9px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.035), transparent 50%),
+    #10100e;
+}
+
+.trigger-performance-pad {
+  position: relative;
+  min-width: 0;
+  min-height: 118px;
+  overflow: hidden;
+  border: 1px solid #090908;
+  border-radius: 2px;
+  background:
+    linear-gradient(145deg, #3d3b36 0%, #282722 45%, #171714 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.09),
+    inset 0 -3px 6px rgba(0,0,0,.7),
+    0 2px 2px rgba(0,0,0,.4);
+  cursor: pointer;
+  color: #d8d2c7;
+  transition: transform 100ms ease, border-color 100ms ease, box-shadow 100ms ease;
+}
+
+.trigger-performance-pad::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid #4e4b44;
+  border-radius: 1px;
+  background:
+    radial-gradient(circle at 50% 38%, #4d4a43 0%, #33312d 35%, #22211e 68%, #131310 100%);
+  box-shadow:
+    inset 0 3px 8px rgba(0,0,0,.7),
+    inset 0 -1px 0 rgba(255,255,255,.06);
+}
+
+.trigger-performance-pad__rim {
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.trigger-performance-pad__label {
+  position: absolute;
+  left: 22px;
+  bottom: 20px;
+  z-index: 3;
+  font: 700 11px/1 var(--font-family);
+  letter-spacing: .12em;
+  text-shadow: 0 1px 2px #000;
+}
+
+.trigger-performance-pad__input {
+  position: absolute;
+  top: 20px;
+  left: 22px;
+  z-index: 3;
+  color: #aaa59b;
+  font: 700 7px/1 monospace;
+  letter-spacing: .12em;
+}
+
+.trigger-performance-pad__value {
+  position: absolute;
+  right: 22px;
+  bottom: 20px;
+  z-index: 3;
+  color: #77736b;
+  font: 700 8px/1 monospace;
+}
+
+.trigger-performance-pad:hover {
+  border-color: #6b665d;
+}
+
+.trigger-performance-pad:active {
+  transform: translateY(1px);
+}
+
+.trigger-performance-pad.is-selected {
+  border-color: var(--color-accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.09),
+    inset 0 -3px 6px rgba(0,0,0,.7),
+    0 0 0 1px var(--color-accent),
+    0 0 0 3px rgba(232,74,42,.16);
+}
+
+/* Six pads intentionally feel like the playing surface; the 16 channels below
+   are the service/patch section used to configure the analog sensor inputs. */
+.trigger-rack__inputs {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(86px, 1fr));
+  gap: 4px;
+  padding: 7px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+    #0d0d0b;
+  background-size: 20px 20px;
+}
+
+.trigger-rack__inputs .device-cell {
+  min-height: 86px;
+  aspect-ratio: auto;
+  grid-template-rows: minmax(0, 1fr) 15px;
+  border-color: #0a0a09;
+}
+
+.trigger-rack__inputs .device-cell__controller {
+  padding: 5px;
+}
+
+.trigger-rack__inputs .device-control--trigger {
+  min-height: 62px;
+}
+
+.trigger-rack__inputs .device-control--trigger::before {
+  width: 32px;
+  height: 32px;
+  box-shadow:
+    inset 0 1px 3px rgba(255,255,255,.06),
+    inset 0 -3px 5px rgba(0,0,0,.75),
+    0 0 0 2px #1a1917,
+    0 0 0 3px #4b4943;
+}
+
+.trigger-rack__inputs .device-control--trigger::after {
+  width: 7px;
+  height: 7px;
+  left: 6px;
+  top: 6px;
+}
+
+.trigger-rack__inputs .trigger-pad__input {
+  top: 7px;
+  left: 20px;
+  font-size: 6px;
+}
+
+.trigger-rack__inputs .trigger-pad__name {
+  font-size: 7px;
+  letter-spacing: .08em;
+}
+
+.trigger-rack__inputs .trigger-pad__value {
+  right: 6px;
+  bottom: 6px;
+  font-size: 6px;
+}
+
+.trigger-rack__inputs .device-cell__led {
+  min-height: 15px;
+}
+
+.trigger-rack__inputs .device-control__led {
+  width: 5px;
+  height: 5px;
+  box-shadow:
+    0 0 0 1px #262520,
+    0 0 6px rgba(var(--led-r), var(--led-g), var(--led-b), var(--led-a));
+}
+
+@media (max-width: 900px) {
+  .trigger-rack__inputs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(86px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .trigger-rack__pads {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(105px, 1fr));
+  }
+
+  .trigger-rack__section-header > div {
+    gap: 5px;
+  }
+
+  .trigger-rack__eyebrow {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger-performance-pad {
+    transition: none;
+  }
+}
