@@ -3,6 +3,7 @@ import "./styles/base.css";
 import "./styles/layout.css";
 import "./styles/app.css";
 import "./styles/resolution-inspector.css";
+import "./styles/trigger-rack.css";
 
 import { Application } from "./core/Application.js";
 
