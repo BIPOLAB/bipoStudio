@@ -8,6 +8,7 @@ The application currently runs against a local hardware mock. The mock supports 
 
 - bipoStudio is a configuration studio, not a graphical hardware editor.
 - Device layouts are fixed by the device model. Users configure controller behavior, MIDI mappings, LEDs, and supported device settings.
+- LAB-16D represents a 16-input analog drum-trigger controller; trigger behavior is configured per sensor while the physical rack layout remains fixed.
 - The device/firmware is the source of truth for hardware identity, capabilities, runtime values, and committed configuration.
 - Mock behavior is development-only and must not be represented as physical-device connectivity.
 - Keep the runtime lightweight: vanilla JavaScript, HTML, and CSS, built with Vite.
