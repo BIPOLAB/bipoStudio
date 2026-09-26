@@ -153,7 +153,7 @@ export default class DeviceModel {
     importConfiguration(payload) {
         const values = payload?.configuration ?? payload;
         if (!values || typeof values !== "object") return false;
-        const componentIds = new Set(this.hardware?.components?.map(component => component.id) ?? []);
+        const componentIds = new Set(this.hardware?.components()?.map(component => component.id) ?? []);
         const filtered = Object.fromEntries(Object.entries(values).filter(([id]) => componentIds.has(id)));
         if (!Object.keys(filtered).length) return false;
         this.workingCopy.restoreDraft({ ...this.workingCopy.toJSON(), ...filtered });
@@ -195,7 +195,7 @@ export default class DeviceModel {
     validateConfiguration() {
         const issues = [];
         const seen = new Map();
-        for (const component of this.hardware?.components ?? []) {
+        for (const component of this.hardware?.components?.() ?? []) {
             const cfg = this.getComponentConfiguration(component.id) ?? {};
             const channel = Number(cfg.channel ?? 1);
             if (channel < 1 || channel > 16) issues.push({ id: component.id, severity: "error", message: "MIDI channel must be 1–16." });
