@@ -57,3 +57,11 @@ Edits are staged in a per-device working copy. Saving commits the working config
 ## Current scope
 
 This build is a development mock, not a production firmware client. USB/Bluetooth routing and device identity shown in development are simulated. Mock capabilities and version strings are not verified physical-device behavior.
+
+## Firebase account and cloud presets
+
+bipoStudio supports optional Firebase Authentication and Cloud Firestore for user accounts and private cloud presets. Without Firebase configuration, the local mock and local preset workflow continue to work.
+
+Setup details, environment variables, Firestore data structure, and security rules are documented in [docs/FIREBASE.md](docs/FIREBASE.md).
+
+Copy `.env.example` to `.env.local` and provide the Firebase Web App configuration using `VITE_FIREBASE_*` variables. Never place Firebase Admin service-account credentials in the client environment.
