@@ -1711,3 +1711,79 @@
   outline: 1px solid var(--lab-orange);
   outline-offset: 4px;
 }
+
+
+/* bipoStudio visual system v2 — flat instrument UI */
+:root{
+  --lab-paper:#d8d4ca;--lab-paper-light:#e9e6de;--lab-paper-mid:#cbc6ba;
+  --lab-ink:#242520;--lab-ink-soft:#65645c;--lab-line:#aaa69b;
+  --lab-panel:#dedad0;--lab-dark:#292a26;--lab-orange:#f05232;
+  --lab-green:#a6c65b;--lab-blue:#7da7bb;--lab-yellow:#e5bd55;
+  --lab-radius:2px;--lab-grid:rgba(36,37,32,.055);
+}
+body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helvetica Neue",Arial,sans-serif}
+#header,#statusbar{background:var(--lab-paper-light);border-color:var(--lab-line);box-shadow:none}
+.brand__name{font-weight:800;letter-spacing:.035em;text-transform:uppercase}
+.brand__device{font:700 9px/1.2 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase}
+.button{border-radius:2px;box-shadow:none;text-transform:uppercase;letter-spacing:.055em;font-size:10px}
+.button--primary{background:var(--lab-orange);color:#fff}
+.button--secondary{background:transparent;border-color:var(--lab-ink-soft)}
+.button--secondary:hover:not(:disabled){background:#d4d0c6}
+.workspace-screen__stage{background-color:var(--lab-paper);background-image:linear-gradient(var(--lab-grid) 1px,transparent 1px),linear-gradient(90deg,var(--lab-grid) 1px,transparent 1px);background-size:20px 20px}
+.device-panel{position:relative;border:1px solid var(--lab-ink);border-radius:2px;background:var(--lab-panel);color:var(--lab-ink);box-shadow:4px 4px 0 rgba(36,37,32,.11);overflow:hidden}
+.device-panel__header{background:var(--lab-panel);color:var(--lab-ink);border-bottom:1px solid var(--lab-line);min-height:48px}
+.device-panel__header h1{font-size:15px;font-weight:800;letter-spacing:.015em;text-transform:uppercase}
+.device-workspace__mode{color:var(--lab-ink-soft);font:700 9px/1 ui-monospace,monospace;letter-spacing:.11em}
+.device-grid{gap:1px;padding:1px;background:var(--lab-line)}
+.device-cell{border:0;border-radius:0;background:var(--lab-paper-light);box-shadow:none;overflow:hidden}
+.device-cell__controller{background:var(--lab-paper-light);border:0}
+.device-cell__led{background:#d0ccc1;border:0;border-top:1px solid var(--lab-line)}
+.device-cell__led:hover{background:#c6c2b7}
+.device-cell__controller.is-selected,.device-cell__led.is-selected,.device-cell__name.is-selected{background:#f4e1d8;box-shadow:inset 0 0 0 2px var(--lab-orange);z-index:2}
+.device-control{color:var(--lab-ink)}
+/* Knobs are flat vector-like dials, with no bevel or metallic gradient. */
+.device-control--knob .device-control__visual{width:clamp(28px,4.4vw,48px);height:clamp(28px,4.4vw,48px);border:1px solid var(--lab-ink);border-radius:50%;background:#c5c1b6;box-shadow:none}
+.device-control--knob .device-control__visual::before{inset:4px;border:1px solid #969287;border-radius:50%;background:transparent}
+.device-control--knob .device-control__visual::after{left:calc(50% - 1px);top:3px;width:2px;height:10px;border-radius:0;background:var(--lab-orange);box-shadow:none;transform-origin:1px calc((clamp(28px,4.4vw,48px) / 2) - 3px)}
+/* Flat fader tracks and graphic caps */
+.device-control--fader .device-control__visual{width:2px;height:68%;border-radius:0;background:var(--lab-ink-soft);box-shadow:none}
+.device-control--fader .device-control__visual::before{left:-5px;top:0;width:12px;height:100%;background:repeating-linear-gradient(to bottom,transparent 0 8px,var(--lab-line) 8px 9px,transparent 9px 16px);opacity:1}
+.device-control--fader .device-control__visual::after{left:-9px;top:calc(19px - (var(--runtime-value) * .30px));width:20px;height:8px;border:1px solid var(--lab-ink);border-radius:1px;background:var(--lab-orange);box-shadow:none}
+.device-control--button .device-control__visual,.device-control--switch .device-control__visual{width:54%;height:34%;border:1px solid var(--lab-ink);border-radius:1px;background:#d4d0c6;box-shadow:none}
+.device-control--button .device-control__visual::after,.device-control--switch .device-control__visual::after{inset:4px;border:1px solid #aaa69b;border-radius:0;box-shadow:none}
+.device-control--button:hover .device-control__visual,.device-control--switch:hover .device-control__visual{background:#e7e3da}
+.device-control__led{width:10px;height:10px;border:1px solid var(--lab-ink);border-radius:1px;box-shadow:none;opacity:var(--led-a)}
+.device-control__led--selected{outline:2px solid var(--lab-orange);outline-offset:3px}
+.device-panel__footer{background:var(--lab-panel);color:var(--lab-ink-soft);border-top:1px solid var(--lab-line);font:700 9px/1 ui-monospace,monospace;letter-spacing:.07em}
+.inspector-panel,.inspector-empty{background:var(--lab-paper-light);border:1px solid var(--lab-line);border-radius:2px;box-shadow:2px 2px 0 rgba(36,37,32,.06)}
+.inspector-panel__header{background:var(--lab-paper-light);border-color:var(--lab-line)}
+.inspector-panel__header::before{height:2px;background:var(--lab-orange)}
+.inspector-panel__header h2{font-size:19px;font-weight:800;letter-spacing:0}
+.section-label,.inspector-panel__type{font:700 9px/1.2 ui-monospace,monospace;letter-spacing:.1em}
+.inspector-group+.inspector-group,.inspector-runtime{border-color:var(--lab-line)}
+.inspector-runtime{background:#dedad0}
+.inspector-message-description{background:#e1ddd3;border-left-color:var(--lab-orange)}
+.inspector-field input,.inspector-field select,.led-color-readout__value{border:1px solid var(--lab-line);border-radius:2px;background:#f1eee7;box-shadow:none}
+.inspector-field input:focus,.inspector-field select:focus{outline:1px solid var(--lab-orange);outline-offset:0;border-color:var(--lab-orange)}
+.inspector-field input[type=range]{accent-color:var(--lab-orange)}
+.inspector-subgroup{border:1px solid var(--lab-line);border-radius:2px;background:#e3dfd5;padding:12px}
+.inspector-subgroup__title{font:800 9px/1.2 ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase}
+.led-preview{background:#33352e;border-color:var(--lab-ink);box-shadow:none}
+.led-preview span{border-radius:1px;box-shadow:none}
+.led-color-wheel{box-shadow:none!important;border:1px solid var(--lab-ink)}
+.led-color-wheel::after{box-shadow:none!important}
+.led-color-wheel__marker{box-shadow:0 0 0 1px var(--lab-ink)!important}
+.midi-monitor{background:var(--lab-paper-light);border:1px solid var(--lab-line);border-radius:2px;box-shadow:none}
+.midi-monitor__table th{background:#dedad0;color:var(--lab-ink-soft);border-bottom:1px solid var(--lab-line)}
+.midi-monitor__table td{border-color:#d1cdc2}
+.midi-monitor__status{color:var(--lab-orange)}
+.progress-screen{background:var(--lab-paper)}
+.progress-screen__panel{background:var(--lab-paper-light);border:1px solid var(--lab-line);border-radius:2px;box-shadow:4px 4px 0 rgba(36,37,32,.08)}
+.studio-sidebar__panel{background:var(--lab-paper-light);border-color:var(--lab-ink);box-shadow:4px 0 0 rgba(36,37,32,.08)}
+.studio-sidebar__header{border-top-color:var(--lab-orange)}
+.studio-sidebar__nav-item{border-radius:0}
+.studio-sidebar__nav-item.is-active{background:#e1ddd3;border-left-color:var(--lab-orange)}
+.studio-menu-button{border-radius:2px;box-shadow:none;background:var(--lab-paper-light)}
+/* Remove the last traces of skeuomorphic elevation from the studio. */
+.device-panel,.inspector-panel,.inspector-empty,.progress-screen__panel,.studio-sidebar__panel,.midi-monitor{backdrop-filter:none}
+@media(max-width:560px){.device-panel{box-shadow:2px 2px 0 rgba(36,37,32,.1)}}
