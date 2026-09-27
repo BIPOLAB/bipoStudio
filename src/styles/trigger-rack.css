@@ -982,3 +982,133 @@
 .trigger-rack__inputs{gap:1px!important;background:var(--lab-line,#aaa69b)!important;border:1px solid var(--lab-line,#aaa69b)!important;padding:1px!important}
 .trigger-rack__inputs .device-cell{background:var(--lab-paper-light,#e9e6de)!important;border:0!important;box-shadow:none!important}
 .trigger-rack__inputs .device-cell__controller,.trigger-rack__inputs .device-cell__led{background:transparent!important}
+
+
+/* LAB-16D graphic pad language v3 */
+.device-panel--triggers{
+  width:min(1040px,100%);
+  background:#d6d1c6!important;
+  border:1px solid var(--lab-ink)!important;
+  box-shadow:4px 4px 0 rgba(36,37,32,.12)!important;
+}
+.trigger-rack__surface{
+  gap:9px!important;
+  padding:10px!important;
+  background:#c1bbae!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.trigger-rack__pad-bank,.trigger-rack__input-bank{
+  border:1px solid var(--lab-ink)!important;
+  background:#dedad0!important;
+  box-shadow:1px 1px 0 rgba(36,37,32,.08)!important;
+}
+.trigger-rack__section-header{
+  min-height:30px!important;
+  padding:5px 10px!important;
+  background:#e7e3da!important;
+}
+.trigger-rack__section-header strong{font-size:9px!important;letter-spacing:.08em!important}
+.trigger-rack__pads{
+  gap:5px!important;
+  padding:6px!important;
+  background:#c9c3b7!important;
+}
+.trigger-performance-pad{
+  min-height:106px!important;
+  border:1px solid #5d5a53!important;
+  border-radius:1px!important;
+  background:#d8d3c8!important;
+  box-shadow:none!important;
+  color:var(--lab-ink)!important;
+}
+.trigger-performance-pad::before{
+  display:block!important;
+  content:""!important;
+  position:absolute!important;
+  inset:14px!important;
+  border:1px solid #888277!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.trigger-performance-pad::after{
+  display:block!important;
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:8px!important;
+  height:8px!important;
+  margin:-4px!important;
+  border:1px solid #77736b!important;
+  border-radius:50%!important;
+  background:#d8d3c8!important;
+}
+.trigger-performance-pad__rim{display:none!important}
+.trigger-performance-pad__label{
+  left:12px!important;
+  bottom:11px!important;
+  font-size:9px!important;
+  letter-spacing:.09em!important;
+}
+.trigger-performance-pad__input{
+  top:11px!important;
+  left:12px!important;
+  font-size:6px!important;
+}
+.trigger-performance-pad__value{
+  right:12px!important;
+  bottom:11px!important;
+  font-size:7px!important;
+}
+.trigger-performance-pad:hover{
+  background:#e4dfd5!important;
+  border-color:#4e4b45!important;
+}
+.trigger-performance-pad.is-selected{
+  background:#eee1d8!important;
+  border:1px solid var(--lab-orange)!important;
+  box-shadow:inset 0 0 0 1px var(--lab-orange)!important;
+}
+.trigger-performance-pad.is-selected::before{
+  border-color:var(--lab-orange)!important;
+}
+.trigger-rack__inputs{
+  gap:2px!important;
+  padding:5px!important;
+  background:#b7b1a5!important;
+}
+.trigger-rack__inputs .device-cell{
+  background:#e7e3da!important;
+  border:1px solid #9e998f!important;
+  box-shadow:none!important;
+}
+.trigger-rack__inputs .device-cell__controller{background:#e7e3da!important}
+.trigger-rack__inputs .device-control--trigger{
+  background:#d1cbc0!important;
+  border:1px solid #77736b!important;
+}
+.trigger-rack__inputs .device-control--trigger::before{
+  width:28px!important;height:28px!important;
+  border:1px solid #77736b!important;
+  background:#d9d4c9!important;
+  box-shadow:none!important;
+}
+.trigger-rack__inputs .device-control--trigger::after{
+  width:5px!important;height:5px!important;
+  border:1px solid var(--lab-orange)!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.trigger-rack__inputs .device-cell__led{
+  background:#d3cec3!important;
+  border-top:1px solid #aaa49a!important;
+}
+.trigger-rack__inputs .device-control__led{box-shadow:none!important}
+@media(max-width:900px){
+  .trigger-rack__pads{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:600px){
+  .trigger-rack__pads{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
