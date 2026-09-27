@@ -965,3 +965,20 @@
   color: var(--lab-ink-soft);
   box-shadow: none;
 }
+
+
+/* LAB-16D — flat sampler / trigger instrument language */
+.trigger-rack__surface{background:var(--lab-panel,#dedad0)!important;border:1px solid var(--lab-ink,#242520)!important;border-radius:2px!important;box-shadow:4px 4px 0 rgba(36,37,32,.1)!important;color:var(--lab-ink,#242520)!important}
+.trigger-rack__pad-bank,.trigger-rack__input-bank{background:transparent!important;border:0!important;box-shadow:none!important}
+.trigger-rack__section-header{border-bottom:1px solid var(--lab-line,#aaa69b)!important}
+.trigger-rack__eyebrow,.trigger-rack__section-meta{color:var(--lab-ink-soft,#65645c)!important;font-family:ui-monospace,monospace!important;letter-spacing:.1em!important}
+.trigger-rack__pads{gap:5px!important}
+.trigger-performance-pad{border:1px solid var(--lab-ink,#242520)!important;border-radius:2px!important;background:#d0ccc1!important;box-shadow:none!important;color:var(--lab-ink,#242520)!important}
+.trigger-performance-pad::before,.trigger-performance-pad::after,.trigger-performance-pad__rim{display:none!important;box-shadow:none!important}
+.trigger-performance-pad:hover{background:#e5e1d8!important}
+.trigger-performance-pad.is-selected,.trigger-performance-pad[aria-pressed=true]{background:#f4e1d8!important;border:2px solid var(--lab-orange,#f05232)!important;box-shadow:none!important}
+.trigger-performance-pad__label{font-weight:800!important;letter-spacing:.045em!important}
+.trigger-performance-pad__input,.trigger-performance-pad__value{color:var(--lab-ink-soft,#65645c)!important;font-family:ui-monospace,monospace!important}
+.trigger-rack__inputs{gap:1px!important;background:var(--lab-line,#aaa69b)!important;border:1px solid var(--lab-line,#aaa69b)!important;padding:1px!important}
+.trigger-rack__inputs .device-cell{background:var(--lab-paper-light,#e9e6de)!important;border:0!important;box-shadow:none!important}
+.trigger-rack__inputs .device-cell__controller,.trigger-rack__inputs .device-cell__led{background:transparent!important}
