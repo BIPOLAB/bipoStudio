@@ -144,7 +144,7 @@ export class Application {
         this.ui.statusBar.render();
     }
 
-    handleConfigurationTool(payload = {}) {
+    async handleConfigurationTool(payload = {}) {
         switch (payload.action) {
             case "snapshot":
                 this.snapshot = this.deviceModel.createSnapshot();
