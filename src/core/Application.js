@@ -20,6 +20,7 @@ import WorkspaceScreen from "../screens/WorkspaceScreen.js";
 import Header from "../ui/Header.js";
 import StatusBar from "../ui/StatusBar.js";
 import Sidebar from "../ui/Sidebar.js";
+import FirebaseService from "../services/FirebaseService.js";
 
 export class Application {
     constructor() {
@@ -27,6 +28,8 @@ export class Application {
         this.uiState = new UIState();
         this.selectionManager = new SelectionManager(this.eventBus, this.uiState);
         this.deviceModel = new DeviceModel(this.eventBus);
+        this.firebase = new FirebaseService(this.eventBus);
+        this.firebase.initialize();
         this.screenHost = null;
         this.ui = null;
         this.workspaceScreen = null;
@@ -64,7 +67,7 @@ export class Application {
         const sidebarElement = document.getElementById("sidebar-host");
         if (!headerElement || !screenHostElement || !statusBarElement || !sidebarElement) throw new Error("Application shell could not be initialized.");
         this.screenHost = new ScreenHost(screenHostElement);
-        this.ui = { header: new Header(headerElement, this.eventBus), statusBar: new StatusBar(statusBarElement, this.eventBus), sidebar: new Sidebar(sidebarElement, this.eventBus) };
+        this.ui = { header: new Header(headerElement, this.eventBus), statusBar: new StatusBar(statusBarElement, this.eventBus), sidebar: new Sidebar(sidebarElement, this.eventBus, this.firebase) };
     }
 
     bindApplicationEvents() {
@@ -85,6 +88,10 @@ export class Application {
             this.ui.statusBar.render();
             const committed = await this.deviceModel.commitConfiguration();
             this.ui.statusBar.status = committed ? "Configuration saved" : "No changes to save";
+            this.ui.statusBar.render();
+        });
+        this.eventBus.on(Events.AUTH_ERROR, error => {
+            this.ui.statusBar.status = `Account: ${this.firebaseMessage(error)}`;
             this.ui.statusBar.render();
         });
         this.eventBus.on(Events.CONFIGURATION_ERROR, error => {
@@ -153,24 +160,11 @@ export class Application {
                 this.ui.statusBar.render();
                 break;
             case "preset-save": {
-                const name = window.prompt("Preset name", "My preset");
-                if (name && this.deviceModel.savePreset(name)) this.ui.statusBar.status = `Preset "${name}" saved`;
-                else this.ui.statusBar.status = "Preset was not saved";
-                this.ui.statusBar.render();
+                await this.savePreset();
                 break;
             }
             case "preset-load": {
-                const presets = this.deviceModel.listPresets();
-                if (!presets.length) {
-                    this.ui.statusBar.status = "No saved presets for this device";
-                    this.ui.statusBar.render();
-                    break;
-                }
-                const names = presets.map((preset, index) => `${index + 1}. ${preset.name}`).join("\n");
-                const selected = window.prompt(`Load preset:\n\n${names}\n\nEnter preset name`, presets[0].name);
-                if (selected && this.deviceModel.loadPreset(selected)) this.ui.statusBar.status = `Preset "${selected}" loaded into working copy`;
-                else this.ui.statusBar.status = "Preset was not loaded";
-                this.ui.statusBar.render();
+                await this.loadPreset();
                 break;
             }
             case "export":
@@ -194,6 +188,83 @@ export class Application {
         }
     }
 
+
+    async savePreset() {
+        const name = window.prompt("Preset name", "My preset");
+        if (!name) {
+            this.ui.statusBar.status = "Preset was not saved";
+            this.ui.statusBar.render();
+            return;
+        }
+
+        try {
+            if (this.firebase.user) {
+                await this.firebase.savePreset(
+                    name,
+                    this.deviceModel.device?.id,
+                    this.deviceModel.device?.name,
+                    this.deviceModel.workingCopy?.toJSON?.() ?? {}
+                );
+                this.ui.statusBar.status = `Cloud preset "${name}" saved`;
+            } else if (this.deviceModel.savePreset(name)) {
+                this.ui.statusBar.status = `Local preset "${name}" saved`;
+            } else {
+                this.ui.statusBar.status = "Preset was not saved";
+            }
+        } catch (error) {
+            this.ui.statusBar.status = `Preset save failed: ${this.firebaseMessage(error)}`;
+        }
+        this.ui.statusBar.render();
+    }
+
+    async loadPreset() {
+        try {
+            const presets = this.firebase.user
+                ? await this.firebase.listPresets(this.deviceModel.device?.id)
+                : this.deviceModel.listPresets();
+
+            if (!presets.length) {
+                this.ui.statusBar.status = this.firebase.user
+                    ? "No cloud presets for this device"
+                    : "No saved presets for this device";
+                this.ui.statusBar.render();
+                return;
+            }
+
+            const names = presets.map((preset, index) => `${index + 1}. ${preset.name}`).join("\n");
+            const selected = window.prompt(`Load preset:\n\n${names}\n\nEnter preset name`, presets[0].name);
+            if (!selected) {
+                this.ui.statusBar.status = "Preset was not loaded";
+                this.ui.statusBar.render();
+                return;
+            }
+
+            const preset = presets.find(item => item.name === selected);
+            const loaded = preset ? this.deviceModel.importConfiguration(preset.configuration) : false;
+            this.ui.statusBar.status = loaded
+                ? `Preset "${selected}" loaded into working copy`
+                : "Preset was not loaded";
+        } catch (error) {
+            this.ui.statusBar.status = `Preset load failed: ${this.firebaseMessage(error)}`;
+        }
+        this.ui.statusBar.render();
+    }
+
+    firebaseMessage(error) {
+        const code = error?.code ?? "";
+        const messages = {
+            "auth/invalid-credential": "Email or password is incorrect.",
+            "auth/user-not-found": "No account was found for this email.",
+            "auth/wrong-password": "Email or password is incorrect.",
+            "auth/email-already-in-use": "An account already exists for this email.",
+            "auth/weak-password": "Password is too weak.",
+            "auth/popup-closed-by-user": "The sign-in window was closed.",
+            "auth/popup-blocked": "The browser blocked the sign-in window.",
+            "auth/operation-not-allowed": "This sign-in method is not enabled in Firebase.",
+            "auth/network-request-failed": "Firebase network request failed."
+        };
+        return messages[code] ?? error?.message ?? String(error ?? "Unknown error");
+    }
     downloadConfiguration() {
         const payload = this.deviceModel.exportConfiguration();
         const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
