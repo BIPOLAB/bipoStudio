@@ -1112,3 +1112,148 @@
 @media(max-width:600px){
   .trigger-rack__pads{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* bipoLab LAB-16D identity system v4 */
+/* LAB-16D is a member of the same family: same geometry, coral identity. */
+.device-panel--triggers .trigger-rack__surface{
+  background:var(--module-grid)!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  padding:8px!important;
+  gap:8px!important;
+}
+.device-panel--triggers .trigger-rack__pad-bank,
+.device-panel--triggers .trigger-rack__input-bank{
+  border:1px solid var(--bipo-ink)!important;
+  border-radius:var(--bipo-radius)!important;
+  background:var(--module-surface)!important;
+  box-shadow:none!important;
+}
+.device-panel--triggers .trigger-rack__section-header{
+  min-height:30px!important;
+  padding:0 10px!important;
+  background:var(--module-header)!important;
+  border-bottom:1px solid var(--module-line)!important;
+}
+.device-panel--triggers .trigger-rack__eyebrow,
+.device-panel--triggers .trigger-rack__section-meta{
+  color:var(--bipo-text-soft)!important;
+}
+.device-panel--triggers .trigger-rack__section-header strong{color:var(--bipo-ink)!important}
+.device-panel--triggers .trigger-rack__pads{
+  gap:4px!important;
+  padding:6px!important;
+  background:var(--module-grid)!important;
+}
+.device-panel--triggers .trigger-performance-pad{
+  min-height:100px!important;
+  border:1px solid var(--bipo-ink)!important;
+  border-radius:var(--bipo-radius)!important;
+  background:var(--module-control)!important;
+  color:var(--bipo-ink)!important;
+  box-shadow:none!important;
+}
+.device-panel--triggers .trigger-performance-pad::before{
+  display:block!important;
+  inset:12px!important;
+  border:1px solid var(--module-color)!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.device-panel--triggers .trigger-performance-pad::after{
+  display:block!important;
+  left:50%!important;top:50%!important;
+  width:7px!important;height:7px!important;
+  margin:-4px!important;
+  border:1px solid var(--module-color)!important;
+  border-radius:50%!important;
+  background:var(--module-control)!important;
+}
+.device-panel--triggers .trigger-performance-pad__rim{display:none!important}
+.device-panel--triggers .trigger-performance-pad__label{
+  left:11px!important;bottom:10px!important;
+  color:var(--bipo-ink)!important;
+  font-size:9px!important;
+  letter-spacing:.08em!important;
+  text-shadow:none!important;
+}
+.device-panel--triggers .trigger-performance-pad__input{
+  top:10px!important;left:11px!important;
+  color:var(--bipo-text-soft)!important;
+}
+.device-panel--triggers .trigger-performance-pad__value{
+  right:11px!important;bottom:10px!important;
+  color:var(--bipo-text-soft)!important;
+}
+.device-panel--triggers .trigger-performance-pad:hover{
+  background:var(--module-light)!important;
+  border-color:var(--module-color)!important;
+}
+.device-panel--triggers .trigger-performance-pad.is-selected{
+  background:var(--module-light)!important;
+  border:2px solid var(--module-color)!important;
+  box-shadow:none!important;
+}
+.device-panel--triggers .trigger-performance-pad.is-selected::before{border-color:var(--module-color)!important}
+.device-panel--triggers .trigger-rack__inputs{
+  grid-template-columns:repeat(8,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(58px,1fr))!important;
+  gap:2px!important;
+  padding:5px!important;
+  background:var(--module-grid)!important;
+}
+.device-panel--triggers .trigger-rack__inputs .device-cell{
+  min-height:58px!important;
+  aspect-ratio:auto!important;
+  grid-template-rows:16px minmax(0,1fr) 13px!important;
+  border:1px solid var(--bipo-ink)!important;
+  border-radius:var(--bipo-radius)!important;
+  background:var(--module-surface)!important;
+  box-shadow:none!important;
+}
+.device-panel--triggers .trigger-rack__inputs .device-cell__meta{
+  background:var(--module-header)!important;
+  border-bottom:1px solid var(--module-line)!important;
+}
+.device-panel--triggers .trigger-rack__inputs .device-cell__controller{
+  background:var(--module-control)!important;
+  border:0!important;
+}
+.device-panel--triggers .trigger-rack__inputs .device-control--trigger{
+  min-height:38px!important;
+  border:1px solid var(--bipo-ink)!important;
+  border-radius:1px!important;
+  background:var(--module-dial)!important;
+  box-shadow:none!important;
+}
+.device-panel--triggers .trigger-rack__inputs .device-control--trigger::before{
+  width:24px!important;height:24px!important;
+  border:1px solid var(--module-color)!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.device-panel--triggers .trigger-rack__inputs .device-control--trigger::after{
+  width:5px!important;height:5px!important;
+  border:1px solid var(--module-color)!important;
+  background:var(--module-light)!important;
+  box-shadow:none!important;
+}
+.device-panel--triggers .trigger-rack__inputs .device-cell__led{
+  min-height:13px!important;
+  background:var(--module-led)!important;
+  border-top:1px solid var(--module-line)!important;
+}
+.device-panel--triggers .trigger-rack__inputs .device-control__led{width:5px!important;height:5px!important}
+@media(max-width:900px){
+  .device-panel--triggers .trigger-rack__inputs{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    grid-template-rows:repeat(4,minmax(58px,1fr))!important;
+  }
+}
+@media(max-width:600px){
+  .device-panel--triggers .trigger-rack__pads{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
