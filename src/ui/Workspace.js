@@ -193,26 +193,25 @@ export default class Workspace {
         const ledModified = this.modifiedLedIds.has(ledId);
         const value = Math.round(this.getRuntimeValue(component.id));
         const cfg = this.model.getComponentConfiguration(component.id) ?? {};
-        const led = cfg.led ?? {
-            id: ledId,
-            mode: "static",
-            color: { r: 255, g: 255, b: 255 },
-            brightness: 100
-        };
+        const led = cfg.led ?? { id: ledId, mode: "static", color: { r: 255, g: 255, b: 255 }, brightness: 100 };
         const rgb = led.color ?? { r: 255, g: 255, b: 255 };
         const alpha = Math.max(0, Math.min(1, Number(led.brightness ?? 100) / 100));
         const ledStyle = `--led-r:${rgb.r};--led-g:${rgb.g};--led-b:${rgb.b};--led-a:${alpha}`;
         const triggerName = component.metadata?.defaultName ?? `INPUT ${component.metadata?.input ?? ""}`;
+        const typeLabel = component.type === "knob" ? "POT" : component.type === "button" ? "BTN" : component.type === "fader" ? "FDR" : component.type === "trigger" ? "TRG" : String(component.type ?? "").slice(0, 3).toUpperCase();
 
         return `
-            <div class="device-cell">
+            <div class="device-cell device-cell--${component.type}">
+                <div class="device-cell__meta"><span>${component.id}</span><span>${typeLabel}</span></div>
                 <div class="device-cell__controller ${controllerSelected ? "is-selected" : ""} ${controllerModified ? "is-modified" : ""}">
                     <div class="device-control device-control--${component.type}" data-component-id="${component.id}" tabindex="0" role="button" title="${component.label}" aria-label="Configure ${component.label}" aria-valuemin="0" aria-valuemax="127" aria-valuenow="${value}">
                         ${component.type === "trigger" ? `<span class="trigger-pad__input">${String(component.metadata?.input ?? "").padStart(2, "0")}</span><span class="trigger-pad__name">${triggerName}</span><span class="trigger-pad__value">${value}</span>` : `<span class="device-control__visual" style="--runtime-value:${value}"></span>`}
                     </div>
                 </div>
                 <div class="device-cell__led ${ledSelected ? "is-selected" : ""} ${ledModified ? "is-modified" : ""}" data-led-id="${ledId}" data-led-component="${component.id}" title="Configure ${ledId}" role="button" tabindex="0" aria-label="Configure LED ${ledId}">
+                    <span class="device-cell__led-label">LED</span>
                     <span class="device-control__led ${ledSelected ? "device-control__led--selected" : ""}" style="${ledStyle}"></span>
+                    <span class="device-cell__value">${String(value).padStart(3, "0")}</span>
                 </div>
             </div>`;
     }
