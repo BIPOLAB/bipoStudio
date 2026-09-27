@@ -2,9 +2,11 @@ import { Events } from "../core/Events.js";
 import bipoCore from "../core/bipoCore.js";
 
 export default class Sidebar {
-    constructor(element, eventBus) {
+    constructor(element, eventBus, firebase = null) {
         this.element = element;
         this.eventBus = eventBus;
+        this.firebase = firebase;
+        this.authUser = firebase?.user ?? null;
         this.device = null;
         this.model = null;
         this.connectivity = null;
@@ -23,6 +25,14 @@ export default class Sidebar {
             this.render();
         });
         this.eventBus.on(Events.WORKING_COPY_CHANGED, () => this.render());
+        this.eventBus.on(Events.AUTH_CHANGED, user => {
+            this.authUser = user;
+            this.authOpen = false;
+            this.render();
+        });
+        this.eventBus.on(Events.AUTH_ERROR, error => {
+            this.showAuthMessage(this.authMessage(error));
+        });
     }
 
     onSessionChanged(device) {
@@ -87,9 +97,11 @@ export default class Sidebar {
             content =
                 '<section class="studio-sidebar__panel">' +
                     '<div class="studio-sidebar__panel-heading"><span class="studio-sidebar__eyebrow">bipoLab account</span><h2>Your account</h2><p>Sync configurations and access your bipoLab devices from your account.</p></div>' +
-                    '<div class="studio-account-card"><div class="studio-account-avatar" aria-hidden="true">b</div><div class="studio-account-card__identity"><strong>Guest user</strong><span>Not signed in</span><small>Sign in to sync your studio</small></div></div>' +
-                    '<button class="studio-sidebar__wide-button studio-sidebar__wide-button--primary" type="button" data-action="account-open">Sign in / Create account</button>' +
-                    '<p class="studio-sidebar__hint">Your local configuration remains available without an account. Cloud sync will be connected to the bipoLab account service.</p>' +
+                    '<div class="studio-account-card"><div class="studio-account-avatar" aria-hidden="true">' + escapeHtml((this.authUser?.displayName || this.authUser?.email || "b").slice(0, 1).toUpperCase()) + '</div><div class="studio-account-card__identity"><strong>' + escapeHtml(this.authUser?.displayName || "Guest user") + '</strong><span>' + escapeHtml(this.authUser?.email || "Not signed in") + '</span><small>' + (this.authUser ? (this.authUser.emailVerified ? "Email verified · Cloud sync active" : "Signed in · Verify your email in Firebase") : "Sign in to sync your studio") + '</small></div></div>' +
+                    (this.authUser
+                        ? '<button class="studio-sidebar__wide-button studio-sidebar__wide-button--primary" type="button" data-action="account-signout">Sign out</button>'
+                        : '<button class="studio-sidebar__wide-button studio-sidebar__wide-button--primary" type="button" data-action="account-open">Sign in / Create account</button>') +
+                    '<p class="studio-sidebar__hint">' + (this.authUser ? "Cloud presets are stored privately in your Firebase account." : "Your local configuration remains available without an account. Sign in to sync presets.") + '</p>' +
                 '</section>';
         } else if (this.activeSection === "tools") {
             content =
@@ -165,7 +177,7 @@ export default class Sidebar {
                         <label><span>Password</span><input name="password" type="password" autocomplete="${this.authView === "register" ? "new-password" : "current-password"}" placeholder="••••••••" required></label>
                         <button type="submit" class="studio-auth__submit">${this.authView === "register" ? "Create account" : "Sign in"}</button>
                     </form>
-                    <small class="studio-auth__note">Authentication service is not connected in this development build.</small>
+                    <small class="studio-auth__note">Authentication is connected through Firebase Authentication.</small>
                     <button type="button" class="studio-auth__close" data-action="auth-close">Close</button>
                 </section>
             </div>`;
@@ -201,6 +213,9 @@ export default class Sidebar {
 
         this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value));
         this.element.querySelector('[data-action="account-open"]')?.addEventListener("click", () => this.openAuth());
+        this.element.querySelector('[data-action="account-signout"]')?.addEventListener("click", async () => {
+            try { await this.firebase?.signOut(); } catch (error) { this.showAuthMessage(this.authMessage(error)); }
+        });
         this.element.querySelector('[data-action="reconnect"]')?.addEventListener("click", () => this.eventBus.emit(Events.DEVICE_RECONNECT_REQUEST));
 
         this.element.querySelectorAll('[data-action="midi-output"]').forEach(input => input.addEventListener("change", event => this.eventBus.emit(Events.CONNECTIVITY_REQUEST, { action: "midi-output", output: input.dataset.output, value: event.target.checked })));
@@ -246,16 +261,60 @@ export default class Sidebar {
             this.authOpen = false;
             this.render();
         }));
-        this.element.querySelector('[data-action="google"]')?.addEventListener("click", () => this.showAuthMessage("Google authentication will be connected when the bipoLab account service is implemented."));
-        this.element.querySelector("[data-auth-form]")?.addEventListener("submit", event => {
+        this.element.querySelector('[data-action="google"]')?.addEventListener("click", async () => {
+            if (!this.firebase?.isConfigured()) {
+                this.showAuthMessage("Firebase is not configured. Add the VITE_FIREBASE_* variables.");
+                return;
+            }
+            try {
+                await this.firebase.signInWithGoogle();
+            } catch (error) {
+                this.showAuthMessage(this.authMessage(error));
+            }
+        });
+        this.element.querySelector("[data-auth-form]")?.addEventListener("submit", async event => {
             event.preventDefault();
-            this.showAuthMessage("Account authentication is reserved for the bipoLab account service.");
+            const form = event.currentTarget;
+            const data = new FormData(form);
+            const email = String(data.get("email") ?? "");
+            const password = String(data.get("password") ?? "");
+            const name = String(data.get("name") ?? "");
+
+            if (!this.firebase?.isConfigured()) {
+                this.showAuthMessage("Firebase is not configured. Add the VITE_FIREBASE_* variables.");
+                return;
+            }
+
+            try {
+                if (this.authView === "register") {
+                    await this.firebase.register(email, password, name);
+                } else {
+                    await this.firebase.signIn(email, password);
+                }
+            } catch (error) {
+                this.showAuthMessage(this.authMessage(error));
+            }
         });
     }
 
     showAuthMessage(message) {
         const note = this.element.querySelector(".studio-auth__note");
         if (note) note.textContent = message;
+    }
+
+    authMessage(error) {
+        const messages = {
+            "auth/invalid-credential": "Email or password is incorrect.",
+            "auth/user-not-found": "No account was found for this email.",
+            "auth/wrong-password": "Email or password is incorrect.",
+            "auth/email-already-in-use": "An account already exists for this email.",
+            "auth/weak-password": "Password is too weak.",
+            "auth/popup-closed-by-user": "The sign-in window was closed.",
+            "auth/popup-blocked": "The browser blocked the sign-in window.",
+            "auth/operation-not-allowed": "This sign-in method is not enabled in Firebase.",
+            "auth/network-request-failed": "Firebase network request failed."
+        };
+        return messages[error?.code] ?? error?.message ?? String(error ?? "Authentication error.");
     }
 }
 
