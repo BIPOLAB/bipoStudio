@@ -1257,3 +1257,18 @@
 @media(max-width:600px){
   .device-panel--triggers .trigger-rack__pads{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* LAB-16D controlled accent variation v4 */
+/* The six performance pads use a curated color sequence while retaining identical geometry. */
+.device-panel--triggers .trigger-performance-pad:nth-child(1){--module-color:#e06f4b;--module-light:#f7e0d8;--module-control:#f1d0c5}
+.device-panel--triggers .trigger-performance-pad:nth-child(2){--module-color:#8f79bd;--module-light:#eee8f7;--module-control:#d9cce8}
+.device-panel--triggers .trigger-performance-pad:nth-child(3){--module-color:#d0b44d;--module-light:#f3ecd1;--module-control:#e2d59c}
+.device-panel--triggers .trigger-performance-pad:nth-child(4){--module-color:#5da3ad;--module-light:#deedf0;--module-control:#c5dfe2}
+.device-panel--triggers .trigger-performance-pad:nth-child(5){--module-color:#7fae80;--module-light:#e3efe4;--module-control:#cadfcd}
+.device-panel--triggers .trigger-performance-pad:nth-child(6){--module-color:#6f8fbe;--module-light:#e1e8f4;--module-control:#c9d7e9}
+
+.device-panel--triggers .trigger-performance-pad__input{color:var(--module-color)!important}
+.device-panel--triggers .trigger-performance-pad__value{color:var(--module-color)!important}
+.device-panel--triggers .trigger-performance-pad:hover{background:var(--module-light)!important}
+.device-panel--triggers .trigger-performance-pad.is-selected{background:var(--module-light)!important}
