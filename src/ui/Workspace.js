@@ -202,7 +202,7 @@ export default class Workspace {
 
         return `
             <div class="device-cell device-cell--${component.type}">
-                <div class="device-cell__meta"><span>${component.id}</span><span>${typeLabel}</span></div>
+                <div class="device-cell__meta"><span>${component.id}</span><span class="device-cell__meta-label">${component.label}</span><span>${typeLabel}</span></div>
                 <div class="device-cell__controller ${controllerSelected ? "is-selected" : ""} ${controllerModified ? "is-modified" : ""}">
                     <div class="device-control device-control--${component.type}" data-component-id="${component.id}" tabindex="0" role="button" title="${component.label}" aria-label="Configure ${component.label}" aria-valuemin="0" aria-valuemax="127" aria-valuenow="${value}">
                         ${component.type === "trigger" ? `<span class="trigger-pad__input">${String(component.metadata?.input ?? "").padStart(2, "0")}</span><span class="trigger-pad__name">${triggerName}</span><span class="trigger-pad__value">${value}</span>` : `<span class="device-control__visual" style="--runtime-value:${value}"></span>`}
