@@ -2240,3 +2240,24 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
   font:700 8px/1 ui-monospace,monospace!important;
   letter-spacing:.07em;
 }
+
+
+/* bipoLab controlled accent variation v4 */
+/* Color variation is indexed, not arbitrary: every family shares the same four-slot palette. */
+.device-panel--knobs .device-cell:nth-child(4n+1){--module-color:#5aaeb8;--module-light:#d9eef0;--module-dial:#c0dfe2}
+.device-panel--knobs .device-cell:nth-child(4n+2){--module-color:#6b8fc1;--module-light:#dce6f3;--module-dial:#c8d6e8}
+.device-panel--knobs .device-cell:nth-child(4n+3){--module-color:#d2b64e;--module-light:#f1ead0;--module-dial:#e0d29a}
+.device-panel--knobs .device-cell:nth-child(4n+4){--module-color:#78a985;--module-light:#e0eee3;--module-dial:#c9dfcf}
+
+.device-panel--buttons .device-cell:nth-child(4n+1){--module-color:#987bc4;--module-light:#eee8f7;--module-dial:#d2c6e4}
+.device-panel--buttons .device-cell:nth-child(4n+2){--module-color:#df8666;--module-light:#f7e4dc;--module-dial:#e3c2b5}
+.device-panel--buttons .device-cell:nth-child(4n+3){--module-color:#648fc1;--module-light:#e0eaf5;--module-dial:#c7d8e9}
+.device-panel--buttons .device-cell:nth-child(4n+4){--module-color:#7aaa83;--module-light:#e3efe5;--module-dial:#c9ddce}
+
+.device-panel--faders .device-cell:nth-child(4n+1){--module-color:#70a47c;--module-light:#e0eee2;--module-dial:#c7ddcb}
+.device-panel--faders .device-cell:nth-child(4n+2){--module-color:#5ea8b1;--module-light:#dceef0;--module-dial:#c4dde0}
+.device-panel--faders .device-cell:nth-child(4n+3){--module-color:#d1b34c;--module-light:#f2ead0;--module-dial:#e0d39a}
+.device-panel--faders .device-cell:nth-child(4n+4){--module-color:#748fc1;--module-light:#e1e7f3;--module-dial:#cbd5e7}
+
+/* Faders are a single coherent bank; color variation stays deliberately quieter. */
+.device-panel--faders .device-cell__meta-label{color:var(--module-color)!important}
