@@ -24,6 +24,8 @@ export const Events = Object.freeze({
     DEVICE_MODEL_READY: "device:model-ready",
 
     SESSION_CHANGED: "session:changed",
+    AUTH_CHANGED: "auth:changed",
+    AUTH_ERROR: "auth:error",
     SELECTION_CHANGED: "selection:changed",
     RUNTIME_CHANGED: "runtime:changed",
     MIDI_MESSAGE: "midi:message",
