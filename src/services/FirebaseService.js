@@ -189,7 +189,7 @@ export default class FirebaseService {
         }
     }
 
-    async savePreset(name, deviceId, model, configuration, category = "DAW") {
+    async savePreset(name, deviceId, model, configuration, category = "DAW", shared = false) {
         const user = this.requireUser();
         const normalized = String(name ?? "").trim().slice(0, 40);
         const normalizedCategory = ["DAW", "Sequencer", "Synth", "Drums"].includes(category) ? category : "DAW";
@@ -200,14 +200,16 @@ export default class FirebaseService {
             const match = existing.docs.find(item => item.data()?.name === normalized && item.data()?.deviceId === deviceId);
             const presetRef = match ? match.ref : doc(presetsRef);
             const old = match?.data?.() ?? {};
+            const shouldShare = Boolean(shared);
             await setDoc(presetRef, {
                 name: normalized, deviceId: deviceId ?? null, model: model ?? null,
-                category: normalizedCategory, shared: Boolean(old.shared),
+                category: normalizedCategory, shared: shouldShare,
                 configuration: structuredClone(configuration ?? {}), ownerUid: user.uid,
                 updatedAt: serverTimestamp(), ...(match ? {} : { createdAt: serverTimestamp() })
             }, { merge: true });
-            if (old.shared) await this.publishPreset(presetRef.id);
-            return { id: presetRef.id, name: normalized, category: normalizedCategory, shared: Boolean(old.shared) };
+            if (shouldShare) await this.publishPreset(presetRef.id);
+            else if (old.shared) await this.unpublishPreset(presetRef.id);
+            return { id: presetRef.id, name: normalized, category: normalizedCategory, shared: shouldShare };
         } catch (error) { this.emitError(error); throw error; }
     }
 
