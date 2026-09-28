@@ -209,8 +209,7 @@ export class Application {
         const category = ["DAW", "Sequencer", "Synth", "Drums"].includes(options.category) ? options.category : "DAW";
         if (!name) return;
         try {
-            const result = await this.firebase.savePreset(name, this.deviceModel.device?.id, this.deviceModel.device?.name, this.deviceModel.workingCopy?.toJSON?.() ?? {}, category);
-            if (options.shared) await this.firebase.updatePreset(result.id, { shared: true });
+            const result = await this.firebase.savePreset(name, this.deviceModel.device?.id, this.deviceModel.device?.name, this.deviceModel.workingCopy?.toJSON?.() ?? {}, category, Boolean(options.shared));
             this.ui.statusBar.status = `Cloud preset "${result.name}" saved · ${result.category}${options.shared ? " · shared" : ""}`;
         } catch (error) {
             this.ui.statusBar.status = `Preset save failed: ${this.firebaseMessage(error)}`;
