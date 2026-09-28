@@ -79,7 +79,7 @@ export default class FirebaseService {
     }
 
     isConfigured() {
-        return this.configured && Boolean(this.auth && this.db);
+        return this.configured && Boolean(this.auth && this.db && this.storage);
     }
 
     get currentUser() {
@@ -167,7 +167,16 @@ export default class FirebaseService {
             await this.ensureUserProfile(user);
             this.emitAuthChanged(user);
             return photoURL;
-        } catch (error) { this.emitError(error); throw error; }
+        } catch (error) {
+            if (error?.code === "storage/unauthorized") {
+                throw new Error("Firebase Storage denied the avatar upload. Publish storage.rules and make sure Cloud Storage is enabled for this Firebase project.");
+            }
+            if (error?.code === "storage/object-not-found") {
+                throw new Error("Firebase Storage bucket was not found. Enable Cloud Storage in Firebase Console and verify VITE_FIREBASE_STORAGE_BUCKET.");
+            }
+            this.emitError(error);
+            throw error;
+        }
     }
 
     async listPresets(deviceId = null) {
