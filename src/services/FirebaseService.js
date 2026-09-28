@@ -24,7 +24,6 @@ import {
     setDoc,
     where
 } from "firebase/firestore";
-import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from "firebase/storage";
 import { Events } from "../core/Events.js";
 
 const firebaseConfig = {
@@ -44,7 +43,6 @@ export default class FirebaseService {
         this.app = null;
         this.auth = null;
         this.db = null;
-        this.storage = null;
         this.configured = REQUIRED_CONFIG.every(key => Boolean(firebaseConfig[key]));
         this.unsubscribeAuth = null;
     }
@@ -66,7 +64,6 @@ export default class FirebaseService {
             }
 
             this.db = getFirestore(this.app);
-            this.storage = getStorage(this.app);
             this.unsubscribeAuth = onAuthStateChanged(this.auth, user => {
                 this.eventBus.emit(Events.AUTH_CHANGED, user ? this.serializeUser(user) : null);
             });
@@ -79,7 +76,7 @@ export default class FirebaseService {
     }
 
     isConfigured() {
-        return this.configured && Boolean(this.auth && this.db && this.storage);
+        return this.configured && Boolean(this.auth && this.db);
     }
 
     get currentUser() {
@@ -153,27 +150,16 @@ export default class FirebaseService {
         } catch (error) { this.emitError(error); throw error; }
     }
 
-    async uploadAvatar(file) {
+    async saveProfile({ displayName } = {}) {
         const user = this.requireUser();
-        if (!file) throw new Error("Choose an image first.");
-        if (!String(file.type ?? "").startsWith("image/")) throw new Error("Avatar must be an image file.");
-        if (Number(file.size ?? 0) > 2 * 1024 * 1024) throw new Error("Avatar must be smaller than 2 MB.");
+        const normalized = String(displayName ?? "").trim().slice(0, 80);
+        if (!normalized) throw new Error("Profile name is required.");
         try {
-            const extension = (String(file.name ?? "").split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "jpg";
-            const avatarRef = storageRef(this.storage, `users/${user.uid}/avatar.${extension}`);
-            await uploadBytes(avatarRef, file, { contentType: file.type });
-            const photoURL = await getDownloadURL(avatarRef);
-            await updateProfile(user, { photoURL });
+            await updateProfile(user, { displayName: normalized });
             await this.ensureUserProfile(user);
             this.emitAuthChanged(user);
-            return photoURL;
+            return this.serializeUser(user);
         } catch (error) {
-            if (error?.code === "storage/unauthorized") {
-                throw new Error("Firebase Storage denied the avatar upload. Publish storage.rules and make sure Cloud Storage is enabled for this Firebase project.");
-            }
-            if (error?.code === "storage/object-not-found") {
-                throw new Error("Firebase Storage bucket was not found. Enable Cloud Storage in Firebase Console and verify VITE_FIREBASE_STORAGE_BUCKET.");
-            }
             this.emitError(error);
             throw error;
         }

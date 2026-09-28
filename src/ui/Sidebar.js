@@ -165,7 +165,7 @@ export default class Sidebar {
         const avatar = this.authUser?.photoURL
             ? '<img src="' + escapeHtml(this.authUser.photoURL) + '" alt="" class="studio-account-avatar__image">'
             : escapeHtml((this.authUser?.displayName || this.authUser?.email || "b").slice(0, 1).toUpperCase());
-        return '<div class="studio-account-card"><label class="studio-account-avatar studio-account-avatar--editable" title="Change avatar">' + avatar + '<input type="file" accept="image/*" data-action="avatar-input" hidden></label><div class="studio-account-card__identity"><strong>' + escapeHtml(this.authUser?.displayName || "bipoLab user") + '</strong><span>' + escapeHtml(this.authUser?.email || "") + '</span><small>' + (this.authUser?.emailVerified ? "Email verified · Cloud sync active" : "Signed in · Verify your email in Firebase") + '</small></div></div><div class="studio-profile-editor"><label class="studio-sidebar__field"><span>User name</span><input type="text" maxlength="80" value="' + escapeHtml(this.authUser?.displayName || "") + '" data-action="profile-name"></label><button class="studio-sidebar__wide-button studio-sidebar__wide-button--primary" type="button" data-action="profile-save">Save profile</button>' + (this.profileMessage ? '<small class="studio-sidebar__hint">' + escapeHtml(this.profileMessage) + '</small>' : '') + '</div>';
+        return '<div class="studio-account-card"><label class="studio-account-avatar studio-account-avatar--editable" title="Custom avatar uploads are disabled">' + avatar + '<input type="file" accept="image/*" data-action="avatar-input" hidden></label><div class="studio-account-card__identity"><strong>' + escapeHtml(this.authUser?.displayName || "bipoLab user") + '</strong><span>' + escapeHtml(this.authUser?.email || "") + '</span><small>' + (this.authUser?.emailVerified ? "Email verified · Cloud sync active" : "Signed in · Verify your email in Firebase") + '</small></div></div><div class="studio-profile-editor"><label class="studio-sidebar__field"><span>User name</span><input type="text" maxlength="80" value="' + escapeHtml(this.authUser?.displayName || "") + '" data-action="profile-name"></label><button class="studio-sidebar__wide-button studio-sidebar__wide-button--primary" type="button" data-action="profile-save">Save profile</button>' + (this.profileMessage ? '<small class="studio-sidebar__hint">' + escapeHtml(this.profileMessage) + '</small>' : '') + '</div>';
     }
 
     async openPresetManager(view = "mine", category = this.presetManagerCategory) {
@@ -313,14 +313,12 @@ export default class Sidebar {
                 this.presetManagerOpen = false; this.render();
             }
         }));
-        this.element.querySelector('[data-action="avatar-input"]')?.addEventListener("change", async event => {
-            const file = event.target.files?.[0]; if (!file) return;
-            try { await this.firebase.uploadAvatar(file); this.profileMessage = "Avatar updated."; }
-            catch (error) { this.profileMessage = this.authMessage(error); }
+        this.element.querySelector('[data-action="avatar-input"]')?.addEventListener("change", () => {
+            this.profileMessage = "Custom avatar uploads are disabled. Profile data and presets are stored in Firestore.";
             this.render();
         });
         this.element.querySelector('[data-action="profile-save"]')?.addEventListener("click", async () => {
-            try { await this.firebase.updateProfile(this.element.querySelector('[data-action="profile-name"]')?.value ?? ""); this.profileMessage = "Profile updated."; }
+            try { await this.firebase.saveProfile({ displayName: this.element.querySelector('[data-action="profile-name"]')?.value ?? "" }); this.profileMessage = "Profile updated."; }
             catch (error) { this.profileMessage = this.authMessage(error); }
             this.render();
         });
