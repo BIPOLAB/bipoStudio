@@ -160,7 +160,11 @@ export class Application {
                 this.ui.statusBar.render();
                 break;
             case "preset-save": {
-                await this.savePreset();
+                this.ui.sidebar.openPresetSaveModal();
+                break;
+            }
+            case "preset-save-data": {
+                await this.savePreset(payload.payload);
                 break;
             }
             case "preset-load": {
@@ -195,19 +199,22 @@ export class Application {
     }
 
 
-    async savePreset() {
+    async savePreset(options = {}) {
         if (!this.firebase.user) {
             this.ui.statusBar.status = "Sign in to Firebase before saving presets";
-            this.ui.statusBar.render(); return;
+            this.ui.statusBar.render();
+            return;
         }
-        const name = window.prompt("Preset name", "My preset");
-        if (!name) { this.ui.statusBar.status = "Preset was not saved"; this.ui.statusBar.render(); return; }
-        const category = window.prompt("Category: DAW, Sequencer, Synth or Drums", "DAW");
-        const normalizedCategory = ["DAW", "Sequencer", "Synth", "Drums"].includes(category) ? category : "DAW";
+        const name = String(options.name ?? "").trim();
+        const category = ["DAW", "Sequencer", "Synth", "Drums"].includes(options.category) ? options.category : "DAW";
+        if (!name) return;
         try {
-            const result = await this.firebase.savePreset(name, this.deviceModel.device?.id, this.deviceModel.device?.name, this.deviceModel.workingCopy?.toJSON?.() ?? {}, normalizedCategory);
-            this.ui.statusBar.status = `Cloud preset "${result.name}" saved · ${result.category}`;
-        } catch (error) { this.ui.statusBar.status = `Preset save failed: ${this.firebaseMessage(error)}`; }
+            const result = await this.firebase.savePreset(name, this.deviceModel.device?.id, this.deviceModel.device?.name, this.deviceModel.workingCopy?.toJSON?.() ?? {}, category);
+            if (options.shared) await this.firebase.updatePreset(result.id, { shared: true });
+            this.ui.statusBar.status = `Cloud preset "${result.name}" saved · ${result.category}${options.shared ? " · shared" : ""}`;
+        } catch (error) {
+            this.ui.statusBar.status = `Preset save failed: ${this.firebaseMessage(error)}`;
+        }
         this.ui.statusBar.render();
     }
 

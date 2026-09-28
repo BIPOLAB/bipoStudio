@@ -19,6 +19,8 @@ export default class Sidebar {
         this.presetManagerView = "mine";
         this.presetManagerData = [];
         this.presetManagerLoading = false;
+        this.presetManagerCategory = "";
+        this.presetSaveOpen = false;
         this.eventBus.on(Events.SESSION_CHANGED, this.onSessionChanged.bind(this));
         this.eventBus.on(Events.DEVICE_MODEL_READY, model => {
             this.model = model;
@@ -154,7 +156,7 @@ export default class Sidebar {
                 '<div class="studio-sidebar__content">' + content + '</div>' +
                 '<footer class="studio-sidebar__footer"><span>bipoLab / bipoStudio</span><span>' + (this.device?.firmware ?? "DEVICE OFFLINE") + '</span></footer>' +
             '</aside>' +
-            this.renderAuthModal() + this.renderPresetManagerModal();
+            this.renderAuthModal() + this.renderPresetManagerModal() + this.renderPresetSaveModal();
 
         this.bindEvents();
     }
@@ -169,17 +171,33 @@ export default class Sidebar {
     async openPresetManager(view = "mine") {
         if (!this.authUser || !this.firebase?.isConfigured()) return;
         this.presetManagerView = view;
+        this.presetManagerCategory = "";
         this.presetManagerOpen = true;
         this.presetManagerLoading = true;
         this.render();
         try {
-            this.presetManagerData = view === "mine" ? await this.firebase.listPresets() : await this.firebase.listCommunityPresets();
+            this.presetManagerData = view === "mine" ? await this.firebase.listPresets() : await this.firebase.listCommunityPresets(this.presetManagerCategory || null);
         } catch (error) {
             this.presetManagerData = [];
             this.profileMessage = this.authMessage(error);
         }
         this.presetManagerLoading = false;
         this.render();
+    }
+
+    openPresetSaveModal() {
+        if (!this.authUser || !this.firebase?.isConfigured()) {
+            this.openAuth();
+            return;
+        }
+        this.presetSaveOpen = true;
+        this.render();
+        this.element.querySelector("[data-preset-save-form] input")?.focus();
+    }
+
+    renderPresetSaveModal() {
+        if (!this.presetSaveOpen) return "";
+        return '<div class="studio-library studio-preset-save"><div class="studio-auth__backdrop" data-action="preset-save-close"></div><section class="studio-library__panel studio-preset-save__panel" role="dialog" aria-modal="true"><header><div><span class="studio-sidebar__eyebrow">bipoLab cloud</span><h2>Save preset</h2></div><button type="button" data-action="preset-save-close">×</button></header><form data-preset-save-form><label class="studio-sidebar__field"><span>Preset name</span><input name="name" maxlength="40" required placeholder="My preset"></label><label class="studio-sidebar__field"><span>Category</span><select name="category"><option>DAW</option><option>Sequencer</option><option>Synth</option><option>Drums</option></select></label><label class="studio-sidebar__switch studio-preset-save__share"><span>Share with community</span><input name="shared" type="checkbox"><span class="studio-sidebar__switch-ui" aria-hidden="true"></span></label><p class="studio-sidebar__hint">Private presets remain visible only to your account. Sharing publishes a copy to the community library.</p><div class="studio-preset-save__actions"><button type="button" data-action="preset-save-close">Cancel</button><button class="studio-sidebar__wide-button--primary" type="submit">Save to Firebase</button></div></form></section></div>';
     }
 
     renderPresetManagerModal() {
@@ -193,7 +211,7 @@ export default class Sidebar {
                 (this.presetManagerView === "mine" ? '<select data-preset-category="' + preset.id + '">' + categories.map(category => '<option value="' + category + '" ' + (category === (preset.category || "DAW") ? "selected" : "") + '>' + category + '</option>').join("") + '</select><button type="button" data-preset-share="' + preset.id + '">' + (preset.shared ? "Unshare" : "Share") + '</button>' :
                 '<button type="button" data-preset-load-community="' + preset.id + '">Load</button>') +
                 '</div></article>').join("") : '<div class="studio-library__empty">No presets in this library yet.</div>');
-        return '<div class="studio-library" data-preset-modal><div class="studio-auth__backdrop" data-action="preset-close"></div><section class="studio-library__panel" role="dialog" aria-modal="true"><header><div><span class="studio-sidebar__eyebrow">bipoLab cloud</span><h2>' + (this.presetManagerView === "mine" ? "My presets" : "Community presets") + '</h2></div><button type="button" data-action="preset-close">×</button></header><nav><button type="button" class="' + (this.presetManagerView === "mine" ? "is-active" : "") + '" data-library-view="mine">My presets</button><button type="button" class="' + (this.presetManagerView === "community" ? "is-active" : "") + '" data-library-view="community">Community</button></nav><div class="studio-library__list">' + body + '</div></section></div>';
+        return '<div class="studio-library" data-preset-modal><div class="studio-auth__backdrop" data-action="preset-close"></div><section class="studio-library__panel" role="dialog" aria-modal="true"><header><div><span class="studio-sidebar__eyebrow">bipoLab cloud</span><h2>' + (this.presetManagerView === "mine" ? "My presets" : "Community presets") + '</h2></div><button type="button" data-action="preset-close">×</button></header><nav><button type="button" class="' + (this.presetManagerView === "mine" ? "is-active" : "") + '" data-library-view="mine">My presets</button><button type="button" class="' + (this.presetManagerView === "community" ? "is-active" : "") + '" data-library-view="community">Community</button></nav><div class="studio-library__filters"><label>Category<select data-library-category><option value="">All categories</option><option value="DAW">DAW</option><option value="Sequencer">Sequencer</option><option value="Synth">Synth</option><option value="Drums">Drums</option></select></label></div><div class="studio-library__list">' + body + '</div></section></div>';
     }
 
     renderAuthModal() {
@@ -254,9 +272,30 @@ export default class Sidebar {
         this.element.querySelector('[data-action="mock-device"]')?.addEventListener("change", event => this.eventBus.emit(Events.MOCK_DEVICE_CHANGE_REQUEST, event.target.value));
         this.element.querySelector('[data-action="account-open"]')?.addEventListener("click", () => this.openAuth());
         this.element.querySelector('[data-action="preset-library"]')?.addEventListener("click", () => this.openPresetManager("mine"));
+        this.element.querySelector('[data-action="preset-save"]')?.addEventListener("click", () => this.openPresetSaveModal());
         this.element.querySelector('[data-action="community-library"]')?.addEventListener("click", () => this.openPresetManager("community"));
-        this.element.querySelector('[data-action="preset-close"]')?.addEventListener("click", () => { this.presetManagerOpen = false; this.render(); });
+        this.element.querySelectorAll('[data-action="preset-close"]').forEach(button => button.addEventListener("click", () => { this.presetManagerOpen = false; this.render(); }));
+        this.element.querySelectorAll('[data-action="preset-save-close"]').forEach(button => button.addEventListener("click", () => { this.presetSaveOpen = false; this.render(); }));
+        this.element.querySelector("[data-preset-save-form]")?.addEventListener("submit", event => {
+            event.preventDefault();
+            const data = new FormData(event.currentTarget);
+            this.presetSaveOpen = false;
+            this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, {
+                action: "preset-save-data",
+                payload: { name: String(data.get("name") ?? ""), category: String(data.get("category") ?? "DAW"), shared: data.get("shared") === "on" }
+            });
+            this.render();
+        });
         this.element.querySelectorAll("[data-library-view]").forEach(button => button.addEventListener("click", () => this.openPresetManager(button.dataset.libraryView)));
+        this.element.querySelector("[data-library-category]")?.addEventListener("change", () => {
+            this.presetManagerCategory = this.element.querySelector("[data-library-category]")?.value ?? "";
+            this.openPresetManager(this.presetManagerView);
+        });
+        this.element.querySelectorAll("[data-preset-delete]").forEach(button => button.addEventListener("click", async () => {
+            if (!window.confirm("Delete this preset permanently from Firebase?")) return;
+            try { await this.firebase.deletePreset(button.dataset.presetDelete); await this.openPresetManager("mine"); }
+            catch (error) { this.profileMessage = this.authMessage(error); this.render(); }
+        }));
         this.element.querySelectorAll("[data-preset-share]").forEach(button => button.addEventListener("click", async () => {
             const preset = this.presetManagerData.find(item => item.id === button.dataset.presetShare);
             if (!preset) return;

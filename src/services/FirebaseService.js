@@ -274,9 +274,13 @@ export default class FirebaseService {
     async deletePreset(presetId) {
         const user = this.requireUser();
         if (!presetId) return false;
-
         try {
-            await deleteDoc(doc(this.db, "users", user.uid, "presets", presetId));
+            const presetRef = doc(this.db, "users", user.uid, "presets", presetId);
+            const snapshot = await getDocs(query(collection(this.db, "users", user.uid, "presets")));
+            const match = snapshot.docs.find(item => item.id === presetId);
+            if (!match) return false;
+            if (match.data()?.shared) await deleteDoc(doc(this.db, "communityPresets", presetId));
+            await deleteDoc(presetRef);
             return true;
         } catch (error) {
             this.emitError(error);
