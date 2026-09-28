@@ -2261,3 +2261,25 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
 
 /* Faders are a single coherent bank; color variation stays deliberately quieter. */
 .device-panel--faders .device-cell__meta-label{color:var(--module-color)!important}
+
+
+/* bipoLab cloud account + preset library */
+.studio-account-avatar--editable{position:relative;cursor:pointer;overflow:hidden}
+.studio-account-avatar__image{width:100%;height:100%;display:block;object-fit:cover}
+.studio-profile-editor{margin-top:12px;padding-top:12px;border-top:1px solid var(--bipo-line)}
+.studio-library{position:fixed;inset:0;z-index:1600;display:grid;place-items:center}
+.studio-library__panel{position:relative;width:min(720px,92vw);max-height:86vh;display:grid;grid-template-rows:auto auto minmax(0,1fr);background:var(--bipo-paper);border:1px solid var(--bipo-ink);box-shadow:8px 8px 0 rgba(41,42,39,.16);overflow:hidden}
+.studio-library__panel>header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:2px solid var(--bipo-orange)}
+.studio-library__panel>header h2{margin:4px 0 0;font-size:20px;color:var(--bipo-ink)}
+.studio-library__panel>header button{border:0;background:transparent;font-size:26px;cursor:pointer}
+.studio-library__panel>nav{display:flex;border-bottom:1px solid var(--bipo-line);background:#ddd8cc}
+.studio-library__panel>nav button{flex:1;padding:10px;border:0;border-right:1px solid var(--bipo-line);background:transparent;font:700 9px ui-monospace,monospace;cursor:pointer}
+.studio-library__panel>nav button.is-active{background:var(--bipo-paper);box-shadow:inset 0 -2px 0 var(--bipo-orange)}
+.studio-library__list{min-height:0;overflow:auto;padding:12px}
+.studio-library__item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--bipo-line);background:#f0ece3;margin-bottom:8px}
+.studio-library__identity{display:grid;gap:3px}
+.studio-library__identity strong{color:var(--bipo-ink)}
+.studio-library__identity span,.studio-library__identity small{color:var(--bipo-text-soft);font-size:9px}
+.studio-library__actions{display:flex;align-items:center;gap:6px}
+.studio-library__actions select,.studio-library__actions button{min-height:30px;padding:0 8px;border:1px solid var(--bipo-line);background:var(--bipo-paper);color:var(--bipo-ink);font:700 9px ui-monospace,monospace;cursor:pointer}
+.studio-library__loading,.studio-library__empty{padding:32px;text-align:center;color:var(--bipo-text-soft);font-size:11px}

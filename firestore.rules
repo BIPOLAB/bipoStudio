@@ -2,28 +2,29 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function ownsUser(userId) { return signedIn() && request.auth.uid == userId; }
+    function validCategory(data) { return data.get('category', 'DAW') in ['DAW', 'Sequencer', 'Synth', 'Drums']; }
 
     match /users/{userId} {
-      allow read, create, update, delete: if request.auth != null
-        && request.auth.uid == userId;
+      allow read: if ownsUser(userId);
+      allow create: if ownsUser(userId);
+      allow update: if ownsUser(userId) && request.resource.data.uid == resource.data.uid;
+      allow delete: if ownsUser(userId);
     }
 
     match /users/{userId}/presets/{presetId} {
-      allow read, delete: if request.auth != null
-        && request.auth.uid == userId;
-
-      allow create: if request.auth != null
-        && request.auth.uid == userId
-        && request.resource.data.ownerUid == request.auth.uid;
-
-      allow update: if request.auth != null
-        && request.auth.uid == userId
-        && resource.data.ownerUid == request.auth.uid
-        && request.resource.data.ownerUid == request.auth.uid;
+      allow read, delete: if ownsUser(userId);
+      allow create: if ownsUser(userId) && request.resource.data.ownerUid == request.auth.uid && validCategory(request.resource.data);
+      allow update: if ownsUser(userId) && resource.data.ownerUid == request.auth.uid && request.resource.data.ownerUid == request.auth.uid && validCategory(request.resource.data);
     }
 
-    match /{document=**} {
-      allow read, write: if false;
+    match /communityPresets/{presetId} {
+      allow read: if signedIn() && resource.data.shared == true;
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid && request.resource.data.shared == true && validCategory(request.resource.data);
+      allow update, delete: if signedIn() && resource.data.ownerUid == request.auth.uid && request.resource.data.ownerUid == request.auth.uid && validCategory(request.resource.data);
     }
+
+    match /{document=**} { allow read, write: if false; }
   }
 }

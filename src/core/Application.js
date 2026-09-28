@@ -167,6 +167,12 @@ export class Application {
                 await this.loadPreset();
                 break;
             }
+            case "preset-load-data": {
+                if (this.deviceModel.importConfiguration(payload.payload)) this.ui.statusBar.status = "Community preset loaded into working copy";
+                else this.ui.statusBar.status = "Community preset was not loaded";
+                this.ui.statusBar.render();
+                break;
+            }
             case "export":
                 this.downloadConfiguration();
                 break;
@@ -190,63 +196,36 @@ export class Application {
 
 
     async savePreset() {
+        if (!this.firebase.user) {
+            this.ui.statusBar.status = "Sign in to Firebase before saving presets";
+            this.ui.statusBar.render(); return;
+        }
         const name = window.prompt("Preset name", "My preset");
-        if (!name) {
-            this.ui.statusBar.status = "Preset was not saved";
-            this.ui.statusBar.render();
-            return;
-        }
-
+        if (!name) { this.ui.statusBar.status = "Preset was not saved"; this.ui.statusBar.render(); return; }
+        const category = window.prompt("Category: DAW, Sequencer, Synth or Drums", "DAW");
+        const normalizedCategory = ["DAW", "Sequencer", "Synth", "Drums"].includes(category) ? category : "DAW";
         try {
-            if (this.firebase.user) {
-                await this.firebase.savePreset(
-                    name,
-                    this.deviceModel.device?.id,
-                    this.deviceModel.device?.name,
-                    this.deviceModel.workingCopy?.toJSON?.() ?? {}
-                );
-                this.ui.statusBar.status = `Cloud preset "${name}" saved`;
-            } else if (this.deviceModel.savePreset(name)) {
-                this.ui.statusBar.status = `Local preset "${name}" saved`;
-            } else {
-                this.ui.statusBar.status = "Preset was not saved";
-            }
-        } catch (error) {
-            this.ui.statusBar.status = `Preset save failed: ${this.firebaseMessage(error)}`;
-        }
+            const result = await this.firebase.savePreset(name, this.deviceModel.device?.id, this.deviceModel.device?.name, this.deviceModel.workingCopy?.toJSON?.() ?? {}, normalizedCategory);
+            this.ui.statusBar.status = `Cloud preset "${result.name}" saved · ${result.category}`;
+        } catch (error) { this.ui.statusBar.status = `Preset save failed: ${this.firebaseMessage(error)}`; }
         this.ui.statusBar.render();
     }
 
     async loadPreset() {
+        if (!this.firebase.user) {
+            this.ui.statusBar.status = "Sign in to Firebase before loading presets";
+            this.ui.statusBar.render(); return;
+        }
         try {
-            const presets = this.firebase.user
-                ? await this.firebase.listPresets(this.deviceModel.device?.id)
-                : this.deviceModel.listPresets();
-
-            if (!presets.length) {
-                this.ui.statusBar.status = this.firebase.user
-                    ? "No cloud presets for this device"
-                    : "No saved presets for this device";
-                this.ui.statusBar.render();
-                return;
-            }
-
-            const names = presets.map((preset, index) => `${index + 1}. ${preset.name}`).join("\n");
-            const selected = window.prompt(`Load preset:\n\n${names}\n\nEnter preset name`, presets[0].name);
-            if (!selected) {
-                this.ui.statusBar.status = "Preset was not loaded";
-                this.ui.statusBar.render();
-                return;
-            }
-
+            const presets = await this.firebase.listPresets(this.deviceModel.device?.id);
+            if (!presets.length) { this.ui.statusBar.status = "No cloud presets for this device"; this.ui.statusBar.render(); return; }
+            const names = presets.map((p,i) => `${i+1}. ${p.name} [${p.category}]`).join("\n");
+            const selected = window.prompt(`Load cloud preset:\n\n${names}\n\nEnter preset name`, presets[0].name);
+            if (!selected) { this.ui.statusBar.status = "Preset was not loaded"; this.ui.statusBar.render(); return; }
             const preset = presets.find(item => item.name === selected);
             const loaded = preset ? this.deviceModel.importConfiguration(preset.configuration) : false;
-            this.ui.statusBar.status = loaded
-                ? `Preset "${selected}" loaded into working copy`
-                : "Preset was not loaded";
-        } catch (error) {
-            this.ui.statusBar.status = `Preset load failed: ${this.firebaseMessage(error)}`;
-        }
+            this.ui.statusBar.status = loaded ? `Preset "${selected}" loaded into working copy` : "Preset was not loaded";
+        } catch (error) { this.ui.statusBar.status = `Preset load failed: ${this.firebaseMessage(error)}`; }
         this.ui.statusBar.render();
     }
 

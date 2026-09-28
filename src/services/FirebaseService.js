@@ -21,8 +21,10 @@ import {
     orderBy,
     query,
     serverTimestamp,
-    setDoc
+    setDoc,
+    where
 } from "firebase/firestore";
+import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from "firebase/storage";
 import { Events } from "../core/Events.js";
 
 const firebaseConfig = {
@@ -42,6 +44,7 @@ export default class FirebaseService {
         this.app = null;
         this.auth = null;
         this.db = null;
+        this.storage = null;
         this.configured = REQUIRED_CONFIG.every(key => Boolean(firebaseConfig[key]));
         this.unsubscribeAuth = null;
     }
@@ -63,6 +66,7 @@ export default class FirebaseService {
             }
 
             this.db = getFirestore(this.app);
+            this.storage = getStorage(this.app);
             this.unsubscribeAuth = onAuthStateChanged(this.auth, user => {
                 this.eventBus.emit(Events.AUTH_CHANGED, user ? this.serializeUser(user) : null);
             });
@@ -137,6 +141,35 @@ export default class FirebaseService {
         }
     }
 
+    async updateProfile(displayName) {
+        const user = this.requireUser();
+        const normalized = String(displayName ?? "").trim().slice(0, 80);
+        if (!normalized) throw new Error("Profile name is required.");
+        try {
+            await updateProfile(user, { displayName: normalized });
+            await this.ensureUserProfile(user);
+            this.emitAuthChanged(user);
+            return this.serializeUser(user);
+        } catch (error) { this.emitError(error); throw error; }
+    }
+
+    async uploadAvatar(file) {
+        const user = this.requireUser();
+        if (!file) throw new Error("Choose an image first.");
+        if (!String(file.type ?? "").startsWith("image/")) throw new Error("Avatar must be an image file.");
+        if (Number(file.size ?? 0) > 2 * 1024 * 1024) throw new Error("Avatar must be smaller than 2 MB.");
+        try {
+            const extension = (String(file.name ?? "").split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "jpg";
+            const avatarRef = storageRef(this.storage, `users/${user.uid}/avatar.${extension}`);
+            await uploadBytes(avatarRef, file, { contentType: file.type });
+            const photoURL = await getDownloadURL(avatarRef);
+            await updateProfile(user, { photoURL });
+            await this.ensureUserProfile(user);
+            this.emitAuthChanged(user);
+            return photoURL;
+        } catch (error) { this.emitError(error); throw error; }
+    }
+
     async listPresets(deviceId = null) {
         const user = this.requireUser();
         try {
@@ -150,6 +183,8 @@ export default class FirebaseService {
                     name: String(item.name ?? "Untitled"),
                     deviceId: item.deviceId ?? null,
                     model: item.model ?? null,
+                    category: item.category ?? "DAW",
+                    shared: Boolean(item.shared),
                     configuration: item.configuration ?? {},
                     savedAt: item.updatedAt?.toDate?.()?.toISOString?.() ?? item.savedAt ?? null
                 }));
@@ -159,32 +194,81 @@ export default class FirebaseService {
         }
     }
 
-    async savePreset(name, deviceId, model, configuration) {
+    async savePreset(name, deviceId, model, configuration, category = "DAW") {
         const user = this.requireUser();
         const normalized = String(name ?? "").trim().slice(0, 40);
+        const normalizedCategory = ["DAW", "Sequencer", "Synth", "Drums"].includes(category) ? category : "DAW";
         if (!normalized) throw new Error("Preset name is required.");
-
         try {
             const presetsRef = collection(this.db, "users", user.uid, "presets");
             const existing = await getDocs(presetsRef);
             const match = existing.docs.find(item => item.data()?.name === normalized && item.data()?.deviceId === deviceId);
             const presetRef = match ? match.ref : doc(presetsRef);
-
+            const old = match?.data?.() ?? {};
             await setDoc(presetRef, {
-                name: normalized,
-                deviceId: deviceId ?? null,
-                model: model ?? null,
-                configuration: structuredClone(configuration ?? {}),
-                ownerUid: user.uid,
-                updatedAt: serverTimestamp(),
-                ...(match ? {} : { createdAt: serverTimestamp() })
+                name: normalized, deviceId: deviceId ?? null, model: model ?? null,
+                category: normalizedCategory, shared: Boolean(old.shared),
+                configuration: structuredClone(configuration ?? {}), ownerUid: user.uid,
+                updatedAt: serverTimestamp(), ...(match ? {} : { createdAt: serverTimestamp() })
             }, { merge: true });
+            if (old.shared) await this.publishPreset(presetRef.id);
+            return { id: presetRef.id, name: normalized, category: normalizedCategory, shared: Boolean(old.shared) };
+        } catch (error) { this.emitError(error); throw error; }
+    }
 
-            return { id: presetRef.id, name: normalized };
-        } catch (error) {
-            this.emitError(error);
-            throw error;
-        }
+    async updatePreset(presetId, changes = {}) {
+        const user = this.requireUser();
+        if (!presetId) throw new Error("Preset id is required.");
+        try {
+            const presetRef = doc(this.db, "users", user.uid, "presets", presetId);
+            const snapshot = await getDocs(query(collection(this.db, "users", user.uid, "presets")));
+            const match = snapshot.docs.find(item => item.id === presetId);
+            if (!match) throw new Error("Preset was not found.");
+            const data = match.data();
+            const category = ["DAW", "Sequencer", "Synth", "Drums"].includes(changes.category) ? changes.category : (data.category ?? "DAW");
+            const shared = changes.shared == null ? Boolean(data.shared) : Boolean(changes.shared);
+            await setDoc(presetRef, { category, shared, updatedAt: serverTimestamp() }, { merge: true });
+            if (shared) await this.publishPreset(presetId); else await this.unpublishPreset(presetId);
+            return { id: presetId, shared, category };
+        } catch (error) { this.emitError(error); throw error; }
+    }
+
+    async publishPreset(presetId) {
+        const user = this.requireUser();
+        const snapshot = await getDocs(query(collection(this.db, "users", user.uid, "presets")));
+        const source = snapshot.docs.find(item => item.id === presetId);
+        if (!source) throw new Error("Preset was not found.");
+        const data = source.data();
+        const category = ["DAW", "Sequencer", "Synth", "Drums"].includes(data.category) ? data.category : "DAW";
+        await setDoc(doc(this.db, "communityPresets", presetId), {
+            sourcePresetId: presetId, ownerUid: user.uid,
+            ownerName: user.displayName ?? user.email ?? "bipoLab user",
+            ownerPhotoURL: user.photoURL ?? "", name: data.name ?? "Untitled",
+            deviceId: data.deviceId ?? null, model: data.model ?? null, category,
+            shared: true, configuration: structuredClone(data.configuration ?? {}),
+            updatedAt: serverTimestamp()
+        });
+        await setDoc(doc(this.db, "users", user.uid, "presets", presetId), { shared: true, category, updatedAt: serverTimestamp() }, { merge: true });
+        return true;
+    }
+
+    async unpublishPreset(presetId) {
+        const user = this.requireUser();
+        await deleteDoc(doc(this.db, "communityPresets", presetId));
+        await setDoc(doc(this.db, "users", user.uid, "presets", presetId), { shared: false, updatedAt: serverTimestamp() }, { merge: true });
+        return true;
+    }
+
+    async listCommunityPresets(category = null) {
+        this.requireConfigured();
+        try {
+            const constraints = [where("shared", "==", true)];
+            if (["DAW", "Sequencer", "Synth", "Drums"].includes(category)) constraints.push(where("category", "==", category));
+            const snapshot = await getDocs(query(collection(this.db, "communityPresets"), ...constraints));
+            return snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
+                .sort((a,b) => String(b.updatedAt?.toDate?.() ?? "").localeCompare(String(a.updatedAt?.toDate?.() ?? "")))
+                .map(item => ({ id:item.id, name:String(item.name ?? "Untitled"), model:item.model ?? null, category:item.category ?? "DAW", ownerUid:item.ownerUid ?? null, ownerName:item.ownerName ?? "bipoLab user", ownerPhotoURL:item.ownerPhotoURL ?? "", configuration:item.configuration ?? {}, savedAt:item.updatedAt?.toDate?.()?.toISOString?.() ?? null }));
+        } catch (error) { this.emitError(error); throw error; }
     }
 
     async deletePreset(presetId) {
@@ -222,6 +306,10 @@ export default class FirebaseService {
         this.requireConfigured();
         if (!this.currentUser) throw new Error("You must be signed in to use this feature.");
         return this.currentUser;
+    }
+
+    emitAuthChanged(user = this.currentUser) {
+        this.eventBus.emit(Events.AUTH_CHANGED, user ? this.serializeUser(user) : null);
     }
 
     emitError(error) {
