@@ -219,6 +219,11 @@ export default class FirebaseService {
         if (!this.currentUser) throw new Error("You must be signed in to use this feature.");
     }
 
+    requireUser() {
+        this.requireAuth();
+        return this.currentUser;
+    }
+
     emitError(error) {
         console.error("[Firebase]", error);
         this.eventBus.emit(Events.AUTH_ERROR, error);
