@@ -87,14 +87,12 @@ export default class FirebaseService {
     }
 
     async register(email, password, displayName = "") {
-        this.requireAuth();
+        this.requireConfigured();
         try {
             const result = await createUserWithEmailAndPassword(this.auth, email.trim(), password);
             const name = String(displayName ?? "").trim().slice(0, 80);
 
-            if (name) {
-                await updateProfile(result.user, { displayName: name });
-            }
+            if (name) await updateProfile(result.user, { displayName: name });
 
             await this.ensureUserProfile(result.user);
             return this.serializeUser(result.user);
@@ -105,7 +103,7 @@ export default class FirebaseService {
     }
 
     async signIn(email, password) {
-        this.requireAuth();
+        this.requireConfigured();
         try {
             const result = await signInWithEmailAndPassword(this.auth, email.trim(), password);
             await this.ensureUserProfile(result.user);
@@ -117,7 +115,7 @@ export default class FirebaseService {
     }
 
     async signInWithGoogle() {
-        this.requireAuth();
+        this.requireConfigured();
         try {
             const provider = new GoogleAuthProvider();
             const result = await signInWithPopup(this.auth, provider);
@@ -130,7 +128,7 @@ export default class FirebaseService {
     }
 
     async signOut() {
-        this.requireAuth();
+        this.requireConfigured();
         try {
             await signOut(this.auth);
         } catch (error) {
@@ -214,13 +212,15 @@ export default class FirebaseService {
         }, { merge: true });
     }
 
-    requireAuth() {
-        if (!this.isConfigured()) throw new Error("Firebase is not configured. Add the VITE_FIREBASE_* variables to your local environment.");
-        if (!this.currentUser) throw new Error("You must be signed in to use this feature.");
+    requireConfigured() {
+        if (!this.isConfigured()) {
+            throw new Error("Firebase is not configured. Add the VITE_FIREBASE_* variables to your local environment.");
+        }
     }
 
     requireUser() {
-        this.requireAuth();
+        this.requireConfigured();
+        if (!this.currentUser) throw new Error("You must be signed in to use this feature.");
         return this.currentUser;
     }
 
