@@ -168,10 +168,10 @@ export default class Sidebar {
         return '<div class="studio-account-card"><label class="studio-account-avatar studio-account-avatar--editable" title="Change avatar">' + avatar + '<input type="file" accept="image/*" data-action="avatar-input" hidden></label><div class="studio-account-card__identity"><strong>' + escapeHtml(this.authUser?.displayName || "bipoLab user") + '</strong><span>' + escapeHtml(this.authUser?.email || "") + '</span><small>' + (this.authUser?.emailVerified ? "Email verified · Cloud sync active" : "Signed in · Verify your email in Firebase") + '</small></div></div><div class="studio-profile-editor"><label class="studio-sidebar__field"><span>User name</span><input type="text" maxlength="80" value="' + escapeHtml(this.authUser?.displayName || "") + '" data-action="profile-name"></label><button class="studio-sidebar__wide-button studio-sidebar__wide-button--primary" type="button" data-action="profile-save">Save profile</button>' + (this.profileMessage ? '<small class="studio-sidebar__hint">' + escapeHtml(this.profileMessage) + '</small>' : '') + '</div>';
     }
 
-    async openPresetManager(view = "mine") {
+    async openPresetManager(view = "mine", category = this.presetManagerCategory) {
         if (!this.authUser || !this.firebase?.isConfigured()) return;
         this.presetManagerView = view;
-        this.presetManagerCategory = "";
+        this.presetManagerCategory = category || "";
         this.presetManagerOpen = true;
         this.presetManagerLoading = true;
         this.render();
@@ -289,7 +289,7 @@ export default class Sidebar {
         this.element.querySelectorAll("[data-library-view]").forEach(button => button.addEventListener("click", () => this.openPresetManager(button.dataset.libraryView)));
         this.element.querySelector("[data-library-category]")?.addEventListener("change", () => {
             this.presetManagerCategory = this.element.querySelector("[data-library-category]")?.value ?? "";
-            this.openPresetManager(this.presetManagerView);
+            this.openPresetManager(this.presetManagerView, this.presetManagerCategory);
         });
         this.element.querySelectorAll("[data-preset-delete]").forEach(button => button.addEventListener("click", async () => {
             if (!window.confirm("Delete this preset permanently from Firebase?")) return;
@@ -343,7 +343,7 @@ export default class Sidebar {
         this.element.querySelector('[data-action="redo"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_REDO_REQUEST));
         this.element.querySelector('[data-action="snapshot"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "snapshot" }));
         this.element.querySelector('[data-action="restore-snapshot"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "restore-snapshot" }));
-        this.element.querySelector('[data-action="preset-save"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "preset-save" }));
+
         this.element.querySelector('[data-action="preset-load"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "preset-load" }));
         this.element.querySelector('[data-action="export"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "export" }));
         this.element.querySelector('[data-action="validate"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "validate" }));
