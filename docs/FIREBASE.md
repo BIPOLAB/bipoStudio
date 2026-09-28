@@ -99,3 +99,12 @@ Set the same `VITE_FIREBASE_*` variables in the build/deployment environment ins
 Never use Firebase Admin credentials in the Vite client.
 
 For production, also restrict the Firebase Web API key to the APIs/domains appropriate for this project and keep Firestore rules deployed in locked/owner-only form.
+
+
+## Profile avatars and community presets
+
+Profile avatars are stored in Firebase Cloud Storage under `users/{uid}/...`. The client limits avatar uploads to images smaller than 2 MB, and Storage Security Rules restrict writes to the authenticated user's own path.
+
+Cloud presets are stored under `users/{uid}/presets/{presetId}`. Each preset uses one of four categories: DAW, Sequencer, Synth, or Drums. A user can publish a preset to `communityPresets/{presetId}`; authenticated users can read published community presets.
+
+Before testing avatar uploads, enable Cloud Storage for the Firebase project and publish `storage.rules`. Firebase currently documents Cloud Storage for Firebase as requiring the Blaze plan.

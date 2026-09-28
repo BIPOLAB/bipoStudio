@@ -119,7 +119,7 @@ export default class Sidebar {
         } else {
             content =
                 '<section class="studio-sidebar__panel">' +
-                    '<div class="studio-sidebar__panel-heading"><span class="studio-sidebar__eyebrow">Studio</span><h2>Configuration</h2><p>Manage the current device configuration, presets and local backups.</p></div>' +
+                    '<div class="studio-sidebar__panel-heading"><span class="studio-sidebar__eyebrow">Studio</span><h2>Configuration</h2><p>Manage the current device configuration, cloud presets and backups.</p></div>' +
                     '<div class="studio-sidebar__subheading">History</div>' +
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="undo" ' + (this.model?.canUndo?.() ? "" : "disabled") + '>Undo</button><button type="button" data-action="redo" ' + (this.model?.canRedo?.() ? "" : "disabled") + '>Redo</button></div>' +
                     '<div class="studio-sidebar__subheading">Snapshots & presets</div>' +
