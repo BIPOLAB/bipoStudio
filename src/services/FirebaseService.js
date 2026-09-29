@@ -256,16 +256,41 @@ export default class FirebaseService {
         return true;
     }
 
-    async listCommunityPresets(category = null) {
+    async listCommunityPresets(category = null, deviceId = null) {
         this.requireConfigured();
         try {
-            const constraints = [where("shared", "==", true)];
-            if (["DAW", "Sequencer", "Synth", "Drums"].includes(category)) constraints.push(where("category", "==", category));
-            const snapshot = await getDocs(query(collection(this.db, "communityPresets"), ...constraints));
-            return snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
-                .sort((a,b) => String(b.updatedAt?.toDate?.() ?? "").localeCompare(String(a.updatedAt?.toDate?.() ?? "")))
-                .map(item => ({ id:item.id, name:String(item.name ?? "Untitled"), model:item.model ?? null, category:item.category ?? "DAW", ownerUid:item.ownerUid ?? null, ownerName:item.ownerName ?? "bipoLab user", ownerPhotoURL:item.ownerPhotoURL ?? "", configuration:item.configuration ?? {}, savedAt:item.updatedAt?.toDate?.()?.toISOString?.() ?? null }));
-        } catch (error) { this.emitError(error); throw error; }
+            // Keep the Firestore query intentionally simple so the community
+            // library does not require a composite index. Compatibility
+            // filtering is performed client-side.
+            const snapshot = await getDocs(query(
+                collection(this.db, "communityPresets"),
+                where("shared", "==", true)
+            ));
+            return snapshot.docs
+                .map(item => ({ id: item.id, ...item.data() }))
+                .filter(item => !category || item.category === category)
+                .filter(item => !deviceId || item.deviceId === deviceId)
+                .sort((a, b) => {
+                    const aTime = a.updatedAt?.toDate?.()?.getTime?.() ?? 0;
+                    const bTime = b.updatedAt?.toDate?.()?.getTime?.() ?? 0;
+                    return bTime - aTime;
+                })
+                .map(item => ({
+                    id: item.id,
+                    name: String(item.name ?? "Untitled"),
+                    model: item.model ?? null,
+                    deviceId: item.deviceId ?? null,
+                    category: item.category ?? "DAW",
+                    ownerUid: item.ownerUid ?? null,
+                    ownerName: item.ownerName ?? "bipoLab user",
+                    ownerPhotoURL: item.ownerPhotoURL ?? "",
+                    configuration: item.configuration ?? {},
+                    savedAt: item.updatedAt?.toDate?.()?.toISOString?.() ?? null
+                }));
+        } catch (error) {
+            this.emitError(error);
+            throw error;
+        }
     }
 
     async deletePreset(presetId) {
