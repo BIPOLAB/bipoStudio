@@ -2419,3 +2419,151 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
   color:var(--bipo-paper);
   border-color:var(--bipo-ink);
 }
+
+
+/* bipoLab hardware surface v5 — compact instrument / Teenage Engineering-inspired */
+.device-workspace{
+  width:100%;
+  height:100%;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px;
+  box-sizing:border-box;
+}
+.device-panel{
+  position:relative;
+  width:min(760px, calc((100vh - 130px) * .9), calc(100% - 20px))!important;
+  max-width:760px!important;
+  max-height:none!important;
+  margin:0 auto;
+  border:1px solid #222!important;
+  border-radius:0!important;
+  background:#e9e6dd!important;
+  box-shadow:6px 6px 0 rgba(30,30,28,.14)!important;
+}
+.device-panel::before{inset:4px!important;border:1px solid rgba(34,34,32,.12)!important}
+.device-panel__header{
+  min-height:48px!important;
+  padding:0 12px!important;
+  border-bottom:1px solid #222!important;
+  background:#eeece4!important;
+}
+.device-panel__header h1{
+  margin:2px 0 0!important;
+  font-size:15px!important;
+  font-weight:700!important;
+  letter-spacing:.02em!important;
+}
+.device-panel__header .section-label{
+  font-size:7px!important;
+  letter-spacing:.14em!important;
+}
+.device-workspace__mode{
+  padding:3px 5px!important;
+  border:1px solid #777!important;
+  background:transparent!important;
+  font-size:7px!important;
+}
+.device-grid{
+  gap:3px!important;
+  padding:7px!important;
+  background:#bbb9b1!important;
+}
+.device-grid--4x4{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+.device-cell{
+  aspect-ratio:1/1!important;
+  grid-template-rows:18px minmax(0,1fr) 20px!important;
+  border:1px solid #292927!important;
+  background:#e8e6de!important;
+}
+.device-cell__meta{
+  padding:0 5px!important;
+  gap:4px!important;
+  background:#dedcd4!important;
+  border-bottom:1px solid #9b9a92!important;
+  font-size:6px!important;
+  letter-spacing:.06em!important;
+}
+.device-cell__meta-label{
+  font-size:6px!important;
+  letter-spacing:.04em!important;
+}
+.device-cell__controller{
+  background:#efeee8!important;
+}
+.device-cell__controller::after{display:none!important}
+.device-cell__controller.is-selected{
+  background:#f5f3eb!important;
+  box-shadow:inset 0 0 0 2px #e36b4d!important;
+}
+.device-cell__controller.is-modified{
+  box-shadow:inset 0 -2px 0 #e36b4d!important;
+}
+.device-cell__led{
+  padding:0 5px!important;
+  gap:4px!important;
+  background:#d5d3cb!important;
+  border-top:1px solid #9b9a92!important;
+}
+.device-cell__led-label,.device-cell__value{
+  font-size:6px!important;
+  letter-spacing:.06em!important;
+}
+.device-control__led{
+  width:7px!important;
+  height:7px!important;
+  border-radius:50%!important;
+}
+.device-cell--knob .device-control__visual{
+  width:clamp(38px,5.8vw,58px)!important;
+  height:clamp(38px,5.8vw,58px)!important;
+  border:1px solid #252523!important;
+  background:#d7d5cc!important;
+}
+.device-cell--knob .device-control__visual::before{
+  inset:-6px!important;
+  border-color:#777!important;
+  background:repeating-conic-gradient(from -135deg,#777 0 1deg,transparent 1deg 20deg)!important;
+}
+.device-cell--knob .device-control__visual::after{
+  background:#e36b4d!important;
+}
+.device-cell--button .device-control__visual,
+.device-cell--switch .device-control__visual{
+  width:58%!important;
+  height:40%!important;
+  border:1px solid #252523!important;
+  background:#d5d3ca!important;
+  box-shadow:2px 2px 0 rgba(30,30,28,.12)!important;
+}
+.device-cell--button .device-control__visual::before,
+.device-cell--switch .device-control__visual::before{
+  inset:4px!important;
+  border:1px solid #9b9a92!important;
+}
+.device-panel--faders{
+  width:min(760px, calc(100% - 20px))!important;
+}
+.device-panel--faders .device-cell{
+  min-height:0!important;
+  aspect-ratio:1/1!important;
+  grid-template-rows:18px minmax(0,1fr) 20px!important;
+}
+.device-panel--faders .device-cell__controller{padding:5px!important}
+.device-panel--faders .device-cell--fader .device-control__visual{
+  height:72%!important;
+}
+.device-panel__footer{
+  min-height:26px!important;
+  border-top:1px solid #222!important;
+  background:#dedcd4!important;
+  font-size:7px!important;
+}
+@media(max-width:700px){
+  .device-workspace{padding:5px}
+  .device-panel{width:calc(100% - 4px)!important}
+}
