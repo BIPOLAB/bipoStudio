@@ -72,7 +72,7 @@ export default class Header {
 
         const count = this.changedComponents.size;
         this.pendingSaveCount = count;
-        const changeLabel = count === 1 ? "1 change" : `${count} changes`;
+        const changeLabel = count > 0 ? (count === 1 ? "1 change" : `${count} changes`) : "the current changes";
 
         this.showModal({
             eyebrow: "SAVE CONFIGURATION",
