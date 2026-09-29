@@ -9,4 +9,6 @@ import { Application } from "./core/Application.js";
 
 const application = new Application();
 
-application.start();
+application.start().catch(error => {
+    console.error("[bipoStudio] Application startup failed:", error);
+});
