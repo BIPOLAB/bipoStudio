@@ -75,7 +75,11 @@ export default class DeviceModel {
     async setBluetoothEnabled(enabled) {
         if (!this.connectivity?.bluetooth) return false;
         try {
-            const bluetooth = await this.core.setBluetoothEnabled(Boolean(enabled));
+            const bluetooth = {
+                ...this.connectivity.bluetooth,
+                enabled: Boolean(enabled),
+                status: Boolean(enabled) ? "advertising" : "off"
+            };
             this.connectivity = { ...this.connectivity, bluetooth };
             this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
             this.emitWorkingCopyChanged();
@@ -89,8 +93,14 @@ export default class DeviceModel {
     async setMidiOutputEnabled(output, enabled) {
         if (!this.connectivity?.midiOutputs) return false;
         try {
-            const connectivity = await this.core.setMidiOutputEnabled(output, enabled);
-            this.connectivity = connectivity;
+            if (!["usb", "bluetooth"].includes(output)) return false;
+            this.connectivity = {
+                ...this.connectivity,
+                midiOutputs: {
+                    ...this.connectivity.midiOutputs,
+                    [output]: Boolean(enabled)
+                }
+            };
             this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
             this.emitWorkingCopyChanged();
             return true;
@@ -103,8 +113,15 @@ export default class DeviceModel {
     async setBluetoothName(name) {
         if (!this.connectivity?.bluetooth) return false;
         try {
-            const bluetooth = await this.core.setBluetoothName(name);
-            this.connectivity = { ...this.connectivity, bluetooth };
+            const normalized = String(name ?? "").trim().slice(0, 32);
+            if (!normalized) return false;
+            this.connectivity = {
+                ...this.connectivity,
+                bluetooth: {
+                    ...this.connectivity.bluetooth,
+                    name: normalized
+                }
+            };
             this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
             this.emitWorkingCopyChanged();
             return true;
