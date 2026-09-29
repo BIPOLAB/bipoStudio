@@ -55,7 +55,7 @@ export default class DeviceModel {
         this.eventBus.emit(Events.WORKING_COPY_CHANGED, {
             componentId: null,
             configuration: null,
-            dirty: this.workingCopy.isDirty()
+            dirty: this.workingCopy.isDirty() || this.isConnectivityDirty()
         });
         return this;
     }
