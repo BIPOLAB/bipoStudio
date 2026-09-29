@@ -68,7 +68,6 @@ class BipoCore {
         const d = this.getActiveDevice();
         d.connectivity.bluetooth.enabled = Boolean(enabled);
         d.connectivity.bluetooth.status = d.connectivity.bluetooth.enabled ? "advertising" : "off";
-        this.persistConnectivity();
         return structuredClone(d.connectivity.bluetooth);
     }
 
@@ -77,7 +76,6 @@ class BipoCore {
         const d = this.getActiveDevice();
         if (!["usb", "bluetooth"].includes(output)) throw new Error(`Unknown MIDI output: ${output}`);
         d.connectivity.midiOutputs[output] = Boolean(enabled);
-        this.persistConnectivity();
         return structuredClone(d.connectivity);
     }
 
@@ -86,7 +84,6 @@ class BipoCore {
         const d = this.getActiveDevice();
         const normalized = String(name ?? "").trim().slice(0, 32);
         if (normalized) d.connectivity.bluetooth.name = normalized;
-        this.persistConnectivity();
         return structuredClone(d.connectivity.bluetooth);
     }
 
