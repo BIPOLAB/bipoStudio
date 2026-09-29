@@ -21,14 +21,10 @@ export default class Sidebar {
         this.presetManagerLoading = false;
         this.presetManagerCategory = "";
         this.presetSaveOpen = false;
-        this.availablePresets = [];
-        this.availablePresetsLoading = false;
-        this.availablePresetsMessage = "";
         this.eventBus.on(Events.SESSION_CHANGED, this.onSessionChanged.bind(this));
         this.eventBus.on(Events.DEVICE_MODEL_READY, model => {
             this.model = model;
             this.connectivity = model.getConnectivity?.() ?? null;
-            this.refreshAvailablePresets();
             this.render();
         });
         this.eventBus.on(Events.CONNECTIVITY_CHANGED, connectivity => {
@@ -39,11 +35,6 @@ export default class Sidebar {
         this.eventBus.on(Events.AUTH_CHANGED, user => {
             this.authUser = user;
             this.authOpen = false;
-            if (user) this.refreshAvailablePresets();
-            else {
-                this.availablePresets = [];
-                this.availablePresetsMessage = "";
-            }
             this.render();
         });
         this.eventBus.on(Events.AUTH_ERROR, error => {
@@ -55,56 +46,6 @@ export default class Sidebar {
         this.device = device;
         this.connectivity = device?.connectivity ?? this.connectivity;
         this.render();
-    }
-
-    async refreshAvailablePresets() {
-        if (!this.authUser || !this.firebase?.isConfigured()) {
-            this.availablePresets = [];
-            this.availablePresetsLoading = false;
-            return;
-        }
-
-        this.availablePresetsLoading = true;
-        this.availablePresetsMessage = "";
-        this.render();
-
-        try {
-            this.availablePresets = await this.firebase.listCommunityPresets(null, this.device?.id ?? this.model?.device?.id ?? null);
-        } catch (error) {
-            this.availablePresets = [];
-            this.availablePresetsMessage = this.authMessage(error);
-        } finally {
-            this.availablePresetsLoading = false;
-            this.render();
-        }
-    }
-
-    renderAvailablePresets() {
-        if (!this.authUser) {
-            return '<p class="studio-sidebar__hint">Sign in to see presets shared by the bipoLab community.</p>';
-        }
-        if (this.availablePresetsLoading) {
-            return '<div class="studio-sidebar__preset-list"><div class="studio-sidebar__preset-empty">Loading shared presets…</div></div>';
-        }
-        if (this.availablePresetsMessage) {
-            return '<div class="studio-sidebar__preset-list"><div class="studio-sidebar__preset-empty">' + escapeHtml(this.availablePresetsMessage) + '</div></div>';
-        }
-        if (!this.availablePresets.length) {
-            return '<div class="studio-sidebar__preset-list"><div class="studio-sidebar__preset-empty">No shared presets for this controller yet.</div></div>';
-        }
-
-        return '<div class="studio-sidebar__preset-list">' +
-            this.availablePresets.map(preset =>
-                '<button type="button" class="studio-sidebar__preset-item" data-available-preset="' + escapeHtml(preset.id) + '">' +
-                    '<span class="studio-sidebar__preset-item-main">' +
-                        '<strong>' + escapeHtml(preset.name) + '</strong>' +
-                        '<small>' + escapeHtml(preset.category || "DAW") + ' · ' + escapeHtml(preset.model || this.device?.name || "bipoLab preset") + '</small>' +
-                        '<em>by ' + escapeHtml(preset.ownerName || "bipoLab user") + '</em>' +
-                    '</span>' +
-                    '<span class="studio-sidebar__preset-load" aria-hidden="true">LOAD</span>' +
-                '</button>'
-            ).join("") +
-        '</div>';
     }
 
     show() {
@@ -188,7 +129,7 @@ export default class Sidebar {
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="undo" ' + (this.model?.canUndo?.() ? "" : "disabled") + '>Undo</button><button type="button" data-action="redo" ' + (this.model?.canRedo?.() ? "" : "disabled") + '>Redo</button></div>' +
                     '<div class="studio-sidebar__subheading">Snapshots & presets</div>' +
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="snapshot">Snapshot</button><button type="button" data-action="restore-snapshot">Restore</button><button type="button" data-action="preset-save">Save preset</button><button type="button" data-action="preset-load">Load preset</button></div>' +
-                    (this.authUser ? '<div class="studio-sidebar__subheading">Available presets</div>' + this.renderAvailablePresets() : "") +
+                    (this.authUser ? '<div class="studio-sidebar__subheading">Cloud library</div><div class="studio-sidebar__tool-grid"><button type="button" data-action="preset-library">My presets</button><button type="button" data-action="community-library">Community</button></div>' : "") +
                     '<div class="studio-sidebar__subheading">Configuration files</div>' +
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="export">Export</button><button type="button" data-action="import">Import</button><button type="button" data-action="validate">Check</button></div>' +
                     '<small class="studio-sidebar__draft-status">' + (dirty ? "Draft has unsaved changes" : "Configuration is saved") + '</small>' +
