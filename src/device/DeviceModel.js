@@ -17,6 +17,7 @@ export default class DeviceModel {
         this.capabilities = null;
         this.workingCopy = null;
         this.workingCopyDrafts = new Map();
+        this.connectivityBaselines = new Map();
         this.eventBus.on?.("transport:message", this.onTransportMessage.bind(this));
     }
 
@@ -40,6 +41,7 @@ export default class DeviceModel {
         this.eventBus.emit(Events.DEVICE_LOADING_RUNTIME);
         this.runtime = new Runtime(await this.core.read("/runtime"), this.hardware);
         this.connectivity = structuredClone(await this.core.read("/connectivity"));
+        this.connectivityBaselines.set(this.identity.id, structuredClone(this.connectivity));
         this.capabilities = structuredClone(this.identity?.capabilities ?? {});
         this.eventBus.emit(Events.DEVICE_RUNTIME_LOADED, this.runtime);
         this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.connectivity);
@@ -65,12 +67,18 @@ export default class DeviceModel {
     getConnectivity() { return structuredClone(this.connectivity ?? {}); }
     getCapabilities() { return structuredClone(this.capabilities ?? {}); }
 
+    isConnectivityDirty() {
+        const baseline = this.connectivityBaselines.get(this.device?.id);
+        return JSON.stringify(this.connectivity ?? {}) !== JSON.stringify(baseline ?? {});
+    }
+
     async setBluetoothEnabled(enabled) {
         if (!this.connectivity?.bluetooth) return false;
         try {
             const bluetooth = await this.core.setBluetoothEnabled(Boolean(enabled));
             this.connectivity = { ...this.connectivity, bluetooth };
             this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
+            this.emitWorkingCopyChanged();
             return true;
         } catch (error) {
             this.eventBus.emit(Events.CONFIGURATION_ERROR, error);
@@ -84,6 +92,7 @@ export default class DeviceModel {
             const connectivity = await this.core.setMidiOutputEnabled(output, enabled);
             this.connectivity = connectivity;
             this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
+            this.emitWorkingCopyChanged();
             return true;
         } catch (error) {
             this.eventBus.emit(Events.CONFIGURATION_ERROR, error);
@@ -97,6 +106,7 @@ export default class DeviceModel {
             const bluetooth = await this.core.setBluetoothName(name);
             this.connectivity = { ...this.connectivity, bluetooth };
             this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
+            this.emitWorkingCopyChanged();
             return true;
         } catch (error) {
             this.eventBus.emit(Events.CONFIGURATION_ERROR, error);
@@ -240,7 +250,7 @@ export default class DeviceModel {
         this.eventBus.emit(Events.WORKING_COPY_CHANGED, {
             componentId,
             configuration: componentId ? this.workingCopy.get(componentId) : null,
-            dirty: this.workingCopy.isDirty(),
+            dirty: this.workingCopy.isDirty() || this.isConnectivityDirty(),
             canUndo: this.canUndo(),
             canRedo: this.canRedo()
         });
@@ -249,17 +259,35 @@ export default class DeviceModel {
     resetWorkingCopy() {
         if (!this.workingCopy) return;
         this.workingCopy.reset();
+        const baseline = this.connectivityBaselines.get(this.device?.id);
+        if (baseline) {
+            this.connectivity = structuredClone(baseline);
+            this.core.restorePersistedConnectivity?.();
+            this.eventBus.emit(Events.CONNECTIVITY_CHANGED, this.getConnectivity());
+        }
         this.syncWorkingCopyDraft();
         this.emitWorkingCopyChanged();
     }
 
     async commitConfiguration() {
-        if (!this.workingCopy || !this.workingCopy.isDirty()) return false;
+        const configurationDirty = Boolean(this.workingCopy?.isDirty());
+        const connectivityDirty = this.isConnectivityDirty();
+        if (!configurationDirty && !connectivityDirty) return false;
         try {
-            await this.core.write("/configuration", this.workingCopy.toJSON());
+            if (configurationDirty) {
+                await this.core.write("/configuration", this.workingCopy.toJSON());
+            }
+            if (connectivityDirty) {
+                await this.core.write("/connectivity", this.connectivity);
+            }
             await this.core.commit();
-            this.workingCopy.markCommitted();
-            this.workingCopyDrafts.set(this.device.id, this.workingCopy.toJSON());
+            if (configurationDirty) {
+                this.workingCopy.markCommitted();
+                this.workingCopyDrafts.set(this.device.id, this.workingCopy.toJSON());
+            }
+            if (connectivityDirty) {
+                this.connectivityBaselines.set(this.device.id, structuredClone(this.connectivity));
+            }
             this.eventBus.emit(Events.CONFIGURATION_COMMITTED);
             this.eventBus.emit(Events.WORKING_COPY_CHANGED, { componentId: null, configuration: null, dirty: false });
             return true;
