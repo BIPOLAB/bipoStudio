@@ -107,6 +107,11 @@ export default class Sidebar {
         '</div>';
     }
 
+    show() {
+        this.open = true;
+        this.render();
+    }
+
     toggle() {
         this.open = !this.open;
         this.render();
@@ -183,8 +188,7 @@ export default class Sidebar {
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="undo" ' + (this.model?.canUndo?.() ? "" : "disabled") + '>Undo</button><button type="button" data-action="redo" ' + (this.model?.canRedo?.() ? "" : "disabled") + '>Redo</button></div>' +
                     '<div class="studio-sidebar__subheading">Snapshots & presets</div>' +
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="snapshot">Snapshot</button><button type="button" data-action="restore-snapshot">Restore</button><button type="button" data-action="preset-save">Save preset</button><button type="button" data-action="preset-load">Load preset</button></div>' +
-                    '<div class="studio-sidebar__subheading">Available presets</div>' +
-                    this.renderAvailablePresets() +
+                    (this.authUser ? '<div class="studio-sidebar__subheading">Available presets</div>' + this.renderAvailablePresets() : "") +
                     '<div class="studio-sidebar__subheading">Configuration files</div>' +
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="export">Export</button><button type="button" data-action="import">Import</button><button type="button" data-action="validate">Check</button></div>' +
                     '<small class="studio-sidebar__draft-status">' + (dirty ? "Draft has unsaved changes" : "Configuration is saved") + '</small>' +
