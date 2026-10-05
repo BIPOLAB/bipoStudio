@@ -201,19 +201,18 @@ export default class Workspace {
         const typeLabel = component.type === "knob" ? "POT" : component.type === "button" ? "BTN" : component.type === "fader" ? "FDR" : component.type === "trigger" ? "TRG" : String(component.type ?? "").slice(0, 3).toUpperCase();
 
         return `
-            <div class="device-cell device-cell--${component.type}">
-                <div class="device-cell__meta"><span>${component.id}</span><span class="device-cell__meta-label">${component.label}</span><span>${typeLabel}</span></div>
-                <div class="device-cell__controller ${controllerSelected ? "is-selected" : ""} ${controllerModified ? "is-modified" : ""}">
-                    <div class="device-control device-control--${component.type}" data-component-id="${component.id}" tabindex="0" role="button" title="${component.label}" aria-label="Configure ${component.label}" aria-valuemin="0" aria-valuemax="127" aria-valuenow="${value}">
-                        ${component.type === "trigger" ? `<span class="trigger-pad__input">${String(component.metadata?.input ?? "").padStart(2, "0")}</span><span class="trigger-pad__name">${triggerName}</span><span class="trigger-pad__value">${value}</span>` : `<span class="device-control__visual" style="--runtime-value:${value}"></span>`}
+            <div class="device-cell device-cell--\${component.type}">
+                <div class="device-cell__controller \${controllerSelected ? "is-selected" : ""} \${controllerModified ? "is-modified" : ""}">
+                    <span class="device-cell__id">\${component.id}</span>
+                    <div class="device-control device-control--\${component.type}" data-component-id="\${component.id}" tabindex="0" role="button" title="\${component.label}" aria-label="Configure \${component.label}" aria-valuemin="0" aria-valuemax="127" aria-valuenow="\${value}">
+                        \${component.type === "trigger" ? \`<span class="trigger-pad__input">\${String(component.metadata?.input ?? "").padStart(2, "0")}</span><span class="trigger-pad__name">\${triggerName}</span><span class="trigger-pad__value">\${value}</span>\` : \`<span class="device-control__visual" style="--runtime-value:\${value}"></span>\`}
                     </div>
                 </div>
-                <div class="device-cell__led ${ledSelected ? "is-selected" : ""} ${ledModified ? "is-modified" : ""}" data-led-id="${ledId}" data-led-component="${component.id}" title="Configure ${ledId}" role="button" tabindex="0" aria-label="Configure LED ${ledId}">
-                    <span class="device-cell__led-label">LED</span>
-                    <span class="device-control__led ${ledSelected ? "device-control__led--selected" : ""}" style="${ledStyle}"></span>
-                    <span class="device-cell__value">${String(value).padStart(3, "0")}</span>
+                <div class="device-cell__led \${ledSelected ? "is-selected" : ""} \${ledModified ? "is-modified" : ""}" data-led-id="\${ledId}" data-led-component="\${component.id}" title="Configure \${ledId}" role="button" tabindex="0" aria-label="Configure LED \${ledId}">
+                    <span class="device-control__led \${ledSelected ? "device-control__led--selected" : ""}" style="\${ledStyle}"></span>
                 </div>
-            </div>`;
+            </div>\`;
+
     }
 
     bindComponentEvents() {
