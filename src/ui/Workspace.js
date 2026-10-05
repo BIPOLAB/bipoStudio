@@ -198,23 +198,20 @@ export default class Workspace {
         const alpha = Math.max(0, Math.min(1, Number(led.brightness ?? 100) / 100));
         const ledStyle = `--led-r:${rgb.r};--led-g:${rgb.g};--led-b:${rgb.b};--led-a:${alpha}`;
         const triggerName = component.metadata?.defaultName ?? `INPUT ${component.metadata?.input ?? ""}`;
-        const typeLabel = component.type === "knob" ? "POT" : component.type === "button" ? "BTN" : component.type === "fader" ? "FDR" : component.type === "trigger" ? "TRG" : String(component.type ?? "").slice(0, 3).toUpperCase();
 
         return `
-            <div class="device-cell device-cell--\${component.type}">
-                <div class="device-cell__controller \${controllerSelected ? "is-selected" : ""} \${controllerModified ? "is-modified" : ""}">
-                    <span class="device-cell__id">\${component.id}</span>
-                    <div class="device-control device-control--\${component.type}" data-component-id="\${component.id}" tabindex="0" role="button" title="\${component.label}" aria-label="Configure \${component.label}" aria-valuemin="0" aria-valuemax="127" aria-valuenow="\${value}">
-                        \${component.type === "trigger" ? \`<span class="trigger-pad__input">\${String(component.metadata?.input ?? "").padStart(2, "0")}</span><span class="trigger-pad__name">\${triggerName}</span><span class="trigger-pad__value">\${value}</span>\` : \`<span class="device-control__visual" style="--runtime-value:\${value}"></span>\`}
+            <div class="device-cell device-cell--${component.type}">
+                <div class="device-cell__controller ${controllerSelected ? "is-selected" : ""} ${controllerModified ? "is-modified" : ""}">
+                    <span class="device-cell__id">${component.id}</span>
+                    <div class="device-control device-control--${component.type}" data-component-id="${component.id}" tabindex="0" role="button" title="${component.label}" aria-label="Configure ${component.label}" aria-valuemin="0" aria-valuemax="127" aria-valuenow="${value}">
+                        ${component.type === "trigger" ? `<span class="trigger-pad__input">${String(component.metadata?.input ?? "").padStart(2, "0")}</span><span class="trigger-pad__name">${triggerName}</span><span class="trigger-pad__value">${value}</span>` : `<span class="device-control__visual" style="--runtime-value:${value}"></span>`}
                     </div>
                 </div>
-                <div class="device-cell__led \${ledSelected ? "is-selected" : ""} \${ledModified ? "is-modified" : ""}" data-led-id="\${ledId}" data-led-component="\${component.id}" title="Configure \${ledId}" role="button" tabindex="0" aria-label="Configure LED \${ledId}">
-                    <span class="device-control__led \${ledSelected ? "device-control__led--selected" : ""}" style="\${ledStyle}"></span>
+                <div class="device-cell__led ${ledSelected ? "is-selected" : ""} ${ledModified ? "is-modified" : ""}" data-led-id="${ledId}" data-led-component="${component.id}" title="Configure ${ledId}" role="button" tabindex="0" aria-label="Configure LED ${ledId}">
+                    <span class="device-control__led ${ledSelected ? "device-control__led--selected" : ""}" style="${ledStyle}"></span>
                 </div>
-            </div>\`;
-
+            </div>`;
     }
-
     bindComponentEvents() {
         this.element.querySelectorAll("[data-component-id]").forEach(control => {
             const id = control.dataset.componentId;
