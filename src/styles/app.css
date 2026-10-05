@@ -2567,3 +2567,479 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
   .device-workspace{padding:5px}
   .device-panel{width:calc(100% - 4px)!important}
 }
+
+
+
+/* bipoLab visual identity v6 — neo laboratory / Reaktor-inspired
+   Flat, bright, technical, minimal. No desktop-OS chrome, no faux hardware shading. */
+
+:root{
+  --neo-white:#f7f7f4;
+  --neo-surface:#ffffff;
+  --neo-soft:#ecece7;
+  --neo-line:#c9c9c2;
+  --neo-ink:#171815;
+  --neo-muted:#666860;
+  --neo-orange:#ff5a36;
+  --neo-cyan:#18a9b8;
+  --neo-violet:#8b6ad1;
+  --neo-yellow:#e3bd27;
+  --neo-green:#58a66c;
+  --neo-blue:#4f7fc2;
+}
+
+.device-workspace{
+  background:transparent!important;
+  padding:14px!important;
+}
+
+.device-panel,
+.device-panel--triggers{
+  width:min(780px,calc(100% - 20px))!important;
+  max-width:780px!important;
+  border:1px solid var(--neo-ink)!important;
+  border-radius:0!important;
+  background:var(--neo-white)!important;
+  color:var(--neo-ink)!important;
+  box-shadow:5px 5px 0 rgba(23,24,21,.12)!important;
+  overflow:hidden!important;
+}
+
+.device-panel::before,
+.device-panel::after{
+  display:none!important;
+}
+
+.device-panel__header,
+.device-panel--triggers .device-panel__header{
+  min-height:52px!important;
+  padding:0 14px!important;
+  background:var(--neo-surface)!important;
+  border-bottom:1px solid var(--neo-ink)!important;
+  box-shadow:none!important;
+}
+
+.device-panel__header h1,
+.device-panel--triggers .device-panel__header h1{
+  color:var(--neo-ink)!important;
+  text-shadow:none!important;
+  font-size:16px!important;
+  font-weight:750!important;
+  letter-spacing:-.015em!important;
+  text-transform:none!important;
+}
+
+.device-panel__header .section-label,
+.device-panel--triggers .device-panel__header .section-label{
+  color:var(--neo-muted)!important;
+  font-size:7px!important;
+  letter-spacing:.18em!important;
+}
+
+.device-workspace__mode,
+.device-panel--triggers .device-workspace__mode{
+  padding:4px 6px!important;
+  border:1px solid var(--neo-line)!important;
+  background:var(--neo-soft)!important;
+  color:var(--neo-muted)!important;
+  font:700 7px/1 ui-monospace,monospace!important;
+  letter-spacing:.1em!important;
+}
+
+.device-grid{
+  gap:1px!important;
+  padding:1px!important;
+  background:var(--neo-line)!important;
+}
+
+.device-grid--4x4{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+
+.device-cell{
+  aspect-ratio:1/1!important;
+  grid-template-rows:16px minmax(0,1fr) 18px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:var(--neo-surface)!important;
+  box-shadow:none!important;
+}
+
+.device-cell__meta{
+  padding:0 6px!important;
+  gap:4px!important;
+  background:var(--neo-white)!important;
+  border:0!important;
+  color:var(--neo-muted)!important;
+  font:700 6px/1 ui-monospace,monospace!important;
+  letter-spacing:.08em!important;
+}
+
+.device-cell__meta-label{
+  color:var(--neo-ink)!important;
+  font:750 6px/1 var(--font-family)!important;
+  letter-spacing:.05em!important;
+}
+
+.device-cell__controller{
+  background:var(--neo-surface)!important;
+  border:0!important;
+}
+
+.device-cell__controller.is-selected{
+  background:#fff!important;
+  box-shadow:inset 0 0 0 2px var(--module-color,var(--neo-orange))!important;
+}
+
+.device-cell__controller.is-modified{
+  box-shadow:inset 0 -2px 0 var(--module-color,var(--neo-orange))!important;
+}
+
+.device-cell__led{
+  padding:0 6px!important;
+  background:var(--neo-soft)!important;
+  border:0!important;
+  border-top:1px solid var(--neo-line)!important;
+  color:var(--neo-muted)!important;
+}
+
+.device-cell__led.is-selected{
+  background:#fff!important;
+  box-shadow:inset 0 0 0 2px var(--module-color,var(--neo-orange))!important;
+}
+
+.device-cell__led-label,
+.device-cell__value{
+  font:700 6px/1 ui-monospace,monospace!important;
+  letter-spacing:.08em!important;
+}
+
+.device-control__led{
+  width:7px!important;
+  height:7px!important;
+  border:1px solid var(--neo-ink)!important;
+  border-radius:50%!important;
+  box-shadow:none!important;
+}
+
+/* Knobs: neutral dial + one precise color accent. */
+.device-cell--knob .device-control__visual{
+  width:clamp(38px,5.4vw,56px)!important;
+  height:clamp(38px,5.4vw,56px)!important;
+  border:1px solid var(--neo-ink)!important;
+  border-radius:50%!important;
+  background:#e4e4de!important;
+  box-shadow:none!important;
+}
+
+.device-cell--knob .device-control__visual::before{
+  inset:-7px!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:repeating-conic-gradient(
+    from -135deg,
+    var(--module-color,var(--neo-orange)) 0 1deg,
+    transparent 1deg 18deg
+  )!important;
+  -webkit-mask:radial-gradient(circle,transparent 0 67%,#000 68% 70%,transparent 71%)!important;
+  mask:radial-gradient(circle,transparent 0 67%,#000 68% 70%,transparent 71%)!important;
+}
+
+.device-cell--knob .device-control__visual::after{
+  left:calc(50% - 1px)!important;
+  top:4px!important;
+  width:2px!important;
+  height:13px!important;
+  background:var(--module-color,var(--neo-orange))!important;
+  transform-origin:1px 19px!important;
+  transform:rotate(calc((var(--runtime-value) - 63.5) * 2.15deg))!important;
+  box-shadow:none!important;
+}
+
+/* Buttons: a flat colored actuator, not a faux physical switch. */
+.device-cell--button .device-control__visual,
+.device-cell--switch .device-control__visual{
+  width:58%!important;
+  height:40%!important;
+  border:1px solid var(--neo-ink)!important;
+  border-radius:1px!important;
+  background:var(--module-light,var(--neo-soft))!important;
+  box-shadow:none!important;
+}
+
+.device-cell--button .device-control__visual::before,
+.device-cell--switch .device-control__visual::before{
+  inset:5px!important;
+  border:1px solid var(--module-color,var(--neo-orange))!important;
+  background:transparent!important;
+}
+
+.device-cell--button .device-control__visual::after,
+.device-cell--switch .device-control__visual::after{
+  display:none!important;
+}
+
+/* Faders: one clean track and a colored handle. */
+.device-panel--faders{
+  width:min(780px,calc(100% - 20px))!important;
+}
+
+.device-panel--faders .device-cell{
+  aspect-ratio:1/1!important;
+  min-height:0!important;
+  grid-template-rows:16px minmax(0,1fr) 18px!important;
+}
+
+.device-panel--faders .device-cell--fader .device-control__visual{
+  width:1px!important;
+  height:72%!important;
+  background:var(--neo-ink)!important;
+}
+
+.device-panel--faders .device-cell--fader .device-control__visual::before{
+  left:-8px!important;
+  width:16px!important;
+  height:100%!important;
+  background:repeating-linear-gradient(
+    to bottom,
+    transparent 0 9px,
+    var(--neo-line) 9px 10px,
+    transparent 10px 18px
+  )!important;
+}
+
+.device-panel--faders .device-cell--fader .device-control__visual::after{
+  left:-10px!important;
+  width:20px!important;
+  height:8px!important;
+  border:1px solid var(--neo-ink)!important;
+  border-radius:0!important;
+  background:var(--module-color,var(--neo-green))!important;
+  box-shadow:none!important;
+}
+
+/* Family identity: mostly white; color is an information/accent layer. */
+.device-panel--knobs{
+  --module-color:var(--neo-cyan);
+  --module-light:#dff4f6;
+  --module-control:#f4fbfb;
+}
+
+.device-panel--buttons{
+  --module-color:var(--neo-violet);
+  --module-light:#eee8fa;
+  --module-control:#faf8fd;
+}
+
+.device-panel--faders{
+  --module-color:var(--neo-green);
+  --module-light:#e6f2e9;
+  --module-control:#f8fcf9;
+}
+
+.device-panel--triggers{
+  --module-color:var(--neo-orange);
+  --module-light:#fff0eb;
+  --module-control:#fffaf8;
+}
+
+.device-panel--knobs .device-cell:nth-child(4n+2){--module-color:var(--neo-blue)}
+.device-panel--knobs .device-cell:nth-child(4n+3){--module-color:var(--neo-yellow)}
+.device-panel--knobs .device-cell:nth-child(4n+4){--module-color:var(--neo-green)}
+
+.device-panel--buttons .device-cell:nth-child(4n+2){--module-color:var(--neo-orange)}
+.device-panel--buttons .device-cell:nth-child(4n+3){--module-color:var(--neo-blue)}
+.device-panel--buttons .device-cell:nth-child(4n+4){--module-color:var(--neo-green)}
+
+.device-panel--faders .device-cell:nth-child(4n+2){--module-color:var(--neo-cyan)}
+.device-panel--faders .device-cell:nth-child(4n+3){--module-color:var(--neo-yellow)}
+.device-panel--faders .device-cell:nth-child(4n+4){--module-color:var(--neo-blue)}
+
+.device-panel__footer{
+  min-height:25px!important;
+  padding:0 10px!important;
+  background:var(--neo-white)!important;
+  border-top:1px solid var(--neo-ink)!important;
+  color:var(--neo-muted)!important;
+  font:700 7px/1 ui-monospace,monospace!important;
+  letter-spacing:.08em!important;
+}
+
+/* LAB-16D: same bright language, with six accent-coded performance pads. */
+.device-panel--triggers .trigger-rack__surface{
+  gap:8px!important;
+  padding:8px!important;
+  background:var(--neo-soft)!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-rack__pad-bank,
+.device-panel--triggers .trigger-rack__input-bank{
+  border:1px solid var(--neo-ink)!important;
+  border-radius:0!important;
+  background:var(--neo-surface)!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-rack__section-header{
+  min-height:30px!important;
+  padding:0 10px!important;
+  background:var(--neo-white)!important;
+  border-bottom:1px solid var(--neo-ink)!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-rack__section-header strong{
+  color:var(--neo-ink)!important;
+  font-size:9px!important;
+}
+
+.device-panel--triggers .trigger-rack__eyebrow,
+.device-panel--triggers .trigger-rack__section-meta{
+  color:var(--neo-muted)!important;
+}
+
+.device-panel--triggers .trigger-rack__pads{
+  gap:5px!important;
+  padding:6px!important;
+  background:var(--neo-soft)!important;
+}
+
+.device-panel--triggers .trigger-performance-pad{
+  min-height:100px!important;
+  border:1px solid var(--neo-ink)!important;
+  border-radius:0!important;
+  background:var(--neo-surface)!important;
+  color:var(--neo-ink)!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-performance-pad::before{
+  display:block!important;
+  inset:12px!important;
+  border:1px solid var(--module-color,var(--neo-orange))!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-performance-pad::after{
+  display:block!important;
+  left:50%!important;
+  top:50%!important;
+  width:7px!important;
+  height:7px!important;
+  margin:-4px!important;
+  border:1px solid var(--module-color,var(--neo-orange))!important;
+  border-radius:50%!important;
+  background:var(--neo-surface)!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-performance-pad__label{
+  left:11px!important;
+  bottom:10px!important;
+  color:var(--neo-ink)!important;
+  font-size:9px!important;
+  text-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-performance-pad__input,
+.device-panel--triggers .trigger-performance-pad__value{
+  color:var(--module-color,var(--neo-orange))!important;
+  text-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-performance-pad:hover{
+  background:var(--module-light,var(--neo-orange))!important;
+  border-color:var(--module-color,var(--neo-orange))!important;
+}
+
+.device-panel--triggers .trigger-performance-pad.is-selected{
+  background:var(--module-light,var(--neo-orange))!important;
+  border:2px solid var(--module-color,var(--neo-orange))!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs{
+  grid-template-columns:repeat(8,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(58px,1fr))!important;
+  gap:2px!important;
+  padding:5px!important;
+  background:var(--neo-line)!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-cell{
+  min-height:58px!important;
+  grid-template-rows:16px minmax(0,1fr) 13px!important;
+  border:0!important;
+  background:var(--neo-surface)!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-cell__meta{
+  background:var(--neo-white)!important;
+  color:var(--neo-muted)!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-cell__controller{
+  background:var(--neo-surface)!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-control--trigger{
+  min-height:38px!important;
+  border:1px solid var(--neo-ink)!important;
+  border-radius:0!important;
+  background:#e6e6e0!important;
+  color:var(--neo-ink)!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-control--trigger::before{
+  width:24px!important;
+  height:24px!important;
+  border:1px solid var(--module-color,var(--neo-orange))!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-control--trigger::after{
+  width:5px!important;
+  height:5px!important;
+  border:1px solid var(--module-color,var(--neo-orange))!important;
+  background:var(--neo-surface)!important;
+  box-shadow:none!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-cell__led{
+  min-height:13px!important;
+  background:var(--neo-soft)!important;
+  border-top:1px solid var(--neo-line)!important;
+}
+
+.device-panel--triggers .trigger-rack__inputs .device-control__led{
+  width:5px!important;
+  height:5px!important;
+}
+
+.device-panel--triggers .trigger-performance-pad:nth-child(1){--module-color:var(--neo-orange);--module-light:#fff0eb}
+.device-panel--triggers .trigger-performance-pad:nth-child(2){--module-color:var(--neo-violet);--module-light:#eee8fa}
+.device-panel--triggers .trigger-performance-pad:nth-child(3){--module-color:var(--neo-yellow);--module-light:#faf3d4}
+.device-panel--triggers .trigger-performance-pad:nth-child(4){--module-color:var(--neo-cyan);--module-light:#e0f5f7}
+.device-panel--triggers .trigger-performance-pad:nth-child(5){--module-color:var(--neo-green);--module-light:#e6f2e9}
+.device-panel--triggers .trigger-performance-pad:nth-child(6){--module-color:var(--neo-blue);--module-light:#e5edf9}
+
+@media(max-height:820px){
+  .device-workspace{padding:8px!important}
+  .device-panel__header{min-height:46px!important}
+}
+
+@media(max-width:700px){
+  .device-panel{width:calc(100% - 4px)!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .device-panel,
+  .device-performance-pad{transition:none!important}
+}
