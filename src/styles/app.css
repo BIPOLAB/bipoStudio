@@ -3043,3 +3043,65 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
   .device-panel,
   .device-performance-pad{transition:none!important}
 }
+
+
+
+/* bipoLab viewport rule v7 — controllers are always fully visible */
+.workspace-screen__stage{
+  overflow:hidden!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:10px!important;
+  box-sizing:border-box!important;
+}
+
+.device-workspace{
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  padding:6px!important;
+  box-sizing:border-box!important;
+}
+
+.device-panel{
+  flex:0 1 auto!important;
+  width:min(
+    780px,
+    calc(100% - 12px),
+    calc((100vh - var(--header-height) - var(--status-bar-height) - 70px) * .94)
+  )!important;
+  max-width:100%!important;
+  max-height:calc(100% - 12px)!important;
+  overflow:hidden!important;
+}
+
+.device-panel--triggers{
+  width:min(
+    780px,
+    calc(100% - 12px),
+    calc((100vh - var(--header-height) - var(--status-bar-height) - 70px) * .94)
+  )!important;
+  max-height:calc(100% - 12px)!important;
+}
+
+@media(max-width:560px){
+  .workspace-screen__stage{
+    overflow:hidden!important;
+    padding:5px!important;
+  }
+
+  .device-workspace{
+    padding:3px!important;
+  }
+
+  .device-panel,
+  .device-panel--triggers{
+    width:min(
+      100%,
+      calc((100vh - var(--header-height) - var(--status-bar-height) - 70px) * .94)
+    )!important;
+    max-height:calc(100% - 6px)!important;
+  }
+}
