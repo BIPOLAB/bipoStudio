@@ -3046,12 +3046,12 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
 
 
 
-/* bipoLab viewport rule v7 — controllers are always fully visible */
+/* bipoLab viewport rule v8 — 4x4 controllers must fit the real stage */
 .workspace-screen__stage{
   overflow:hidden!important;
   min-width:0!important;
   min-height:0!important;
-  padding:10px!important;
+  padding:8px!important;
   box-sizing:border-box!important;
 }
 
@@ -3061,47 +3061,54 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
   min-width:0!important;
   min-height:0!important;
   overflow:hidden!important;
-  padding:6px!important;
+  padding:4px!important;
   box-sizing:border-box!important;
 }
 
-.device-panel{
+/*
+ * A 4x4 surface is intrinsically almost square. The previous rule sized it
+ * from 100vh without accounting for the monitor row, so the fourth row could
+ * sit below the clipped stage. Keep the panel compact enough for the stage.
+ */
+.device-panel,
+.device-panel--triggers{
   flex:0 1 auto!important;
   width:min(
     780px,
-    calc(100% - 12px),
-    calc((100vh - var(--header-height) - var(--status-bar-height) - 70px) * .94)
+    calc(100% - 8px),
+    calc(100vh - var(--header-height) - var(--status-bar-height) - 190px - 82px)
   )!important;
   max-width:100%!important;
-  max-height:calc(100% - 12px)!important;
+  max-height:calc(100% - 8px)!important;
   overflow:hidden!important;
 }
 
-.device-panel--triggers{
-  width:min(
-    780px,
-    calc(100% - 12px),
-    calc((100vh - var(--header-height) - var(--status-bar-height) - 70px) * .94)
-  )!important;
-  max-height:calc(100% - 12px)!important;
+.device-grid--4x4{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-template-rows:repeat(4,minmax(0,1fr))!important;
+}
+
+.device-panel--knobs .device-grid--4x4,
+.device-panel--buttons .device-grid--4x4{
+  aspect-ratio:1 / 1!important;
 }
 
 @media(max-width:560px){
   .workspace-screen__stage{
     overflow:hidden!important;
-    padding:5px!important;
+    padding:4px!important;
   }
 
   .device-workspace{
-    padding:3px!important;
+    padding:2px!important;
   }
 
   .device-panel,
   .device-panel--triggers{
     width:min(
       100%,
-      calc((100vh - var(--header-height) - var(--status-bar-height) - 70px) * .94)
+      calc(100vh - var(--header-height) - var(--status-bar-height) - 190px - 54px)
     )!important;
-    max-height:calc(100% - 6px)!important;
+    max-height:calc(100% - 4px)!important;
   }
 }
