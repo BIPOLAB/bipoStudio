@@ -3333,3 +3333,30 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
     display:none!important;
   }
 }
+
+
+/* bipoLab header alignment v5 — central header and side-rail headers share one exact height */
+#header{
+  height:var(--header-height)!important;
+  min-height:var(--header-height)!important;
+  max-height:var(--header-height)!important;
+  box-sizing:border-box!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+}
+
+.studio-sidebar__header{
+  height:var(--header-height)!important;
+  min-height:var(--header-height)!important;
+  max-height:var(--header-height)!important;
+  flex:0 0 var(--header-height)!important;
+  box-sizing:border-box!important;
+}
+
+#inspector-host{
+  padding-top:var(--header-height)!important;
+  box-sizing:border-box!important;
+}
+#inspector-host .workspace-screen__inspector{
+  height:calc(100% - var(--header-height))!important;
+}
