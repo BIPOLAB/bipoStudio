@@ -57,7 +57,7 @@ export class Application {
     }
 
     renderApplicationShell(app) {
-        app.innerHTML = `<div class="studio"><div id="sidebar-host"></div><header id="header"></header><div id="screen-host"></div><footer id="statusbar"></footer></div>`;
+        app.innerHTML = `<div class="studio"><div id="sidebar-host"></div><header id="header"></header><div id="screen-host"></div><aside id="inspector-host"></aside><footer id="statusbar"></footer></div>`;
     }
 
     createUserInterface() {
@@ -65,8 +65,10 @@ export class Application {
         const screenHostElement = document.getElementById("screen-host");
         const statusBarElement = document.getElementById("statusbar");
         const sidebarElement = document.getElementById("sidebar-host");
-        if (!headerElement || !screenHostElement || !statusBarElement || !sidebarElement) throw new Error("Application shell could not be initialized.");
+        const inspectorElement = document.getElementById("inspector-host");
+        if (!headerElement || !screenHostElement || !statusBarElement || !sidebarElement || !inspectorElement) throw new Error("Application shell could not be initialized.");
         this.screenHost = new ScreenHost(screenHostElement);
+        this.inspectorHost = inspectorElement;
         this.ui = { header: new Header(headerElement, this.eventBus), statusBar: new StatusBar(statusBarElement, this.eventBus), sidebar: new Sidebar(sidebarElement, this.eventBus, this.firebase) };
     }
 
@@ -102,7 +104,7 @@ export class Application {
 
     mountWorkspace(model) {
         if (!this.workspaceScreen) {
-            this.workspaceScreen = new WorkspaceScreen(this.screenHost.element, this.eventBus, this.selectionManager, model);
+            this.workspaceScreen = new WorkspaceScreen(this.screenHost.element, this.inspectorHost, this.eventBus, this.selectionManager, model);
             this.screenHost.show(this.workspaceScreen);
             return;
         }
