@@ -3191,3 +3191,17 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
 .studio-sidebar__panel-heading{
   padding-bottom:14px;
 }
+
+
+/* bipoLab sidebar footer v3 — footer belongs to the main content column */
+#sidebar-host .studio-sidebar__footer{
+  display:none!important;
+}
+
+.studio-sidebar__content{
+  min-height:0;
+}
+
+#statusbar{
+  overflow:hidden;
+}
