@@ -108,7 +108,7 @@ export default class Sidebar {
                 '<section class="studio-sidebar__panel">' +
                     '<div class="studio-sidebar__panel-heading"><span class="studio-sidebar__eyebrow">bipoLab account</span><h2>Your account</h2><p>Manage your identity and cloud preset library.</p></div>' +
                     (this.authUser ? this.renderProfileCard() : '<div class="studio-account-card"><div class="studio-account-avatar">B</div><div class="studio-account-card__identity"><strong>Guest user</strong><span>Not signed in</span><small>Sign in to enable cloud presets.</small></div></div>') +
-                    (this.authUser ? '<div class="studio-sidebar__subheading">Cloud library</div><div class="studio-sidebar__tool-grid"><button type="button" data-action="preset-library">My presets</button><button type="button" data-action="community-library">Community</button></div><button class="studio-sidebar__wide-button" type="button" data-action="account-signout">Sign out</button>' : '<button class="studio-sidebar__wide-button studio-sidebar__wide-button--primary" type="button" data-action="account-open">Sign in / Create account</button>') +
+                    (this.authUser ? '<button class="studio-sidebar__wide-button" type="button" data-action="account-signout">Sign out</button>' : '<button class="studio-sidebar__wide-button studio-sidebar__wide-button--primary" type="button" data-action="account-open">Sign in / Create account</button>') +
                     '<p class="studio-sidebar__hint">' + (this.authUser ? "Presets are stored in Firebase. Nothing is saved to browser local storage." : "Sign in to save presets and access the community library.") + '</p>' +
                 '</section>';
         } else if (this.activeSection === "tools") {
@@ -128,7 +128,7 @@ export default class Sidebar {
                     '<div class="studio-sidebar__subheading">History</div>' +
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="undo" ' + (this.model?.canUndo?.() ? "" : "disabled") + '>Undo</button><button type="button" data-action="redo" ' + (this.model?.canRedo?.() ? "" : "disabled") + '>Redo</button></div>' +
                     '<div class="studio-sidebar__subheading">Snapshots & presets</div>' +
-                    '<div class="studio-sidebar__tool-grid"><button type="button" data-action="snapshot">Snapshot</button><button type="button" data-action="restore-snapshot">Restore</button><button type="button" data-action="preset-save">Save preset</button><button type="button" data-action="preset-load">Load preset</button></div>' +
+                    '<div class="studio-sidebar__tool-grid"><button type="button" data-action="snapshot">Snapshot</button><button type="button" data-action="restore-snapshot">Restore</button><button type="button" data-action="preset-save">Save preset</button></div>' +
                     (this.authUser ? '<div class="studio-sidebar__subheading">Cloud library</div><div class="studio-sidebar__tool-grid"><button type="button" data-action="preset-library">My presets</button><button type="button" data-action="community-library">Community</button></div>' : "") +
                     '<div class="studio-sidebar__subheading">Configuration files</div>' +
                     '<div class="studio-sidebar__tool-grid"><button type="button" data-action="export">Export</button><button type="button" data-action="import">Import</button><button type="button" data-action="validate">Check</button></div>' +
@@ -214,7 +214,7 @@ export default class Sidebar {
                 '<article class="studio-library__item"><div class="studio-library__identity"><strong>' + escapeHtml(preset.name) + '</strong><span>' + escapeHtml(preset.model || "bipoLab preset") + ' · ' + escapeHtml(preset.category || "DAW") + '</span>' +
                 (this.presetManagerView === "community" ? '<small>by ' + escapeHtml(preset.ownerName || "bipoLab user") + '</small>' : '<small>' + (preset.shared ? "Shared with community" : "Private preset") + '</small>') +
                 '</div><div class="studio-library__actions">' +
-                (this.presetManagerView === "mine" ? '<select data-preset-category="' + preset.id + '">' + categories.map(category => '<option value="' + category + '" ' + (category === (preset.category || "DAW") ? "selected" : "") + '>' + category + '</option>').join("") + '</select><button type="button" data-preset-share="' + preset.id + '">' + (preset.shared ? "Unshare" : "Share") + '</button>' :
+                (this.presetManagerView === "mine" ? '<button type="button" data-preset-load-mine="' + preset.id + '">Load</button><select aria-label="Preset category" data-preset-category="' + preset.id + '">' + categories.map(category => '<option value="' + category + '" ' + (category === (preset.category || "DAW") ? "selected" : "") + '>' + category + '</option>').join("") + '</select><button type="button" data-preset-share="' + preset.id + '">' + (preset.shared ? "Unshare" : "Share") + '</button>' :
                 '<button type="button" data-preset-load-community="' + preset.id + '">Load</button>') +
                 '</div></article>').join("") : '<div class="studio-library__empty">No presets in this library yet.</div>');
         return '<div class="studio-library" data-preset-modal><div class="studio-auth__backdrop" data-action="preset-close"></div><section class="studio-library__panel" role="dialog" aria-modal="true"><header><div><span class="studio-sidebar__eyebrow">bipoLab cloud</span><h2>' + (this.presetManagerView === "mine" ? "My presets" : "Community presets") + '</h2></div><button type="button" data-action="preset-close">×</button></header><nav><button type="button" class="' + (this.presetManagerView === "mine" ? "is-active" : "") + '" data-library-view="mine">My presets</button><button type="button" class="' + (this.presetManagerView === "community" ? "is-active" : "") + '" data-library-view="community">Community</button></nav><div class="studio-library__filters"><label>Category<select data-library-category><option value="">All categories</option><option value="DAW">DAW</option><option value="Sequencer">Sequencer</option><option value="Synth">Synth</option><option value="Drums">Drums</option></select></label></div><div class="studio-library__list">' + body + '</div></section></div>';
@@ -312,6 +312,14 @@ export default class Sidebar {
             try { await this.firebase.updatePreset(select.dataset.presetCategory, { category: event.target.value }); await this.openPresetManager("mine"); }
             catch (error) { this.profileMessage = this.authMessage(error); this.render(); }
         }));
+        this.element.querySelectorAll("[data-preset-load-mine]").forEach(button => button.addEventListener("click", () => {
+            const preset = this.presetManagerData.find(item => item.id === button.dataset.presetLoadMine);
+            if (preset) {
+                this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "preset-load-data", payload: preset.configuration });
+                this.presetManagerOpen = false;
+                this.render();
+            }
+        }));
         this.element.querySelectorAll("[data-preset-load-community]").forEach(button => button.addEventListener("click", () => {
             const preset = this.presetManagerData.find(item => item.id === button.dataset.presetLoadCommunity);
             if (preset) {
@@ -358,7 +366,7 @@ export default class Sidebar {
         this.element.querySelector('[data-action="snapshot"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "snapshot" }));
         this.element.querySelector('[data-action="restore-snapshot"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "restore-snapshot" }));
 
-        this.element.querySelector('[data-action="preset-load"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "preset-load" }));
+        
         this.element.querySelector('[data-action="export"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "export" }));
         this.element.querySelector('[data-action="validate"]')?.addEventListener("click", () => this.eventBus.emit(Events.CONFIGURATION_TOOLS_REQUEST, { action: "validate" }));
         this.element.querySelector('[data-action="import"]')?.addEventListener("click", () => this.element.querySelector("[data-import-input]")?.click());
