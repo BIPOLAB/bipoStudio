@@ -3360,3 +3360,58 @@ body{background:var(--lab-paper);color:var(--lab-ink);font-family:Inter,"Helveti
 #inspector-host .workspace-screen__inspector{
   height:calc(100% - var(--header-height))!important;
 }
+
+
+/* Preset modal layout fixes: keep form controls visible and actions reachable. */
+.studio-library,.studio-preset-save{
+  position:fixed!important;inset:0!important;z-index:5000!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  padding:24px!important;box-sizing:border-box!important;
+}
+.studio-library .studio-auth__backdrop,.studio-preset-save .studio-auth__backdrop{
+  position:absolute!important;inset:0!important;z-index:0!important;background:rgba(18,19,17,.48)!important;
+}
+.studio-library__panel,.studio-preset-save__panel{
+  position:relative!important;z-index:1!important;display:flex!important;flex-direction:column!important;
+  width:min(720px,calc(100vw - 48px))!important;max-width:720px!important;
+  max-height:calc(100dvh - 48px)!important;min-height:0!important;margin:0!important;
+  overflow:hidden!important;box-sizing:border-box!important;background:var(--neo-surface,#fff)!important;
+  color:var(--neo-ink,#171815)!important;border:1px solid var(--neo-line,#c9c9c2)!important;
+  box-shadow:0 24px 80px rgba(0,0,0,.24)!important;
+}
+.studio-preset-save__panel{width:min(480px,calc(100vw - 48px))!important}
+.studio-library__panel>header,.studio-preset-save__panel>header{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;
+  flex:0 0 auto!important;padding:20px 24px!important;border-bottom:1px solid var(--neo-line,#c9c9c2)!important;
+}
+.studio-preset-save__panel form{
+  display:block!important;min-height:0!important;overflow-y:auto!important;padding:22px 24px 24px!important;box-sizing:border-box!important;
+}
+.studio-preset-save__panel .studio-sidebar__field{display:grid!important;gap:7px!important;margin:0 0 18px!important}
+.studio-preset-save__panel .studio-sidebar__field>span,.studio-preset-save__panel .studio-sidebar__switch>span:first-child{
+  display:block!important;color:var(--neo-muted,#666860)!important;font-size:12px!important;font-weight:600!important;
+}
+.studio-preset-save__panel input[name="name"],.studio-preset-save__panel select[name="category"]{
+  display:block!important;width:100%!important;min-width:0!important;min-height:42px!important;padding:0 12px!important;
+  box-sizing:border-box!important;border:1px solid var(--neo-line,#c9c9c2)!important;background:#fff!important;
+  color:var(--neo-ink,#171815)!important;font:inherit!important;opacity:1!important;visibility:visible!important;
+}
+.studio-preset-save__share{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 16px!important}
+.studio-preset-save__share input{flex:0 0 auto!important}
+.studio-preset-save__panel .studio-preset-save__actions{display:flex!important;justify-content:flex-end!important;gap:10px!important;margin-top:22px!important}
+.studio-preset-save__actions button{
+  min-height:38px!important;padding:0 16px!important;border:1px solid var(--neo-line,#c9c9c2)!important;
+  background:#fff!important;color:var(--neo-ink,#171815)!important;cursor:pointer!important;
+}
+.studio-preset-save__actions .studio-sidebar__wide-button--primary{
+  background:var(--neo-orange,#ff5a36)!important;border-color:var(--neo-orange,#ff5a36)!important;color:#fff!important;
+}
+.studio-library__list{flex:1 1 auto!important;min-height:120px!important;overflow-y:auto!important}
+.studio-library__item{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important}
+.studio-library__actions{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important}
+.studio-library__actions button,.studio-library__actions select{min-height:34px!important;max-width:140px!important;box-sizing:border-box!important}
+@media(max-width:560px){
+  .studio-library,.studio-preset-save{padding:12px!important}
+  .studio-library__panel,.studio-preset-save__panel{width:calc(100vw - 24px)!important;max-height:calc(100dvh - 24px)!important}
+  .studio-library__item{align-items:flex-start!important;flex-direction:column!important}
+}
