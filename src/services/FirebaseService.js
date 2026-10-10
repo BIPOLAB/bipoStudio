@@ -278,6 +278,7 @@ export default class FirebaseService {
                 .map(item => ({
                     id: item.id,
                     name: String(item.name ?? "Untitled"),
+                    deviceId: item.deviceId ?? null,
                     model: item.model ?? null,
                     deviceId: item.deviceId ?? null,
                     category: item.category ?? "DAW",
