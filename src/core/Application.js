@@ -276,6 +276,49 @@ export class Application {
             console.table(issues);
         }
         this.ui.statusBar.render();
+        if (issues.length) this.showValidationDialog(issues);
+    }
+
+    showValidationDialog(issues) {
+        document.getElementById("configuration-validation-dialog")?.remove();
+        const dialog = document.createElement("dialog");
+        dialog.id = "configuration-validation-dialog";
+        dialog.setAttribute("aria-labelledby", "configuration-validation-title");
+        dialog.style.cssText = "width:min(540px,calc(100vw - 32px));max-height:80vh;overflow:auto;border:1px solid #aaa69d;background:#f0eee8;color:#24231f;padding:28px;box-shadow:0 18px 60px #0004;font:14px/1.5 sans-serif";
+        const title = document.createElement("h2");
+        title.id = "configuration-validation-title";
+        title.textContent = "Configuration check";
+        title.style.margin = "0 0 8px";
+        dialog.append(title);
+        const errors = issues.filter(issue => issue.severity === "error").length;
+        const warnings = issues.filter(issue => issue.severity === "warning").length;
+        const summary = document.createElement("p");
+        summary.textContent = `${errors} errors · ${warnings} warnings`;
+        summary.style.margin = "0 0 18px";
+        dialog.append(summary);
+        const list = document.createElement("div");
+        list.style.cssText = "display:grid;gap:10px";
+        issues.forEach(issue => {
+            const row = document.createElement("div");
+            row.style.cssText = "padding:12px;border:1px solid #c9c5bc;background:#faf9f5";
+            const heading = document.createElement("strong");
+            heading.textContent = `${issue.severity === "error" ? "ERROR" : "WARNING"} · ${issue.id ?? "Device"}`;
+            heading.style.cssText = `display:block;margin-bottom:4px;color:${issue.severity === "error" ? "#a33222" : "#87600b"}`;
+            const message = document.createElement("div");
+            message.textContent = issue.message ?? "Unknown configuration issue";
+            row.append(heading, message);
+            list.append(row);
+        });
+        dialog.append(list);
+        const close = document.createElement("button");
+        close.type = "button";
+        close.textContent = "Close";
+        close.style.cssText = "display:block;margin:22px 0 0 auto;padding:9px 24px;border:1px solid #777;background:#24231f;color:white;cursor:pointer";
+        close.addEventListener("click", () => dialog.close());
+        dialog.addEventListener("close", () => dialog.remove());
+        dialog.append(close);
+        document.body.append(dialog);
+        dialog.showModal();
     }
 
     async reconnectDevice() {
