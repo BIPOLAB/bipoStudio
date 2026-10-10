@@ -181,7 +181,7 @@ export default class Sidebar {
         this.render();
         try {
             this.presetManagerData = view === "mine"
-                ? await this.firebase.listPresets()
+                ? await this.firebase.listPresets(this.device?.id ?? this.model?.device?.id ?? null)
                 : await this.firebase.listCommunityPresets(this.presetManagerCategory || null, this.device?.id ?? this.model?.device?.id ?? null);
         } catch (error) {
             this.presetManagerData = [];
