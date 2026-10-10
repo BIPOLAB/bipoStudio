@@ -17,7 +17,8 @@ export default class ResolutionInspector extends Inspector {
         if (component.type !== "knob" && component.type !== "fader") return html;
 
         const cfg = this.model.getComponentConfiguration(component.id) ?? {};
-        const resolution = this.normalizeResolution(cfg.resolution);
+        const locked = cfg.messageType === "cc14";
+        const resolution = locked ? 14 : this.normalizeResolution(cfg.resolution);
         const option = RESOLUTION_BY_BITS.get(resolution);
         const max = Number(cfg.max ?? option.max);
         const warning = option.recommended ? "" : `<span class="inspector-resolution__warning">NOT RECOMMENDED</span>`;
@@ -28,8 +29,8 @@ export default class ResolutionInspector extends Inspector {
                     <span>Resolution</span>
                     <span class="inspector-resolution__range">Full scale 0–${option.max}</span>
                 </div>
-                <select data-field="resolution" aria-label="Control resolution">
-                    ${POT_RESOLUTIONS.map(item => `
+                <select data-field="resolution" aria-label="Control resolution" ${locked ? "disabled" : ""}>
+                    ${(locked ? POT_RESOLUTIONS.filter(item => item.bits === 14) : POT_RESOLUTIONS).map(item => `
                         <option value="${item.bits}" ${item.bits === resolution ? "selected" : ""}>
                             ${item.bits} bit${item.recommended ? "" : " · Not recommended"}
                         </option>`).join("")}
@@ -58,6 +59,7 @@ export default class ResolutionInspector extends Inspector {
             return;
         }
 
+        if (this.model.getComponentConfiguration(component.id)?.messageType === "cc14") return;
         const resolution = this.normalizeResolution(field.value);
         const option = RESOLUTION_BY_BITS.get(resolution);
         const cfg = this.model.getComponentConfiguration(component.id) ?? {};
