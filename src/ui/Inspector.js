@@ -170,14 +170,9 @@ export default class Inspector {
         return `
             <div class="inspector-subgroup inspector-subgroup--trigger">
                 <span class="inspector-subgroup__title">Trigger response</span>
-                <div class="inspector-field-row">
-                    <label class="inspector-field"><span>Resolution</span><select data-field="resolution">
-                        ${resolutions.map(value => `<option value="${value}" ${resolution === value ? "selected" : ""}>${value}-bit</option>`).join("")}
-                    </select></label>
-                    <label class="inspector-field"><span>Curve</span><select data-field="curve">
-                        ${curves.map(value => `<option value="${value}" ${curve === value ? "selected" : ""}>${value === "log" ? "Logarithmic" : value === "exp" ? "Exponential" : value[0].toUpperCase() + value.slice(1)}</option>`).join("")}
-                    </select></label>
-                </div>
+                <label class="inspector-field"><span>Curve</span><select data-field="curve">
+                    ${curves.map(value => `<option value="${value}" ${curve === value ? "selected" : ""}>${value === "log" ? "Logarithmic" : value === "exp" ? "Exponential" : value[0].toUpperCase() + value.slice(1)}</option>`).join("")}
+                </select></label>
                 <div class="inspector-field-row">
                     ${this.numberField("Threshold", Number(cfg.threshold ?? 12), 0, 100, "threshold")}
                     ${this.numberField("Sensitivity", Number(cfg.sensitivity ?? 80), 0, 100, "sensitivity")}
@@ -216,15 +211,15 @@ export default class Inspector {
 
     renderAdvancedControllerFields(component, cfg) {
         if (component.type === "button") return "";
+        const capabilities = this.model.getCapabilities?.()[component.type] ?? this.model.getCapabilities?.().analog ?? {};
+        const resolutions = Array.isArray(capabilities.resolutions) && capabilities.resolutions.length ? capabilities.resolutions : [7, 10, 12, 14];
         const resolution = Number(cfg.resolution ?? 7);
         return `
             <div class="inspector-subgroup">
                 <span class="inspector-subgroup__title">Input behavior</span>
                 <div class="inspector-field-row">
                     <label class="inspector-field"><span>Resolution</span><select data-field="resolution">
-                        <option value="7" ${resolution === 7 ? "selected" : ""}>7-bit</option>
-                        <option value="10" ${resolution === 10 ? "selected" : ""}>10-bit</option>
-                        <option value="14" ${resolution === 14 ? "selected" : ""}>14-bit</option>
+                        ${resolutions.map(value => `<option value="${value}" ${resolution === Number(value) ? "selected" : ""}>${value}-bit</option>`).join("")}
                     </select></label>
                     <label class="inspector-field"><span>Invert</span><select data-field="invert"><option value="false" ${!cfg.invert ? "selected" : ""}>Normal</option><option value="true" ${cfg.invert ? "selected" : ""}>Inverted</option></select></label>
                 </div>
