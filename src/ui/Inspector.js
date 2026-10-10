@@ -214,13 +214,14 @@ export default class Inspector {
         const capabilities = this.model.getCapabilities?.()[component.type] ?? this.model.getCapabilities?.().analog ?? {};
         const resolutions = Array.isArray(capabilities.resolutions) && capabilities.resolutions.length ? capabilities.resolutions : [7, 10, 12, 14];
         const resolution = Number(cfg.resolution ?? 7);
+        const showResolution = component.type !== "knob" && component.type !== "fader";
         return `
             <div class="inspector-subgroup">
                 <span class="inspector-subgroup__title">Input behavior</span>
                 <div class="inspector-field-row">
-                    <label class="inspector-field"><span>Resolution</span><select data-field="resolution">
+                    ${showResolution ? `<label class="inspector-field"><span>Resolution</span><select data-field="resolution">
                         ${resolutions.map(value => `<option value="${value}" ${resolution === Number(value) ? "selected" : ""}>${value}-bit</option>`).join("")}
-                    </select></label>
+                    </select></label>` : ""}
                     <label class="inspector-field"><span>Invert</span><select data-field="invert"><option value="false" ${!cfg.invert ? "selected" : ""}>Normal</option><option value="true" ${cfg.invert ? "selected" : ""}>Inverted</option></select></label>
                 </div>
                 <label class="inspector-field"><span>Pickup / soft takeover</span><select data-field="pickup"><option value="off" ${(cfg.pickup ?? "off") === "off" ? "selected" : ""}>Off</option><option value="on" ${cfg.pickup === "on" ? "selected" : ""}>On</option></select></label>
@@ -270,6 +271,7 @@ export default class Inspector {
         const value = numeric ? Number(field.value) : field.value === "true" ? true : field.value === "false" ? false : field.value;
         const patch = { [key]: value };
         if (key === "messageType") Object.assign(patch, this.defaultsForMessageType(value, component));
+        if (key === "resolution" && this.getConfiguration()?.messageType === "cc14") return;
         if (key === "min" || key === "max") {
             const cfg = this.getConfiguration() ?? {};
             const other = key === "min" ? Number(cfg.max ?? 127) : Number(cfg.min ?? 0);
@@ -286,7 +288,7 @@ export default class Inspector {
 
     defaultsForMessageType(type, component) {
         if (type === "cc") return { number: component.type === "knob" ? 20 : 0, min: 0, max: 127, curve: "linear" };
-        if (type === "cc14") return { number: component.type === "knob" ? 20 : 0, lsbNumber: component.type === "knob" ? 52 : 32, min: 0, max: 16383, curve: "linear" };
+        if (type === "cc14") return { number: component.type === "knob" ? 20 : 0, lsbNumber: component.type === "knob" ? 52 : 32, min: 0, max: 16383, resolution: 14, curve: "linear" };
         if (type === "note") return component.type === "trigger" ? { number: 36, velocity: 127, resolution: 10, curve: "linear", threshold: 12, sensitivity: 80, minVelocity: 1, maxVelocity: 127, retriggerMs: 80, scanTimeMs: 4, crossTalk: 0, invert: false } : { number: 60, velocity: 127, mode: "momentary" };
         if (type === "program") return { number: 0, bankMsb: 0, bankLsb: 0 };
         if (type === "nrpn" || type === "rpn") return { parameterMsb: 0, parameterLsb: 0, min: 0, max: 127, curve: "linear" };
